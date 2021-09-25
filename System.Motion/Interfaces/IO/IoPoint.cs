@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Motion.Interfaces
+namespace System.Interfaces
 {
     /// <summary>
     ///     表示一个通讯开关量。
@@ -23,26 +23,30 @@ namespace Motion.Interfaces
             IoMode = ioMode;
             CanNode = 0;
         }
-        public IoPoint(ISwitchController controller, int boardNo, int portNo, IoModes ioMode,ushort cannode)
+        public IoPoint(ISwitchController controller, int boardNo, int portNo, IoModes ioMode,ushort mCanNode)
         {
             Controller = controller;
             BoardNo = boardNo;
             PortNo = portNo;
             IoMode = ioMode;
-            CanNode = cannode;
+            CanNode = mCanNode;
         }
+        
         /// <summary>
         ///     读写控制器
         /// </summary>
         protected ISwitchController Controller { get; private set; }
+
         /// <summary>
-        ///     Can节点
+        ///     连接点
         /// </summary>
         public ushort CanNode { get; set; }
+
         /// <summary>
         ///     板卡号
         /// </summary>
         public int BoardNo { get; set; }
+
         /// <summary>
         ///     通道序号
         /// </summary>

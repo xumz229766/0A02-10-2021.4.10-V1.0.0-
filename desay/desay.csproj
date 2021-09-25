@@ -29,7 +29,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -52,14 +52,19 @@
   <PropertyGroup>
     <ApplicationIcon>logo.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup />
   <ItemGroup>
+    <Reference Include="HslCommunication, Version=5.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\HslCommunication.dll</HintPath>
+    </Reference>
+    <Reference Include="License, Version=7.8.15153.60000, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\License.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="MSMQ, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\MSMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -74,28 +79,77 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlarmsMessage.cs" />
-    <Compile Include="Data\AxisParameter.cs" />
-    <Compile Include="Data\Delay.cs" />
-    <Compile Include="Data\Config.cs" />
-    <Compile Include="claMQ.cs" />
+    <Compile Include="Flow\Data\AxisParameter.cs" />
+    <Compile Include="Flow\Data\Config.cs" />
+    <Compile Include="Flow\Data\DataStruct\Stuct.cs" />
+    <Compile Include="Flow\Data\Delay.cs" />
+    <Compile Include="Flow\Data\Global.cs" />
+    <Compile Include="Flow\Data\Marking.cs" />
+    <Compile Include="Flow\Data\Position.cs" />
     <Compile Include="Flow\Buffer.cs" />
     <Compile Include="Flow\Feeder.cs" />
     <Compile Include="Flow\LeftC.cs" />
     <Compile Include="Flow\LeftCut1.cs" />
     <Compile Include="Flow\LeftCut2.cs" />
-    <Compile Include="Flow\MiddleC.cs" />
     <Compile Include="Flow\Move.cs" />
     <Compile Include="Flow\Platform.cs" />
-    <Compile Include="Flow\RightC.cs" />
     <Compile Include="Flow\RightCut1.cs" />
     <Compile Include="Flow\RightCut2.cs" />
     <Compile Include="Flow\Splice.cs" />
     <Compile Include="Flow\Storing.cs" />
+    <Compile Include="Form\frmFaultView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frmFaultView.designer.cs">
+      <DependentUpon>frmFaultView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form\frmIOmonitor.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form\frmIOmonitor.designer.cs">
       <DependentUpon>frmIOmonitor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form\frmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frmMain.designer.cs">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form\frmManualOperate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frmManualOperate.designer.cs">
+      <DependentUpon>frmManualOperate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form\frmOffces.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frmOffces.Designer.cs">
+      <DependentUpon>frmOffces.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form\FrmRunSet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\FrmRunSet.Designer.cs">
+      <DependentUpon>FrmRunSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form\frmTeach.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frmTeach.designer.cs">
+      <DependentUpon>frmTeach.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form\frmSpeedSet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frmSpeedSet.designer.cs">
+      <DependentUpon>frmSpeedSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form\FrmTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\FrmTest.Designer.cs">
+      <DependentUpon>FrmTest.cs</DependentUpon>
     </Compile>
     <Compile Include="Form\frmTrayCalib.cs">
       <SubType>Form</SubType>
@@ -103,29 +157,137 @@
     <Compile Include="Form\frmTrayCalib.designer.cs">
       <DependentUpon>frmTrayCalib.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form\frmSpeed.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frmSpeed.designer.cs">
+      <DependentUpon>frmSpeed.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\CAxisPositionSet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\CAxisPositionSet.designer.cs">
+      <DependentUpon>CAxisPositionSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\CutMode.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\CutMode.designer.cs">
+      <DependentUpon>CutMode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\Jurisdiction.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\Jurisdiction.Designer.cs">
+      <DependentUpon>Jurisdiction.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\CylinderDelayView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\CylinderDelayView.Designer.cs">
+      <DependentUpon>CylinderDelayView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\Position4DEditView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\Position4DEditView.designer.cs">
+      <DependentUpon>Position4DEditView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\PushSet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\PushSet.designer.cs">
+      <DependentUpon>PushSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\SpotCheckSet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\SpotCheckSet.Designer.cs">
+      <DependentUpon>SpotCheckSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\MirrorBracker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\MirrorBracker.Designer.cs">
+      <DependentUpon>MirrorBracker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\TricolorLampSet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\TricolorLampSet.Designer.cs">
+      <DependentUpon>TricolorLampSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\PasswordChang.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\PasswordChang.Designer.cs">
+      <DependentUpon>PasswordChang.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\offcesValue.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\offcesValue.Designer.cs">
+      <DependentUpon>offcesValue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\XYZmode.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\XYZmode.Designer.cs">
+      <DependentUpon>XYZmode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\storingMode.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\storingMode.Designer.cs">
+      <DependentUpon>storingMode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\CutControlView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\CutControlView.Designer.cs">
+      <DependentUpon>CutControlView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExitTrayOpenView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\ExitTrayOpenView.Designer.cs">
+      <DependentUpon>ExitTrayOpenView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\MLayerView.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="View\MLayerView.Designer.cs">
       <DependentUpon>MLayerView.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\PackTrayOpenView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\PackTrayOpenView.Designer.cs">
+      <DependentUpon>PackTrayOpenView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\Position1DView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="View\Position1DView.Designer.cs">
+    <Compile Include="View\Position1DView.designer.cs">
       <DependentUpon>Position1DView.cs</DependentUpon>
     </Compile>
     <Compile Include="View\Position2DView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="View\Position2DView.Designer.cs">
+    <Compile Include="View\Position2DView.designer.cs">
       <DependentUpon>Position2DView.cs</DependentUpon>
     </Compile>
     <Compile Include="View\Position3DView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="View\Position3DView.Designer.cs">
+    <Compile Include="View\Position3DView.designer.cs">
       <DependentUpon>Position3DView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\Position3DEditView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\Position3DEditView.designer.cs">
+      <DependentUpon>Position3DEditView.cs</DependentUpon>
     </Compile>
     <Compile Include="View\PositionDefaultView.cs">
       <SubType>UserControl</SubType>
@@ -139,23 +301,11 @@
     <Compile Include="Form\frmLogin.designer.cs">
       <DependentUpon>frmLogin.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form\frmMain.cs">
+    <Compile Include="Form\frmWorkParam.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form\frmMain.Designer.cs">
-      <DependentUpon>frmMain.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Form\frmManualOperate.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form\frmManualOperate.designer.cs">
-      <DependentUpon>frmManualOperate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Form\frmTeach.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form\frmTeach.designer.cs">
-      <DependentUpon>frmTeach.cs</DependentUpon>
+    <Compile Include="Form\frmWorkParam.designer.cs">
+      <DependentUpon>frmWorkParam.cs</DependentUpon>
     </Compile>
     <Compile Include="Form\frmParameter.cs">
       <SubType>Form</SubType>
@@ -169,11 +319,11 @@
     <Compile Include="Form\frmPasswordChange.designer.cs">
       <DependentUpon>frmPasswordChange.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form\frmRunSetting.cs">
+    <Compile Include="Form\frmMaintain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form\frmRunSetting.Designer.cs">
-      <DependentUpon>frmRunSetting.cs</DependentUpon>
+    <Compile Include="Form\frmMaintain.Designer.cs">
+      <DependentUpon>frmMaintain.cs</DependentUpon>
     </Compile>
     <Compile Include="Form\frmStarting.cs">
       <SubType>Form</SubType>
@@ -181,7 +331,6 @@
     <Compile Include="Form\frmStarting.designer.cs">
       <DependentUpon>frmStarting.cs</DependentUpon>
     </Compile>
-    <Compile Include="Global.cs" />
     <Compile Include="IOPoints.cs" />
     <Compile Include="View\IOSignView.cs">
       <SubType>UserControl</SubType>
@@ -189,19 +338,98 @@
     <Compile Include="View\IOSignView.designer.cs">
       <DependentUpon>IOSignView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Marking.cs" />
     <Compile Include="Plate.cs" />
-    <Compile Include="Data\Position.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\TarySetView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\TarySetView.Designer.cs">
+      <DependentUpon>TarySetView.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Form\frmFaultView.resx">
+      <DependentUpon>frmFaultView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form\frmIOmonitor.resx">
       <DependentUpon>frmIOmonitor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\frmManualOperate.resx">
+      <DependentUpon>frmManualOperate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\frmOffces.resx">
+      <DependentUpon>frmOffces.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\FrmRunSet.resx">
+      <DependentUpon>FrmRunSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\frmTeach.resx">
+      <DependentUpon>frmTeach.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\frmSpeedSet.resx">
+      <DependentUpon>frmSpeedSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\FrmTest.resx">
+      <DependentUpon>FrmTest.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form\frmTrayCalib.resx">
       <DependentUpon>frmTrayCalib.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Form\frmSpeed.resx">
+      <DependentUpon>frmSpeed.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\CAxisPositionSet.resx">
+      <DependentUpon>CAxisPositionSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\CutMode.resx">
+      <DependentUpon>CutMode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\Jurisdiction.resx">
+      <DependentUpon>Jurisdiction.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\CylinderDelayView.resx">
+      <DependentUpon>CylinderDelayView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\Position4DEditView.resx">
+      <DependentUpon>Position4DEditView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\PushSet.resx">
+      <DependentUpon>PushSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\SpotCheckSet.resx">
+      <DependentUpon>SpotCheckSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\MirrorBracker.resx">
+      <DependentUpon>MirrorBracker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\TricolorLampSet.resx">
+      <DependentUpon>TricolorLampSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\PasswordChang.resx">
+      <DependentUpon>PasswordChang.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\offcesValue.resx">
+      <DependentUpon>offcesValue.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\XYZmode.resx">
+      <DependentUpon>XYZmode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\storingMode.resx">
+      <DependentUpon>storingMode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\CutControlView.resx">
+      <DependentUpon>CutControlView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\ExitTrayOpenView.resx">
+      <DependentUpon>ExitTrayOpenView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\MLayerView.resx">
       <DependentUpon>MLayerView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\PackTrayOpenView.resx">
+      <DependentUpon>PackTrayOpenView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\Position1DView.resx">
       <DependentUpon>Position1DView.cs</DependentUpon>
@@ -212,20 +440,17 @@
     <EmbeddedResource Include="View\Position3DView.resx">
       <DependentUpon>Position3DView.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="View\Position3DEditView.resx">
+      <DependentUpon>Position3DEditView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\PositionDefaultView.resx">
       <DependentUpon>PositionDefaultView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form\frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form\frmMain.resx">
-      <DependentUpon>frmMain.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form\frmManualOperate.resx">
-      <DependentUpon>frmManualOperate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form\frmTeach.resx">
-      <DependentUpon>frmTeach.cs</DependentUpon>
+    <EmbeddedResource Include="Form\frmWorkParam.resx">
+      <DependentUpon>frmWorkParam.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form\frmParameter.resx">
       <DependentUpon>frmParameter.cs</DependentUpon>
@@ -233,8 +458,8 @@
     <EmbeddedResource Include="Form\frmPasswordChange.resx">
       <DependentUpon>frmPasswordChange.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form\frmRunSetting.resx">
-      <DependentUpon>frmRunSetting.cs</DependentUpon>
+    <EmbeddedResource Include="Form\frmMaintain.resx">
+      <DependentUpon>frmMaintain.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form\frmStarting.resx">
       <DependentUpon>frmStarting.cs</DependentUpon>
@@ -252,7 +477,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="View\TarySetView.resx">
+      <DependentUpon>TarySetView.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -278,17 +507,17 @@
       <Project>{0B820A86-52F7-4453-8334-5EF6B726E646}</Project>
       <Name>System.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\System.Motion\Enginee\Motion.Enginee.csproj">
+    <ProjectReference Include="..\System.Motion\AdvantechAps\System.AdvantechAps.csproj">
+      <Project>{4e5618be-0ee1-4760-b939-893a31efdf8f}</Project>
+      <Name>System.AdvantechAps</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\System.Motion\Enginee\System.Enginee.csproj">
       <Project>{bf2fb01d-3d28-42f1-907e-7de72433784f}</Project>
-      <Name>Motion.Enginee</Name>
+      <Name>System.Enginee</Name>
     </ProjectReference>
-    <ProjectReference Include="..\System.Motion\Interfaces\Motion.Interfaces.csproj">
+    <ProjectReference Include="..\System.Motion\Interfaces\System.Interfaces.csproj">
       <Project>{e87bbf52-f612-40bb-ad3d-d6a20fd635b1}</Project>
-      <Name>Motion.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\System.Motion\LSAps\Motion.LSAps.csproj">
-      <Project>{698d0db9-f8fe-4ed4-8f6b-98dc648d5284}</Project>
-      <Name>Motion.LSAps</Name>
+      <Name>System.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\System.Motion\Tray\System.Tray.csproj">
       <Project>{e1772e47-415b-44e2-8e2f-3cc4b5f2a039}</Project>
@@ -400,6 +629,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="logo.ico" />
+    <None Include="Resources\LedYellow.jpg" />
     <None Include="Resources\LedNone.jpg" />
     <None Include="Resources\Zup.png" />
     <None Include="Resources\Zdown.png" />

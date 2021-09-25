@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using Motion.Enginee;
-using Motion.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Enginee;
+using System.Interfaces;
 using System.Threading;
-using Motion.LSAps;
+
 namespace desay
 {
     /// <summary>
@@ -10,16 +12,13 @@ namespace desay
     /// </summary>
     public class LeftCut1 : ThreadPart
     {
-        private LeftCutAlarm m_Alarm;
+        private Left1CutAlarm m_Alarm;
+        public List<Alarm> Alarms;
         public LeftCut1(External ExternalSign, StationInitialize stationIni, StationOperate stationOpe)
         {
             externalSign = ExternalSign;
             stationInitialize = stationIni;
             stationOperate = stationOpe;
-            Global.Alarms.AddRange(CutAxis.Alarms);
-            Global.Alarms.AddRange(FrontCylinder.Alarms);
-            Global.Alarms.AddRange(DownCylinder.Alarms);
-            Global.Alarms.AddRange(GripperCylinder.Alarms);
         }
         public StationInitialize stationInitialize { get; set; }
         public StationOperate stationOperate { get; set; }
@@ -27,7 +26,7 @@ namespace desay
         /// <summary>
         /// 剪切轴
         /// </summary>
-        public ServoAxis CutAxis { get; set; }
+        public StepAxis CutAxis { get; set; }
         /// <summary>
         /// 前后气缸
         /// </summary>
@@ -35,262 +34,437 @@ namespace desay
         /// <summary>
         /// 上下气缸
         /// </summary>
-        public SingleCylinder DownCylinder { get; set; }
+        public SingleCylinder OverturnCylinder { get; set; }
         /// <summary>
         /// 夹爪气缸
         /// </summary>
         public SingleCylinder GripperCylinder { get; set; }
+        /// <summary>
+        ///烫刀次数
+        /// </summary>
+        private int HotCutCount;
+        /// <summary>
+        /// 回待机位
+        /// </summary>
+        public int homeWaitStep = 0;
 
         public override void Running(RunningModes runningMode)
         {
-            var step = 0;
-            while (true)
+            try
             {
-                Thread.Sleep(10);
-                FrontCylinder.Condition.External = externalSign;
-                DownCylinder.Condition.External = externalSign;
-                GripperCylinder.Condition.External = externalSign;
-                #region 自动流程
-                if (stationOperate.Running)
+                var step = 0;
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                while (true)
                 {
-                    switch (step)
+                    Thread.Sleep(10);
+
+                    #region 自动流程
+                    if (stationOperate.Running)
                     {
-                        case 0://判断是否有料
-                            if (Marking.LeftCut1HaveProduct) step = 210;
-                            else step = 10;
-                            break;
-                        case 10://前后气缸为ON
-                            if (DownCylinder.OutOriginStatus && FrontCylinder.OutOriginStatus
-                                && GripperCylinder.OutOriginStatus && FrontCylinder.Condition.IsOnCondition)
-                            {
-                                FrontCylinder.Set();
-                                step = 20;
-                            }
-                            break;
-                        case 20://判断蜂窝该穴位是否屏蔽
-                            if(FrontCylinder.OutMoveStatus
-                                && (Marking.LeftCAxis1Finish || stationOperate.SingleRunning))
-                            {
-                                if (Position.LeftCAxis1Celloffset[Marking.LeftCcellNum-1].Enable) step = 30;
+                        switch (step)
+                        {
+                            case 0://判断是否有料
+                                if (CutAxis.IsInPosition(Position.Instance.PosCut[0].Origin))
+                                {
+                                    step = 10;
+                                }
                                 else
                                 {
-                                    Thread.Sleep(10);
-                                    FrontCylinder.Reset();
-                                    step = 130;
+                                    CutAxis.MoveTo(Position.Instance.PosCut[0].Origin, AxisParameter.Instance.Cut1VelocityCurve);
                                 }
-                            }
-                            break;
-                        case 30://上下气缸到位，夹子气缸为ON
-                            if (GripperCylinder.Condition.IsOffCondition)
-                            {
-                                GripperCylinder.Set();
-                                step = 40;
-                            }
-                            break;
-                        case 40://夹子气缸到位,伺服1#移动到剪切，启动运行
-                            if (GripperCylinder.OutMoveStatus)
-                            {
-                                CutAxis.MoveTo(Position.LeftCut1CutPosition, AxisParameter.LeftCut1velocityCure);
-                                step = 50;
-                            }
-                            break;
-                        case 50://伺服1#到位，判断是否扭力剪切
-                            if (CutAxis.IsInPosition(Position.LeftCut1CutPosition))
-                            {
-                                Thread.Sleep(20);
-                                if (Position.PosTorsion) step = 60;
-                                else step = 70;
-                            }
-                            break;
-                        case 60://启动伺服1#扭力剪切控制
-                            IO13Points.DO0.Value = true;
-                            if (IO12Points.DI12.Value)
-                            {
-                                IO13Points.DO0.Value = false;
-                                Thread.Sleep(10);
-                                step = 70;
-                            }
-                            break;
-                        case 70://伺服1#移动0位置。
-                            CutAxis.MoveTo(0, AxisParameter.LeftCut1velocityCure);
-                            step = 80;
-                            break;
-                        case 80://伺服1#到位。
-                            if (CutAxis.IsInPosition(0))
-                            {
-                                Product.LeftCut1Count++;
-                                Thread.Sleep(20);
-                                step = 90;
-                            }
-                            break;
-                        case 90://判断剪切前后气缸off条件
-                            if (FrontCylinder.Condition.IsOffCondition)
-                            {
-                                Product.Left1ProductTotal++;
-                                Marking.LeftCut1Num = Marking.LeftCcellNum;
-                                FrontCylinder.Reset();
-                                step = 100;
-                            }
-                            break;
-                        case 100://前后气缸到位，上下气缸为ON
-                            if (FrontCylinder.OutOriginStatus&&DownCylinder.Condition.IsOnCondition)
-                            {
-                                DownCylinder.Set();
-                                step = 110;
-                            }
-                            break;
-                        case 110://上下气缸到位，判断是否烫刀，前后气缸为On
-                            if (DownCylinder.OutMoveStatus)
-                            {
-                                if (Product.Left1HotCut)
+                                break;
+                            case 10://前后气缸为ON
+                                if (FrontCylinder.OutOriginStatus && OverturnCylinder.OutOriginStatus
+                                    && GripperCylinder.OutOriginStatus && GripperCylinder.Condition.IsOnCondition && Marking.CAxisFinish)
                                 {
-                                    if (FrontCylinder.Condition.IsOnCondition)
+                                    FrontCylinder.Set();
+                                    Marking.CutSheild[0] = false;
+                                    step = 20;
+                                }
+                                break;
+                            case 20://判断蜂窝该穴位是否屏蔽
+                                if (FrontCylinder.OutMoveStatus)
+                                {
+                                    if (Marking.CutCount[0] >= Position.Instance.HoleNumber / 4) { Marking.CutCount[0] = 0; }
+                                    if (!Position.Instance.Caxis[0].IsSheild && !Position.Instance.C1axisSheild[Marking.CutCount[0]])
                                     {
-                                        FrontCylinder.Set();
-                                        step = 120;
+                                        step = 30;
+                                    }
+                                    else
+                                    {
+                                        Marking.CutSheild[0] = true;
+                                        FrontCylinder.Reset();
+                                        step = 160;
                                     }
                                 }
-                                else step = 130;
-                            }
-                            break;
-                        case 120://前后气缸到位，前后气缸为OFF
-                            if (FrontCylinder.OutMoveStatus && FrontCylinder.Condition.IsOffCondition)
-                            {
-                                FrontCylinder.Reset();
-                                step = 130;
-                            }
-                            break;
-                        case 130://前后气缸到位，输出完成状态
-                            if (FrontCylinder.OutOriginStatus)
-                            {
-                                Marking.LeftCAxis1Finish = false;
-                                Marking.LeftCut1Finish = true;
-                                step = 140;
-                            }
-                            break;
-                        case 140://判断切料准备好，吸笔吸气标志状态，夹子气缸为OFF
-                            if ((Marking.XYZLeftInhale1Sign || stationOperate.SingleRunning) 
-                                && GripperCylinder.Condition.IsOffCondition)
-                            {
-                                GripperCylinder.Reset();
+                                break;
+                            case 30://上下气缸到位，夹子气缸为ON
+                                if (GripperCylinder.Condition.IsOffCondition)
+                                {
+                                    GripperCylinder.Set();
+                                    step = 40;
+                                }
+                                break;
+                            case 40://夹子气缸到位,判断是否扭力剪切
+                                if (GripperCylinder.OutMoveStatus)
+                                {
+                                    if (!Position.Instance.Caxis[0].PosTorsion)
+                                    {
+                                        step = 60;
+                                    }
+                                    else
+                                    {
+                                        step = 50;
+                                    }
+                                }
+                                break;
+                            case 50://启动伺服1#扭力剪切控制
+                                if (CutAxis.TorqueControl(Position.Instance.PosCut[0].Move, Config.Instance.PressCut[0], Position.Instance.PosCutEnd[0], 3000, AxisParameter.Instance.Cut1VelocityCurve))
+                                {
+                                    step = 80;
+                                }
+                                else //扭力止动
+                                {
+                                    m_Alarm = Left1CutAlarm.Z1力矩剪切未切断;
+                                    FrontCylinder.Reset();
+                                    step = 150;
+                                }
+                                break;
+                            case 60://伺服1#移动到剪切，启动运行
+                                if (Position.Instance.PosCutEnd[0] > Position.Instance.PosCut[0].Move)
+                                {
+                                    CutAxis.MoveToExtern(Position.Instance.PosCut[0].Move, Position.Instance.PosCutEnd[0], AxisParameter.Instance.Cut1VelocityCurve);
+                                    step = 80;
+                                }
+                                else
+                                {
+                                    m_Alarm = Left1CutAlarm.Z1闭合位需大于缓冲位;
+                                    step = 150;
+                                }
+                                break;
+                            case 80://伺服1#到位。
+                                if (CutAxis.IsInPosition(Position.Instance.PosCutEnd[0]))
+                                {
+                                    stopwatch.Restart();
+                                    step = 90;
+                                }
+                                break;
+                            case 90://剪切闭合延时 判断是否烫修及烫修模式
+                                if (stopwatch.ElapsedMilliseconds >= Delay.Instance.CutDelay[0])
+                                {
+                                    if (Position.Instance.Caxis[0].HotCut)
+                                    {
+                                        HotCutCount = 0;
+                                        step = 100;
+                                    }
+                                    else
+                                    {
+                                        FrontCylinder.Reset();
+                                        step = 140;
+                                    }
+                                }
+                                break;
+                            case 100:
+                                if (Position.Instance.Caxis[0].ControlOpen)
+                                {
+                                    FrontCylinder.Condition.NoOriginShield = true;
+                                    stopwatch.Restart();
+                                    IoPoints.T1DO16.Value = false;
+                                }
+                                else
+                                {
+                                    FrontCylinder.Reset();
+                                }
+                                step = 110;
+                                break;
+                            case 110:
+                                if (Position.Instance.Caxis[0].ControlOpen)
+                                {
+                                    if (stopwatch.ElapsedMilliseconds >= Position.Instance.Caxis[0].JourneyControl && !IoPoints.T2IN1.Value)
+                                    {
+                                        FrontCylinder.Set();
+                                        step = 130;
+                                    }
+                                }
+                                else if (FrontCylinder.OutOriginStatus)
+                                {
+                                    OverturnCylinder.Set();
+                                    step = 120;
+                                }
+                                break;
+                            case 120:
+                                if (OverturnCylinder.OutMoveStatus)
+                                {
+                                    FrontCylinder.Set();
+                                    stopwatch.Restart();
+                                    step = 130;
+                                }
+                                break;
+                            case 130:
+                                if (FrontCylinder.OutMoveStatus && stopwatch.ElapsedMilliseconds >= Position.Instance.Caxis[0].HotCutTime)
+                                {
+                                    HotCutCount++;
+                                    if (HotCutCount >= Position.Instance.Caxis[0].HotCutCount)
+                                    {
+                                        if (Position.Instance.Caxis[0].ControlOpen)
+                                        {
+                                            FrontCylinder.Condition.NoOriginShield = false;
+                                        }
+                                        FrontCylinder.Reset();
+                                        step = 140;
+                                    }
+                                    else
+                                    {
+                                        step = 100;
+                                    }
+                                }
+                                break;
+                            case 140:
+                                if (Position.Instance.OverturnOpen[0])
+                                {
+                                    OverturnCylinder.Set();
+                                }
                                 step = 150;
-                            }
-                            break;
-                        case 150://夹子气缸到位，切料准备状态复位
-                            if (GripperCylinder.OutOriginStatus)
-                            {
-                                Marking.XYZLeftInhale1Sign = false;
-                                if (Marking.LeftCut1Num >= Position.TrayCellNum && Marking.ForceInPlate) Marking.LeftCut1Done = true;
-                                step = 160;
-                            }
-                            break;
-                        case 160://判断吸笔吸气状态
-                            if ((!Marking.LeftCut1Finish || stationOperate.SingleRunning)
-                                &&DownCylinder.Condition.IsOffCondition)
-                            {
-                                Marking.LeftCut1HaveProduct = false;
-                                DownCylinder.Reset();
-                                step = 170;
-                            }                                
-                            break;
-                        case 170://判断吸笔吸气状态
-                            if (DownCylinder.OutOriginStatus) step = 180;
-                            break;
-                        default:
-                            stationOperate.RunningSign = false;
-                            step = 0;
-                            break;
-                    }
-                }
-                #endregion
+                                break;
+                            case 150:
+                                CutAxis.MoveTo(Position.Instance.PosCut[0].Origin, AxisParameter.Instance.Cut1VelocityCurve);
+                                step = 155;
+                                break;
+                            case 155:
+                                if (Position.Instance.OverturnOpen[0])
+                                {
+                                    if (OverturnCylinder.OutMoveStatus)
+                                    {
+                                        step = 160;
+                                    }
+                                }
+                                else
+                                {
+                                    step = 160;
+                                }
+                                break;
+                            case 160:
+                                if (CutAxis.IsInPosition(Position.Instance.PosCut[0].Origin) && FrontCylinder.OutOriginStatus)
+                                {
+                                    Marking.LeftCut1Finish = true;
+                                    step = 170;
+                                }
+                                break;
+                            case 170://判断切料准备好，吸笔吸气标志状态，夹子气缸为OFF
+                                if (Marking.XYZLeftInhale1Sign && GripperCylinder.Condition.IsOffCondition)
+                                {
+                                    GripperCylinder.Reset();
+                                    step = 180;
+                                }
+                                break;
+                            case 180:
+                                if (GripperCylinder.OutOriginStatus && GripperCylinder.Condition.IsOnCondition)
+                                {
+                                    Marking.XYZCut1Finish = true;
+                                    step = 190;
+                                }
+                                break;
+                            case 190://夹子气缸到位，切料准备状态复位
+                                if (!Marking.XYZLeftInhale1Sign)
+                                {
+                                    if (Position.Instance.OverturnOpen[0])
+                                    {
+                                        OverturnCylinder.Reset();
+                                    }
+                                    Marking.XYZCut1Finish = false;
+                                    step = 200;
+                                }
+                                break;
+                            case 200://判断吸笔吸气状态
+                                if (!Marking.XYZLeftInhale1Sign && OverturnCylinder.OutOriginStatus && Marking.ZUpTrayLensFinish[0])
+                                {
+                                    Marking.ZUpTrayLensFinish[0] = false;
+                                    step = 210;
+                                }
+                                break;
+                            case 210://前后气缸到位，输出完成状态
+                                if (CutAxis.IsInPosition(Position.Instance.PosCut[0].Origin))
+                                {
+                                    Config.Instance.CutaxisCount[0]++;
+                                    Config.Instance.CutaxisCountTotal[0]++;
 
-                #region 初始化流程
-                if (stationInitialize.Running)
-                {
-                    switch (stationInitialize.Flow)
+                                    Marking.LeftCut1Finish = false;
+                                    Marking.CutCount[0]++;
+                                    step = 220;
+                                }
+                                break;
+                            default:
+                                step = 0;
+                                break;
+                        }
+                    }
+                    #endregion
+
+                    #region 初始化流程
+                    if (stationInitialize.Running)
                     {
-                        case 0:
-                            stationInitialize.InitializeDone = false;
-                            stationOperate.RunningSign = false;
-                            step = 0;
-                            Marking.LeftCut1HaveProduct = false;
-                            Marking.LeftCut1Finish = false;
-                            Marking.LeftCut1Done = false;
-                            IO13Points.DO0.Value = false;
-                            CutAxis.Stop();
-                            stationInitialize.Flow = 10;
-                            break;
-                        case 10:
-                            if (DownCylinder.Condition.IsOffCondition)
-                            {
-                                DownCylinder.InitExecute();
-                                DownCylinder.Reset();
-                                stationInitialize.Flow = 20;
-                            }
-                            break;
-                        case 20:
-                            if (DownCylinder.OutOriginStatus && FrontCylinder.Condition.IsOffCondition)
-                            {
-                                FrontCylinder.InitExecute();
-                                FrontCylinder.Reset();
-                                GripperCylinder.InitExecute();
-                                GripperCylinder.Reset();
-                                stationInitialize.Flow = 30;
-                            }
-                            break;
-                        case 30:
-                            Thread.Sleep(10);
-                            CutAxis.IsServon = true;
-                            if (FrontCylinder.OutOriginStatus && GripperCylinder.OutOriginStatus)
-                            {
+                        switch (stationInitialize.Flow)
+                        {
+                            case 0:
+                                stationInitialize.InitializeDone = false;
+                                stationOperate.RunningSign = false;
+                                step = 0;
+                                Marking.CutCount[0] = 0;
+                                Marking.LeftCut1HaveProduct = false;
+                                Marking.LeftCut1Finish = false;
+                                Marking.LeftCut1Done = false;
+                                Marking.DuplicateClipReset = false;
+                                FrontCylinder.InitExecute(); FrontCylinder.Reset();
+                                m_Alarm = Left1CutAlarm.Z1前后气缸复位中;
+                                stationInitialize.Flow = 10;
+                                break;
+                            case 10:
+                                if (FrontCylinder.OutOriginStatus)
+                                {
+                                    OverturnCylinder.InitExecute(); OverturnCylinder.Reset();
+                                    m_Alarm = Left1CutAlarm.Z1翻转气缸复位中;
+                                    stationInitialize.Flow = 15;
+                                }
+                                break;
+                            case 15:
+                                if (OverturnCylinder.OutOriginStatus)
+                                {
+                                    GripperCylinder.InitExecute(); GripperCylinder.Reset();
+                                    m_Alarm = Left1CutAlarm.Z1夹爪气缸复位中;
+                                    stationInitialize.Flow = 20;
+                                }
+                                break;
+                            case 20:
+                                if (GripperCylinder.OutOriginStatus)
+                                {
+                                    m_Alarm = Left1CutAlarm.Z1剪切轴复位中;
+                                    CutAxis.IsServon = true;
+                                    Thread.Sleep(500);
+                                    stationInitialize.Flow = 25;
+                                }
+                                break;
+                            case 25:
+                                if (CutAxis.IsDone && CutAxis.IsInPosition(CutAxis.CurrentPos))
+                                {
+                                    stationInitialize.Flow = 30;
+                                }
+                                else
+                                {
+                                    CutAxis.Stop();
+                                }
+                                break;
+                            case 30:
+                                CutAxis.BackHome();
+                                stationInitialize.Flow = 40;
+                                Thread.Sleep(200);
+                                break;
+                            case 40:
                                 Thread.Sleep(10);
-                                stationInitialize.Flow =40;
-                            }
-                            break;
-                        case 40:
-                            var _isOrigin1 = false;
-                            if (CutAxis.IsOrigin)
-                            {
-                                _isOrigin1 = true;
-                                CutAxis.MoveDelta(10000, AxisParameter.LeftCut1velocityCure);
-                            }
-                            if(!_isOrigin1) stationInitialize.Flow = 60;
-                            else stationInitialize.Flow = 50;
-                            break;
-                        case 50:
-                            if (CutAxis.IsDone)
-                            {
-                                stationInitialize.Flow = 60;
-                                Thread.Sleep(20);
-                            }
-                            break;
-                        case 60:
-                            Global.apsController.BackHome(CutAxis.NoId);
-                            stationInitialize.Flow = 70;
-                            break;
-                        case 70:
-                            var result1 = Global.apsController.CheckHomeDone(CutAxis.NoId, 20.0);
-                            if (result1 ==0)
-                            {
-                                stationInitialize.InitializeDone = true;
-                                stationInitialize.Flow = 80;
-                            }
-                            else if (result1 < 0)
-                            {
-                                stationInitialize.InitializeDone = false; ;
-                                stationInitialize.Flow = -1;
-                            }
-                            break;
-                        default:
-                            break;
+                                if (CutAxis.IsInPosition(0))
+                                {
+                                    CutAxis.MoveTo(Position.Instance.PosCut[0].Origin, AxisParameter.Instance.Cut1VelocityCurve);
+                                    stationInitialize.Flow = 50;
+                                }
+                                break;
+                            case 50:
+                                Thread.Sleep(10);
+                                if (CutAxis.IsInPosition(Position.Instance.PosCut[0].Origin))
+                                {
+                                    m_Alarm = Left1CutAlarm.无消息;
+                                    stationInitialize.InitializeDone = true;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                }
-                #endregion
+                    #endregion
 
-                //故障清除
-                if (externalSign.AlarmReset) m_Alarm = LeftCutAlarm.无消息;
+                    #region  回初始位
+                    if (externalSign.GoRristatus)
+                    {
+                        switch (homeWaitStep)
+                        {
+                            case 0:
+                                step = 0;
+                                Marking.CutCount[0] = Global.BigTray.CurrentPos;
+                                Marking.LeftCut1HaveProduct = false;
+                                Marking.LeftCut1Finish = false;
+                                Marking.LeftCut1Done = false;
+                                Marking.DuplicateClipReset = false;
+                                CutAxis.IsServon = true;
+                                Thread.Sleep(500);
+                                CutAxis.MoveTo(Position.Instance.PosCut[0].Origin, AxisParameter.Instance.Cut1VelocityCurve);
+                                homeWaitStep = 10;
+                                break;
+                            case 10:
+                                if (CutAxis.IsInPosition(Position.Instance.PosCut[0].Origin))
+                                {
+                                    OverturnCylinder.InitExecute(); OverturnCylinder.Reset();
+                                    FrontCylinder.InitExecute(); FrontCylinder.Reset();
+                                    GripperCylinder.InitExecute(); GripperCylinder.Reset();
+                                    Marking.equipmentHomeWaitState[4] = true;
+                                    homeWaitStep = 20;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    #endregion
+
+                    #region  故障清除
+                    if (externalSign.AlarmReset && !stationInitialize.Running)
+                    {
+                        m_Alarm = Left1CutAlarm.无消息;
+                    }
+                    #endregion
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
-        
+
+        /// <summary>
+        /// 气缸状态集合
+        /// </summary>
+        public IList<ICylinderStatusJugger> CylinderStatus
+        {
+            get
+            {
+                var list = new List<ICylinderStatusJugger>();
+                list.Add(FrontCylinder);
+                list.Add(OverturnCylinder);
+                list.Add(GripperCylinder);
+                return list;
+            }
+        }
+
+        public void AddAlarms()
+        {
+            try
+            {
+                Alarms = new List<Alarm>();
+                Alarms.Add(new Alarm(() => m_Alarm == Left1CutAlarm.Z1力矩剪切未切断) { AlarmLevel = AlarmLevels.Error, Name = Left1CutAlarm.Z1力矩剪切未切断.ToString() });
+                Alarms.Add(new Alarm(() => m_Alarm == Left1CutAlarm.Z1闭合位需大于缓冲位) { AlarmLevel = AlarmLevels.Error, Name = Left1CutAlarm.Z1闭合位需大于缓冲位.ToString() });
+                Alarms.Add(new Alarm(() => m_Alarm == Left1CutAlarm.Z1前后气缸复位中) { AlarmLevel = AlarmLevels.None, Name = Left1CutAlarm.Z1前后气缸复位中.ToString() });
+                Alarms.Add(new Alarm(() => m_Alarm == Left1CutAlarm.Z1翻转气缸复位中) { AlarmLevel = AlarmLevels.None, Name = Left1CutAlarm.Z1翻转气缸复位中.ToString() });
+                Alarms.Add(new Alarm(() => m_Alarm == Left1CutAlarm.Z1夹爪气缸复位中) { AlarmLevel = AlarmLevels.None, Name = Left1CutAlarm.Z1夹爪气缸复位中.ToString() });
+                Alarms.Add(new Alarm(() => m_Alarm == Left1CutAlarm.Z1剪切轴复位中) { AlarmLevel = AlarmLevels.None, Name = Left1CutAlarm.Z1剪切轴复位中.ToString() });
+                Alarms.AddRange(CutAxis.Alarms);
+                Alarms.AddRange(FrontCylinder.Alarms);
+                Alarms.AddRange(OverturnCylinder.Alarms);
+                Alarms.AddRange(GripperCylinder.Alarms);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
     }
 }

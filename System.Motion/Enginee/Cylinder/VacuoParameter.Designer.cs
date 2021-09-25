@@ -1,4 +1,4 @@
-﻿namespace Motion.Enginee
+﻿namespace System.Enginee
 {
     partial class VacuoParameter
     {
@@ -29,15 +29,15 @@
         private void InitializeComponent()
         {
             this.gbxName = new System.Windows.Forms.GroupBox();
+            this.txtAlarmDelay = new System.Windows.Forms.TextBox();
+            this.txtBrokenDelay = new System.Windows.Forms.TextBox();
+            this.txtInhaleDelay = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtAlarmDelay = new System.Windows.Forms.TextBox();
-            this.txtBrokenDelay = new System.Windows.Forms.TextBox();
-            this.txtInhaleDelay = new System.Windows.Forms.TextBox();
             this.gbxName.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -58,60 +58,6 @@
             this.gbxName.Size = new System.Drawing.Size(115, 99);
             this.gbxName.TabIndex = 0;
             this.gbxName.TabStop = false;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(4, 73);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(35, 12);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "报警:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(4, 46);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 12);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "破空:";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(100, 74);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(11, 12);
-            this.label6.TabIndex = 0;
-            this.label6.Text = "s";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(100, 48);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(11, 12);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "s";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(100, 21);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(11, 12);
-            this.label4.TabIndex = 0;
-            this.label4.Text = "s";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(4, 19);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 12);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "吸气:";
             // 
             // txtAlarmDelay
             // 
@@ -139,6 +85,60 @@
             this.txtInhaleDelay.Size = new System.Drawing.Size(58, 23);
             this.txtInhaleDelay.TabIndex = 4;
             this.txtInhaleDelay.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(4, 73);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 12);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "报警:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(4, 46);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(35, 12);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "破空:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(100, 72);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(11, 12);
+            this.label6.TabIndex = 0;
+            this.label6.Text = "s";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(100, 46);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(11, 12);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "s";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(100, 18);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(11, 12);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "s";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(4, 19);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(35, 12);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "吸气:";
             // 
             // VacuoParameter
             // 

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("G4A")]
+[assembly: AssemblyTitle("0A02")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("G4A")]
+[assembly: AssemblyProduct("0A02")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

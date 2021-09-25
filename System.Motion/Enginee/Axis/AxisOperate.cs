@@ -1,22 +1,31 @@
 ﻿using System;
 using System.Windows.Forms;
-using Motion.LSAps;
-using Motion.Interfaces;
+using System.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
-namespace Motion.Enginee
+
+
+namespace System.Enginee
 {
     public partial class AxisOperate : UserControl,IRefreshing
     {
         private ApsAxis m_Axis;
+        private ApsAxis m_AxisAuxiliary;
+
         public AxisOperate()
         {
             InitializeComponent();
         }
-        public AxisOperate(ApsAxis axis):this()
-        {
+        public AxisOperate(ApsAxis axis) :this()
+        {           
             m_Axis = axis;
             gbxName.Text = axis.Name;
+        }
+        public AxisOperate(ApsAxis axis, ApsAxis axisAuxiliary) :this()
+        {           
+            m_Axis = axis;
+            gbxName.Text = axis.Name;
+            m_AxisAuxiliary = axisAuxiliary;
         }
         /// <summary>
         /// 移动方向选择：连续？定距？
@@ -26,9 +35,9 @@ namespace Motion.Enginee
         {
             if (MoveMode.Continue) return;
             if (!m_Axis.IsDone) return;
-            var Value =MoveMode.Distance;
+            var Value =(double)(MoveMode.Distance);
             Value *= -1;
-            var velocityCurve = new VelocityCurve { Maxvel = m_Axis.Speed ?? 0 };
+            var velocityCurve = new VelocityCurve { Strvel = 100, Maxvel = m_Axis.Speed ?? 1 , Tacc  = 0.15};
             m_Axis.MoveDelta(Value, velocityCurve);
         }
 
@@ -48,9 +57,10 @@ namespace Motion.Enginee
         {
             if (MoveMode.Continue) return;
             if (!m_Axis.IsDone) return;
-            var Value = MoveMode.Distance;
+            var Value = (double)(MoveMode.Distance);
+           
             Value *= 1;
-            var velocityCurve = new VelocityCurve { Maxvel = m_Axis.Speed ?? 0 };
+            var velocityCurve = new VelocityCurve { Strvel = 100, Maxvel = m_Axis.Speed ?? 1, Tacc = 0.15 };           
             m_Axis.MoveDelta(Value, velocityCurve);
         }
 
@@ -68,14 +78,19 @@ namespace Motion.Enginee
 
         private void tbrJogSpeed_Scroll(object sender, EventArgs e)
         {
-            lblJogSpeed.Text =tbrJogSpeed.Value.ToString("0.00");
-            m_Axis.Speed = tbrJogSpeed.Value;
+            lblJogSpeed.Text =  tbrJogSpeed.Value.ToString("0.00") + "mm/s";
+            m_Axis.Speed = (double)(tbrJogSpeed.Value );
         }
 
         private void AxisOperate_Load(object sender, EventArgs e)
         {
-            lblJogSpeed.Text = tbrJogSpeed.Value.ToString("0.00");
-            m_Axis.Speed = tbrJogSpeed.Value;
+            lblJogSpeed.Text =  tbrJogSpeed.Value.ToString("0.00") + "mm/s";
+         
+            if (m_Axis.Speed == null)
+            {
+                m_Axis.Speed = (double)(tbrJogSpeed.Value);
+            }
+            else { tbrJogSpeed.Value =Convert.ToInt32( m_Axis.Speed); }
         }
 
         public void Refreshing()
@@ -86,11 +101,12 @@ namespace Motion.Enginee
             picMEL.Image= m_Axis.IsMEL ? Properties.Resources.LedRed : Properties.Resources.LedNone;
             picPEL.Image= m_Axis.IsPEL ? Properties.Resources.LedRed : Properties.Resources.LedNone;
             picALM.Image= m_Axis.IsAlarmed ? Properties.Resources.LedRed : Properties.Resources.LedNone;
-            lblCurrentPosition.Text = m_Axis.CurrentPos.ToString("0.000");
-            lblCurrentSpeed.Text = m_Axis.CurrentSpeed.ToString("0.000");
-            if(m_Axis.IsServon!=chxServoON.Checked&&!sign)
+            lblCurrentPosition.Text = (m_Axis.CurrentPos).ToString("0.000");
+            lblFeedbackPosition.Text = (m_Axis.BackPos).ToString("0.000");
+            lblCurrentSpeed.Text = (m_Axis.CurrentSpeed ).ToString("0.000");
+            if(m_Axis.IsServon != chxServoON.Checked&&!sign)
             {
-                chxServoON.Checked= m_Axis.IsServon;
+                chxServoON.Checked = !m_Axis.IsServon;              
             }
         }
         bool sign = false;
@@ -101,9 +117,29 @@ namespace Motion.Enginee
             sign = false;
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var velocityCurve = new VelocityCurve { Strvel = 100, Maxvel = m_Axis.Speed ?? 1, Tacc = 0.15 };
+                double Value = Convert.ToDouble(textBox1.Text);
+                m_Axis.MoveTo(Value, velocityCurve);
+            }
+            catch { }
+        }
+
         private void btnHome_Click(object sender, EventArgs e)
         {
+            if (!m_Axis.isCondition) { return; }
             var Flow = 0;
+            if ( 0 == m_Axis.NoId || 1 == m_Axis.NoId) //Y,X轴应Z轴在原点才能回原点
+            {
+                Flow = 0; 
+            }
+            else
+            {
+                Flow = 10; //正常回原点
+            }
             Task.Factory.StartNew(() =>
             {
                 try
@@ -112,25 +148,35 @@ namespace Motion.Enginee
                     {
                         switch (Flow)
                         {
-                            case 0:   //清除所有标志位的状态
+                            case 0:
+                                if(m_AxisAuxiliary.IsOrign)
+                                {
+                                    Flow = 10;
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Z轴请先回原点");
+                                    Flow = -1;
+                                }
+                                break;
+                            case 10:   //清除所有标志位的状态
                                 m_Axis.Stop();
                                 if (!m_Axis.IsAlarmed)
                                 {
                                     m_Axis.IsServon = true;
-                                    Flow = 10;
+                                    Flow = 20;
                                 }
                                 break;
-                            case 10:
+                            case 20:
                                 m_Axis.BackHome();
-                                Flow = 20;
+                                Flow = 30;
                                 break;
-                            case 20://判断轴回原点是否完成，轴移动安全位置
-                                if (m_Axis.CheckHomeDone(20.0) == 0)
+                            case 30://判断轴回原点是否完成，轴移动安全位置
+                                if (m_Axis.CheckHomeDone(50.0) == 0)
                                 {
                                     Thread.Sleep(1000);
-                                    m_Axis.GetCurrentPosition();
-                                    m_Axis.GetCurrentFeedbackPosition();
-                                    Flow = 30;
+                                    m_Axis.APS_set_command(0);
+                                    Flow = 40;
                                 }
                                 else  //异常处理
                                     Flow = -1;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     public static class ExceptionHelper
     {

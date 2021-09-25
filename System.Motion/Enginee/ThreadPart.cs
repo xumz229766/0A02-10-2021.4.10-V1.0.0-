@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Motion.Interfaces;
+using System.Interfaces;
+using System.ToolKit;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     ///     支持测试线程的设备部件
@@ -62,24 +63,22 @@ namespace Motion.Enginee
         public virtual void Run(RunningModes runningMode)
         {
                 StopEvent.Reset();
-
-            if (_cancelTokenSource == null)
+            if (_cancelTokenSource == null)//多线程操作
             {
                 _cancelTokenSource = new CancellationTokenSource();
                 Task.Factory.StartNew(() =>
                 {
                     try
                     {
-                        Running(runningMode);
-                        //Log.Debug("{0}部件启动。", Name);
+                        Running(runningMode);                    
                     }
                     catch (OperationCanceledException)
                     {
-                        //ignorl
+                        LogHelper.Debug("设备驱动程序异常");
                     }
                     catch (Exception ex)
                     {
-                        //Log.Fatal("设备驱动程序异常", ex);
+                        LogHelper.Debug("设备驱动程序异常", ex);
                     }
                 },TaskCreationOptions.AttachedToParent | TaskCreationOptions.LongRunning)
                 .ContinueWith(task => Clean());

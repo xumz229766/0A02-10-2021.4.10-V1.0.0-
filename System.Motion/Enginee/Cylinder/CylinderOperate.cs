@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Interfaces;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     public partial class CylinderOperate : UserControl
     {
         private readonly Action _manualOperate;
+        private Cylinder m_cylinder;
         public CylinderOperate()
         {
             InitializeComponent();
@@ -15,6 +17,13 @@ namespace Motion.Enginee
         {
             _manualOperate = ManualOperate;
         }
+        public CylinderOperate(Cylinder cylinder) : this()
+        {
+            _manualOperate = () => cylinder.ManualExecute();
+            m_cylinder = cylinder;
+            CylinderName = cylinder.Name;
+        }
+
         public string CylinderName
         {
             set
@@ -52,6 +61,13 @@ namespace Motion.Enginee
         private void btn_Click(object sender, EventArgs e)
         {
             _manualOperate();
+        }
+
+        public void Refreshing()
+        {
+            InOrigin = m_cylinder.OutOriginStatus;
+            InMove = m_cylinder.OutMoveStatus;
+            OutMove = m_cylinder.IsOutMove;
         }
     }
 }

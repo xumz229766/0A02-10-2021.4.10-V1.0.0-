@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Motion.LSAps;
-namespace Motion.Enginee
+using System.AdvantechAps;
+
+namespace System.Enginee
 {
     public partial class AxisSpeed : UserControl
     {
@@ -32,13 +33,13 @@ namespace Motion.Enginee
             set
             {
                 tkrSpeedRate.Value = (int)(value * 10.0);
-                lblAxisSpeedRate.Text = Name + "速度(" + value.ToString("0.00") + "%)";
+                lblAxisSpeedRate.Text = Name + "(" + value.ToString("0.00") + "%)";
                 lblAxisSpeed.Text = ((m_velocityMax * value) / 100).ToString("0.000") + "mm/s";
             }
         }
         private void tkrSpeedRate_Scroll(object sender, EventArgs e)
         {
-            lblAxisSpeedRate.Text = Name + "速度(" + SpeedRate + "%)";
+            lblAxisSpeedRate.Text = Name + "(" + SpeedRate + "%)";
             lblAxisSpeed.Text = ((m_velocityMax * SpeedRate) / 100).ToString("0.000") + "mm/s";
         }
     }

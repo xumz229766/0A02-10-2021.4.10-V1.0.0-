@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Motion.LSAps;
-using Motion.Interfaces;
+using System.AdvantechAps;
+using System.Interfaces;
 using System.ToolKit;
-using Motion.Enginee;
+using System.Enginee;
 using System.Tray;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 namespace desay
 {
     /// <summary>
@@ -15,25 +16,20 @@ namespace desay
     /// </summary>
     public partial class frmTrayCalib : Form
     {
+        static ILog log = LogManager.GetLogger(typeof(frmTrayCalib));
         Tray tray = null;//当前托盘对象
-        bool IsWrite=false;
+        bool IsWrite = false;
         private string PlateKey;
         ApsAxis m_Xaxis;
         ApsAxis m_Yaxis;
         ApsAxis m_Zaxis;
         private readonly Func<bool> _condition;
-
-        #region 坐标显示
-        private PlatePoint3DView BasePointView;
-        private PlatePoint3DView RowPointView;
-        private PlatePoint3DView ColumnPointView;
-        #endregion
-
+        TrayPanel TrayDisplay = null;//托盘显示
         public frmTrayCalib()
         {
             InitializeComponent();
         }
-        public frmTrayCalib(string Key,ApsAxis Xaxis, ApsAxis Yaxis, ApsAxis Zaxis, Func<bool> Condition) :this()
+        public frmTrayCalib(string Key, ApsAxis Xaxis, ApsAxis Yaxis, ApsAxis Zaxis, Func<bool> Condition) : this()
         {
             PlateKey = Key;
             m_Xaxis = Xaxis;
@@ -41,6 +37,21 @@ namespace desay
             m_Zaxis = Zaxis;
             _condition = Condition;
         }
+        #region 托盘显示
+        //初始化托盘参数
+        private void InitTray()
+        {
+            if (tray != null)
+            {
+                TrayDisplay = new TrayPanel();
+                TrayDisplay.SetTrayObj(tray, Color.Gray);
+                TrayDisplay.Dock = DockStyle.Fill;
+                tray.updateColor += TrayDisplay.UpdateColor;
+                gpbPlate.Controls.Clear();
+                gpbPlate.Controls.Add(TrayDisplay);
+            }
+        }
+        #endregion
         public bool Xdir { get; set; }
         public bool Ydir { get; set; }
         public bool Zdir { get; set; }
@@ -59,6 +70,12 @@ namespace desay
                     ndnColumnYoffset.Value = (decimal)tray.ColumnYoffset;
                     lblPlateID.Text = PlateKey;
                     lblTrayName.Text = tray.Name;
+                    InitdgvPlatePositionRows();
+                    InitTray();
+                    tray.SetNumColor(tray.BaseIndex, Color.Blue);
+                    tray.SetNumColor(tray.RowIndex, Color.Blue);
+                    tray.SetNumColor(tray.ColumnIndex, Color.Blue);
+                    tray.updateColor();
                 };
             }
             if (tray == null)
@@ -68,18 +85,6 @@ namespace desay
             }
             else
             {
-                rbnContinueMoveSelect.Checked = true;
-                rbnPos10um.Checked = true;
-                BasePointView = new PlatePoint3DView()
-                { Index = tray.BaseIndex, Point = tray.BasePosition };
-                RowPointView = new PlatePoint3DView()
-                { Index = tray.RowIndex, Point = tray.RowPosition };
-                ColumnPointView = new PlatePoint3DView()
-                { Index = tray.ColumnIndex, Point = tray.ColumnPosition };
-                tbpUpPlate.Controls.Add(BasePointView, 1, 0);
-                tbpUpPlate.Controls.Add(RowPointView, 1, 1);
-                tbpUpPlate.Controls.Add(ColumnPointView, 1, 2);
-
                 lblJogSpeed.Text = "点动速度:" + tbrJogSpeed.Value.ToString("0.00") + "mm/s";
                 m_Xaxis.Speed = tbrJogSpeed.Value;
                 m_Yaxis.Speed = tbrJogSpeed.Value;
@@ -107,7 +112,7 @@ namespace desay
             checkBox4.Checked = m_Yaxis.IsServon;
             checkBox6.Checked = m_Zaxis.IsServon;
 
-            if(!IsWrite)
+            if (!IsWrite)
             {
                 ndnRowXoffset.Value = (decimal)tray.RowXoffset;
                 ndnRowYoffset.Value = (decimal)tray.RowYoffset;
@@ -124,175 +129,122 @@ namespace desay
         #region 三轴定距移动
         private void btnXdec_Click(object sender, EventArgs e)
         {
-            if (!rbnLocationMoveSelect.Checked) return;
-            if (!m_Xaxis.IsDone) return;
-            var Value = 0.0;
-            if (rbnPos10um.Checked) Value = 0.01;
-            if (rbnPos100um.Checked) Value = 0.10;
-            if (rbnPos1000um.Checked) Value = 1.00;
-            if (rbnPosOtherum.Checked) Value = (double)ndnPosOther.Value;
-            if (Xdir) Value *= -1.0;
-            else Value *= 1.0;
+            if (moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             var velocityCurve = new VelocityCurve { Maxvel = m_Xaxis.Speed ?? 0 };
-            m_Xaxis.MoveDelta(Value, velocityCurve);
+            m_Xaxis.MoveDelta(-1 * moveSelectHorizontal1.MoveMode.Distance, velocityCurve);
         }
         private void btnXadd_Click(object sender, EventArgs e)
         {
-            if (!rbnLocationMoveSelect.Checked) return;
-            if (!m_Xaxis.IsDone) return;
-            var Value = 0.0;
-            if (rbnPos10um.Checked) Value = 0.01;
-            if (rbnPos100um.Checked) Value = 0.10;
-            if (rbnPos1000um.Checked) Value = 1.00;
-            if (rbnPosOtherum.Checked) Value = (double)ndnPosOther.Value;
-            if (Xdir) Value *= 1.0;
-            else Value *= -1.0;
+            if (moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             var velocityCurve = new VelocityCurve { Maxvel = m_Xaxis.Speed ?? 0 };
-            m_Xaxis.MoveDelta(Value, velocityCurve);
+            m_Xaxis.MoveDelta(1 * moveSelectHorizontal1.MoveMode.Distance, velocityCurve);
         }
 
         private void btnYdec_Click(object sender, EventArgs e)
         {
-            if (!rbnLocationMoveSelect.Checked) return;
-            if (!m_Yaxis.IsDone) return;
-            var Value = 0.0;
-            if (rbnPos10um.Checked) Value = 0.01;
-            if (rbnPos100um.Checked) Value = 0.10;
-            if (rbnPos1000um.Checked) Value = 1.00;
-            if (rbnPosOtherum.Checked) Value = (double)ndnPosOther.Value;
-            if (Ydir) Value *= 1.0;
-            else Value *= -1.0;
+            if (moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             var velocityCurve = new VelocityCurve { Maxvel = m_Yaxis.Speed ?? 0 };
-            m_Yaxis.MoveDelta(Value, velocityCurve);
+            m_Yaxis.MoveDelta(1 * moveSelectHorizontal1.MoveMode.Distance, velocityCurve);
         }
 
         private void btnYadd_Click(object sender, EventArgs e)
         {
-            if (!rbnLocationMoveSelect.Checked) return;
-            if (!m_Yaxis.IsDone) return;
-            var Value = 0.0;
-            if (rbnPos10um.Checked) Value = 0.01;
-            if (rbnPos100um.Checked) Value = 0.10;
-            if (rbnPos1000um.Checked) Value = 1.00;
-            if (rbnPosOtherum.Checked) Value = (double)ndnPosOther.Value;
-            if (Ydir) Value *= -1.0;
-            else Value *= 1.0;
+            if (moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             var velocityCurve = new VelocityCurve { Maxvel = m_Yaxis.Speed ?? 0 };
-            m_Yaxis.MoveDelta(Value, velocityCurve);
+            m_Yaxis.MoveDelta(-1 * moveSelectHorizontal1.MoveMode.Distance, velocityCurve);
         }
 
         private void btnZadd_Click(object sender, EventArgs e)
         {
-            if (!rbnLocationMoveSelect.Checked) return;
-            if (!m_Zaxis.IsDone) return;
-            var Value = 0.0;
-            if (rbnPos10um.Checked) Value = 0.01;
-            if (rbnPos100um.Checked) Value = 0.10;
-            if (rbnPos1000um.Checked) Value = 1.00;
-            if (rbnPosOtherum.Checked) Value = (double)ndnPosOther.Value;
-            if (Zdir) Value *= -1.0;
-            else Value *= 1.0;
+            if (moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             var velocityCurve = new VelocityCurve { Maxvel = m_Zaxis.Speed ?? 0 };
-            m_Zaxis.MoveDelta(Value, velocityCurve);
+            m_Zaxis.MoveDelta(1 * moveSelectHorizontal1.MoveMode.Distance, velocityCurve);
         }
 
         private void btnZdec_Click(object sender, EventArgs e)
         {
-            if (!rbnLocationMoveSelect.Checked) return;
-            if (!m_Zaxis.IsDone) return;
-            var Value = 0.0;
-            if (rbnPos10um.Checked) Value = 0.01;
-            if (rbnPos100um.Checked) Value = 0.10;
-            if (rbnPos1000um.Checked) Value = 1.00;
-            if (rbnPosOtherum.Checked) Value = (double)ndnPosOther.Value;
-            if (Zdir) Value *= 1.0;
-            else Value *= -1.0;
+            if (moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             var velocityCurve = new VelocityCurve { Maxvel = m_Zaxis.Speed ?? 0 };
-            m_Zaxis.MoveDelta(Value, velocityCurve);
+            m_Zaxis.MoveDelta(-1 * moveSelectHorizontal1.MoveMode.Distance, velocityCurve);
         }
         #endregion
 
         #region 三轴连续移动
         private void btnXdec_MouseDown(object sender, MouseEventArgs e)
         {
-            if (!rbnContinueMoveSelect.Checked) return;
-            if (Xdir) m_Xaxis.Negative();
-            else m_Xaxis.Postive();
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
+            m_Xaxis.Negative();
         }
 
         private void btnXdec_MouseUp(object sender, MouseEventArgs e)
         {
-            if (rbnLocationMoveSelect.Checked) return;
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             m_Xaxis.Stop();
         }
 
         private void btnXadd_MouseDown(object sender, MouseEventArgs e)
         {
-            if (!rbnContinueMoveSelect.Checked) return;
-            if (Xdir) m_Xaxis.Postive();
-            else m_Xaxis.Negative();
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
+            m_Xaxis.Postive();
         }
 
         private void btnXadd_MouseUp(object sender, MouseEventArgs e)
         {
-            if (rbnLocationMoveSelect.Checked) return;
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             m_Xaxis.Stop();
         }
 
         private void btnYdec_MouseDown(object sender, MouseEventArgs e)
         {
-            if (!rbnContinueMoveSelect.Checked) return;
-            if (Ydir) m_Yaxis.Postive();
-            else m_Yaxis.Negative();
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
+            m_Yaxis.Postive();
         }
 
         private void btnYdec_MouseUp(object sender, MouseEventArgs e)
         {
-            if (rbnLocationMoveSelect.Checked) return;
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             m_Yaxis.Stop();
         }
 
         private void btnYadd_MouseDown(object sender, MouseEventArgs e)
         {
-            if (!rbnContinueMoveSelect.Checked) return;
-            if (Ydir) m_Yaxis.Negative();
-            else m_Yaxis.Postive();
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
+            m_Yaxis.Negative();
         }
 
         private void btnYadd_MouseUp(object sender, MouseEventArgs e)
         {
-            if (rbnLocationMoveSelect.Checked) return;
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             m_Yaxis.Stop();
         }
         private void btnZdec_MouseDown(object sender, MouseEventArgs e)
         {
-            if (!rbnContinueMoveSelect.Checked) return;
-            if (Zdir) m_Zaxis.Negative();
-            else m_Zaxis.Postive();
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
+            m_Zaxis.Negative();
         }
 
         private void btnZdec_MouseUp(object sender, MouseEventArgs e)
         {
-            if (rbnLocationMoveSelect.Checked) return;
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             m_Zaxis.Stop();
         }
 
         private void btnZadd_MouseDown(object sender, MouseEventArgs e)
         {
-            if (!rbnContinueMoveSelect.Checked) return;
-            if (Zdir) m_Zaxis.Postive();
-            else m_Zaxis.Negative();
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
+            m_Zaxis.Postive();
         }
 
         private void btnZadd_MouseUp(object sender, MouseEventArgs e)
         {
-            if (rbnLocationMoveSelect.Checked) return;
+            if (!moveSelectHorizontal1.MoveMode.Continue || Global.IsLocating) return;
             m_Zaxis.Stop();
         }
         #endregion
 
         private void tbrJogSpeed_Scroll(object sender, EventArgs e)
         {
+            if (Global.IsLocating) return;
             lblJogSpeed.Text = "点动速度:" + tbrJogSpeed.Value.ToString("0.00") + "mm/s";
             m_Xaxis.Speed = (double)tbrJogSpeed.Value;
             m_Yaxis.Speed = (double)tbrJogSpeed.Value;
@@ -313,143 +265,230 @@ namespace desay
         }
         #endregion
 
-
-        private int MoveToPoint(Point3D<double> pos)
+        private void dgvPlatePosition_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (!_condition())return -1;
-            //判断Z轴是否在零点
-            if (!m_Zaxis.IsInPosition(0))
-                m_Zaxis.MoveTo(0, new VelocityCurve(0, (double)m_Zaxis.Speed, 0));
-            while (true)
+            switch (e.ColumnIndex)
             {
-                Thread.Sleep(10);
-                if (m_Zaxis.IsInPosition(0)) break;
-                if (m_Zaxis.IsAlarmed || m_Zaxis.IsEmg || !m_Zaxis.IsServon
-                    || m_Zaxis.IsPositiveLimit || m_Zaxis.IsNegativeLimit)
-                {
-                    m_Zaxis.Stop();
-                    return -4;
-                }
-            }
-            //将X、Y移动到指定位置
-            if (!m_Xaxis.IsInPosition(pos.X)) m_Xaxis.MoveTo(pos.X, new VelocityCurve(0, (double)m_Xaxis.Speed, 0));
-            if (!m_Yaxis.IsInPosition(pos.Y)) m_Yaxis.MoveTo(pos.Y, new VelocityCurve(0, (double)m_Yaxis.Speed, 0));
-            while (true)
-            {
-                Thread.Sleep(10);
-                if (m_Xaxis.IsInPosition(pos.X) && m_Yaxis.IsInPosition(pos.Y)) break;
-                if (m_Xaxis.IsAlarmed || m_Xaxis.IsEmg || !m_Xaxis.IsServon
-                    || m_Xaxis.IsPositiveLimit || m_Xaxis.IsNegativeLimit
-                    || m_Yaxis.IsAlarmed || m_Yaxis.IsEmg || !m_Yaxis.IsServon
-                    || m_Yaxis.IsPositiveLimit || m_Yaxis.IsNegativeLimit)
-                {
-                    m_Xaxis.Stop();
-                    m_Yaxis.Stop();
-                    return -4;
-                }
-            }
-            //将Z轴移动到指定位置
-            m_Zaxis.MoveTo(pos.Z, new VelocityCurve(0, (double)m_Zaxis.Speed, 0));
-            while (true)
-            {
-                Thread.Sleep(10);
-                if (m_Zaxis.IsInPosition(pos.Z)) break;
-                if (m_Zaxis.IsAlarmed || m_Zaxis.IsEmg || !m_Zaxis.IsServon
-                    || m_Zaxis.IsPositiveLimit || m_Zaxis.IsNegativeLimit)
-                {
-                    m_Zaxis.Stop();
-                    return -4;
-                }
-            }
-            return 0;
-        }
-
-
-        #region 保存及定位
-        private void btnPlateBaseSave_Click(object sender, EventArgs e)
-        {
-            var pos = new Point3D<double>();
-            pos.X = m_Xaxis.CurrentPos;
-            pos.Y = m_Yaxis.CurrentPos;
-            tray.BaseIndex = BasePointView.Index;
-            pos.Z = m_Zaxis.CurrentPos;
-            BasePointView.Point = pos;
-            tray.BaseIndex = BasePointView.Index;
-            tray.BasePosition = pos;
-        }
-
-
-        private void btnPlateRowSave_Click(object sender, EventArgs e)
-        {
-            var pos = new Point3D<double>();
-            pos.X = m_Xaxis.CurrentPos;
-            pos.Y = m_Yaxis.CurrentPos;
-            tray.RowIndex = RowPointView.Index;
-            pos.Z = m_Zaxis.CurrentPos;
-            RowPointView.Point = pos;
-            tray.RowIndex = RowPointView.Index;
-            tray.RowPosition = pos;
-        }
-
-        private void btnPlateColSave_Click(object sender, EventArgs e)
-        {
-            var pos = new Point3D<double>();
-            pos.X = m_Xaxis.CurrentPos;
-            pos.Y = m_Yaxis.CurrentPos;
-            tray.ColumnIndex = ColumnPointView.Index;
-            pos.Z = m_Zaxis.CurrentPos;
-            ColumnPointView.Point = pos;
-            tray.ColumnIndex = ColumnPointView.Index;
-            tray.ColumnPosition = pos;
-        }
-
-        private void btnPlateBaseGoto_Click(object sender, EventArgs e)
-        {
-            var ret = MoveToPoint(tray.BasePosition);
-            switch (ret)
-            {
-                case -1:
-                    MessageBox.Show("外部条件不成立！"); break;
-                case -2:
-                    MessageBox.Show("定位异常退出！"); break;
-                case -4:
-                    MessageBox.Show("XY定位失败！"); break;
-                default:
+                case 5:
+                    if (MessageBox.Show(string.Format("是否保存{0}的数据", dgvPlatePosition.Rows[e.RowIndex].Cells[0].Value),
+                        "保存", MessageBoxButtons.OKCancel) == DialogResult.Cancel) break;
+                    if (dgvPlatePosition.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString() == "Save")
+                    {
+                        var pos = new Point3D<double>();
+                        switch (e.RowIndex)
+                        {
+                            case 0://基准点
+                                pos.X = m_Xaxis.CurrentPos;
+                                pos.Y = m_Yaxis.CurrentPos;
+                                pos.Z = m_Zaxis.CurrentPos;
+                                tray.BasePosition = pos;
+                                break;
+                            case 1://行方向终点
+                                pos.X = m_Xaxis.CurrentPos;
+                                pos.Y = m_Yaxis.CurrentPos;
+                                pos.Z = m_Zaxis.CurrentPos;
+                                tray.RowPosition = pos;
+                                break;
+                            case 2://列方向终点
+                                pos.X = m_Xaxis.CurrentPos;
+                                pos.Y = m_Yaxis.CurrentPos;
+                                pos.Z = m_Zaxis.CurrentPos;
+                                tray.ColumnPosition = pos;
+                                break;
+                            default: break;
+                        }
+                        RefreshdgvPlatePositionRows(e.RowIndex);
+                    }
                     break;
+                case 6:
+                    if (MessageBox.Show(string.Format("是否定位到{0}", dgvPlatePosition.Rows[e.RowIndex].Cells[0].Value),
+                        "保存", MessageBoxButtons.OKCancel) == DialogResult.Cancel) break;
+                    if (dgvPlatePosition.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString() == "Goto")
+                    {
+                        var ret = 0;
+                        switch (e.RowIndex)
+                        {
+                            case 0://基准点
+                                ret = MoveToPoint(tray.BasePosition);
+                                break;
+                            case 1://行方向终点
+                                ret = MoveToPoint(tray.RowPosition);
+                                break;
+                            case 2://列方向终点
+                                ret = MoveToPoint(tray.ColumnPosition);
+                                break;
+                            default: break;
+                        }
+                        switch (ret)
+                        {
+                            case -2:
+                                MessageBox.Show("伺服定位异常失败！");
+                                break;
+                            case -3:
+                                MessageBox.Show("伺服未使能！");
+                                break;
+                            case -4:
+                                MessageBox.Show("伺服忙碌中！");
+                                break;
+                        }
+                    }
+                    break;
+                default: break;
             }
         }
 
-        private void btnPlateRowGoto_Click(object sender, EventArgs e)
+        #region 数据表格初始化
+        /// <summary>
+        /// 数据初始化
+        /// </summary>
+        private void InitdgvPlatePositionRows()
         {
-            var ret = MoveToPoint(tray.RowPosition);
-            switch (ret)
-            {
-                case -1:
-                    MessageBox.Show("外部条件不成立！"); break;
-                case -2:
-                    MessageBox.Show("定位异常退出！"); break;
-                case -4:
-                    MessageBox.Show("XY定位失败！"); break;
-                default:
-                    break;
-            }
+            this.dgvPlatePosition.Rows.Clear();
+            //in a real scenario, you may need to add different rows
+            dgvPlatePosition.Rows.Add(new object[] {
+                    "基准点位置",
+                    tray.BaseIndex.ToString(),
+                    tray.BasePosition.X.ToString("0.000"),
+                    tray.BasePosition.Y.ToString("0.000"),
+                    tray.BasePosition.Z.ToString("0.000"),
+                    "Save",
+                    "Goto"
+                });
+            dgvPlatePosition.Rows.Add(new object[] {
+                    "行终点位置",
+                    tray.RowIndex.ToString(),
+                    tray.RowPosition.X.ToString("0.000"),
+                    tray.RowPosition.Y.ToString("0.000"),
+                    tray.RowPosition.Z.ToString("0.000"),
+                    "Save",
+                    "Goto"
+                });
+            dgvPlatePosition.Rows.Add(new object[] {
+                    "列终点位置",
+                    tray.ColumnIndex.ToString(),
+                    tray.ColumnPosition.X.ToString("0.000"),
+                    tray.ColumnPosition.Y.ToString("0.000"),
+                    tray.ColumnPosition.Z.ToString("0.000"),
+                    "Save",
+                    "Goto"
+                });
         }
-        private void btnPlateColGoto_Click(object sender, EventArgs e)
+        #endregion
+
+        #region 数据表格刷新
+        /// <summary>
+        /// 准数据刷新
+        /// </summary>
+        private void RefreshdgvPlatePositionRows(int i)
         {
-            var ret = MoveToPoint(tray.ColumnPosition);
-            switch (ret)
+            switch (i)
             {
-                case -1:
-                    MessageBox.Show("外部条件不成立！"); break;
-                case -2:
-                    MessageBox.Show("定位异常退出！"); break;
-                case -4:
-                    MessageBox.Show("XY定位失败！"); break;
-                default:
+                case 0:
+                    dgvPlatePosition.Rows[i].SetValues(new object[] {
+                        "基准点位置",
+                        tray.BaseIndex.ToString(),
+                        tray.BasePosition.X.ToString("0.000"),
+                        tray.BasePosition.Y.ToString("0.000"),
+                        tray.BasePosition.Z.ToString("0.000"),
+                        "Save",
+                        "Goto"
+                    });
                     break;
+                case 1:
+                    dgvPlatePosition.Rows[i].SetValues(new object[] {
+                        "行终点位置",
+                        tray.RowIndex.ToString(),
+                        tray.RowPosition.X.ToString("0.000"),
+                        tray.RowPosition.Y.ToString("0.000"),
+                        tray.RowPosition.Z.ToString("0.000"),
+                        "Save",
+                        "Goto"
+                    });
+                    break;
+                case 2:
+                    dgvPlatePosition.Rows[i].SetValues(new object[] {
+                        "列终点位置",
+                        tray.ColumnIndex.ToString(),
+                        tray.ColumnPosition.X.ToString("0.000"),
+                        tray.ColumnPosition.Y.ToString("0.000"),
+                        tray.ColumnPosition.Z.ToString("0.000"),
+                        "Save",
+                        "Goto"
+                    });
+                    break;
+                default: break;
             }
         }
         #endregion
+
+        private int MoveToPoint(Point3D<double> pos)
+        {
+            if (!_condition()) return -1;
+            Global.IsLocating = true;
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    //判断Z轴是否在零点
+                    if (!m_Zaxis.IsInPosition(0))
+                        m_Zaxis.MoveTo(0, new VelocityCurve(0, (double)m_Zaxis.Speed, 0));
+                    while (true)
+                    {
+                        if (!Global.IsLocating) return -1;
+                        Thread.Sleep(10);
+                        if (m_Zaxis.IsInPosition(0)) break;
+                        if (ServoAxisIsReady(m_Zaxis))
+                        {
+                            m_Zaxis.Stop();
+                            Global.IsLocating = false;
+                            return -4;
+                        }
+                    }
+                    //将X、Y移动到指定位置
+                    if (!m_Xaxis.IsInPosition(pos.X))
+                        m_Xaxis.MoveTo(pos.X, new VelocityCurve(0, (double)m_Xaxis.Speed, 0));
+                    if (!m_Yaxis.IsInPosition(pos.Y))
+                        m_Yaxis.MoveTo(pos.Y, new VelocityCurve(0, (double)m_Yaxis.Speed, 0));
+                    while (true)
+                    {
+                        if (!Global.IsLocating) return -1;
+                        Thread.Sleep(10);
+                        if (m_Xaxis.IsInPosition(pos.X) && m_Yaxis.IsInPosition(pos.Y)) break;
+                        if (ServoAxisIsReady(m_Xaxis) || ServoAxisIsReady(m_Yaxis))
+                        {
+                            m_Xaxis.Stop();
+                            m_Yaxis.Stop();
+                            Global.IsLocating = false;
+                            return -4;
+                        }
+                    }
+                    //将Z轴移动到指定位置
+                    m_Zaxis.MoveTo(pos.Z, new VelocityCurve(0, (double)m_Zaxis.Speed, 0));
+                    while (true)
+                    {
+                        if (!Global.IsLocating) return -1;
+                        Thread.Sleep(10);
+                        if (m_Zaxis.IsInPosition(pos.Z)) break;
+                        if (ServoAxisIsReady(m_Zaxis))
+                        {
+                            m_Zaxis.Stop();
+                            Global.IsLocating = false;
+                            return -4;
+                        }
+                    }
+                    Global.IsLocating = false;
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    Global.IsLocating = false;
+                    log.Fatal("设备驱动程序异常", ex);
+                    return -2;
+                }
+            }, TaskCreationOptions.AttachedToParent | TaskCreationOptions.LongRunning);
+
+            return 0;
+        }
 
         private void btnCalibCal_Click(object sender, EventArgs e)
         {
@@ -463,8 +502,8 @@ namespace desay
             try
             {
                 IsWrite = true;
-                //var ret = TrayFactory.Calibration(PlateKey);
-                //if (!ret) MessageBox.Show("托盘标定失败！");
+                var ret = TrayFactory.Calibration(PlateKey);
+                if (!ret) MessageBox.Show("托盘标定失败！");
             }
             catch (Exception ex)
             {
@@ -478,6 +517,23 @@ namespace desay
             tray.RowYoffset = (double)ndnRowYoffset.Value;
             tray.ColumnXoffset = (double)ndnColumnXoffset.Value;
             tray.ColumnYoffset = (double)ndnColumnYoffset.Value;
+        }
+        private bool ServoAxisIsReady(ApsAxis axis)
+        {
+            return !axis.IsServon || axis.IsAlarmed || axis.IsEmg || axis.IsMEL || axis.IsPEL;
+        }
+
+        private void frmTrayCalib_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            tray.ResetTrayColor(Color.Gray);
+            tray.updateColor();
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            int Pos = Convert.ToInt32(numericUpDown1.Value);
+            Point3D<double> pos1 = tray.GetPosition(tray.BasePosition, Pos);
+            MoveToPoint(pos1);
         }
     }
 }

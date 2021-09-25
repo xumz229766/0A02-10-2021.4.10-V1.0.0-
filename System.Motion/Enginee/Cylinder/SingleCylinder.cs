@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Motion.Interfaces;
-namespace Motion.Enginee
+using System.Interfaces;
+namespace System.Enginee
 {
     //2018.7.14修改..jiang
     /// <summary>
@@ -21,13 +21,13 @@ namespace Motion.Enginee
         private bool cylinderOnOrigin;
         private bool _OutOriginStatus;
         private bool _OutMoveStatus;
-        private IoPoint _InOrigin,_InMove, _OutMove;
+        private IoPoint _InOrigin, _InMove, _OutMove;
         private bool cylinderManual;
         private bool cylinderEnable;
         private bool _autoExecute;
         private readonly Stopwatch _watchOrigin = new Stopwatch();
         private readonly Stopwatch _watchMove = new Stopwatch();
-        private readonly Stopwatch[] _watchAlarm =new Stopwatch[] {new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
+        private readonly Stopwatch[] _watchAlarm = new Stopwatch[] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         #endregion
         /// <summary>
         /// 构造函数
@@ -78,17 +78,17 @@ namespace Motion.Enginee
         private bool NoOriginAlarm()
         {
 
-                bool alarmDelayDone = false;
-                if (Condition.External.AirSignal && !_OutMove.Value && !_InOrigin.Value) cylinderNoOrigin = true;
-                else cylinderNoOrigin = false;
-                if (cylinderNoOrigin && !Condition.NoOriginShield)
-                    if (Delay.AlarmTime <= _watchAlarm[0].ElapsedMilliseconds) alarmDelayDone = true;
-                    else alarmDelayDone = false;
-                else _watchAlarm[0].Restart();
-                //无原点报警
-                if ((cylinderNoOrigin && alarmDelayDone) || (_noOriginAlarm && !Condition.External.AlarmReset)) _noOriginAlarm = true;
-                else _noOriginAlarm = false;
-                return _noOriginAlarm;
+            bool alarmDelayDone = false;
+            if (Condition.External.AirSignal && !_OutMove.Value && !_InOrigin.Value) cylinderNoOrigin = true;
+            else cylinderNoOrigin = false;
+            if (cylinderNoOrigin && !Condition.NoOriginShield)
+                if (Delay.AlarmTime <= _watchAlarm[0].ElapsedMilliseconds) alarmDelayDone = true;
+                else alarmDelayDone = false;
+            else _watchAlarm[0].Restart();
+            //无原点报警
+            if ((cylinderNoOrigin && alarmDelayDone) || (_noOriginAlarm && !Condition.External.AlarmReset)) _noOriginAlarm = true;
+            else _noOriginAlarm = false;
+            return _noOriginAlarm;
 
         }
         /// <summary>
@@ -97,20 +97,18 @@ namespace Motion.Enginee
         /// <returns></returns>
         private bool NoMoveAlarm()
         {
+            bool alarmDelayDone = false;
+            if (Condition.External.AirSignal && _OutMove.Value && !_InMove.Value) cylinderNoMove = true;
+            else cylinderNoMove = false;
 
-                bool alarmDelayDone = false;
-                if (Condition.External.AirSignal && _OutMove.Value && !_InMove.Value) cylinderNoMove = true;
-                else cylinderNoMove = false;
-
-                if (cylinderNoMove && !Condition.NoMoveShield)
-                    if (Delay.AlarmTime <= _watchAlarm[1].ElapsedMilliseconds) alarmDelayDone = true;
-                    else alarmDelayDone = false;
-                else _watchAlarm[1].Restart();
-                //无动点报警
-                if ((cylinderNoMove && alarmDelayDone) || (_noMoveAlarm && !Condition.External.AlarmReset)) _noMoveAlarm = true;
-                else _noMoveAlarm = false;
-                return _noMoveAlarm;
-
+            if (cylinderNoMove && !Condition.NoMoveShield)
+                if (Delay.AlarmTime <= _watchAlarm[1].ElapsedMilliseconds) alarmDelayDone = true;
+                else alarmDelayDone = false;
+            else _watchAlarm[1].Restart();
+            //无动点报警
+            if ((cylinderNoMove && alarmDelayDone) || (_noMoveAlarm && !Condition.External.AlarmReset)) _noMoveAlarm = true;
+            else _noMoveAlarm = false;
+            return _noMoveAlarm;
         }
         /// <summary>
         /// 气缸为Off时，动点信号报警
@@ -118,20 +116,18 @@ namespace Motion.Enginee
         /// <returns></returns>
         private bool OffMoveAlarm()
         {
+            bool alarmDelayDone = false;
+            if (Condition.External.AirSignal && !_OutMove.Value && _InMove.Value) cylinderOffMove = true;
+            else cylinderOffMove = false;
 
-                bool alarmDelayDone = false;
-                if (Condition.External.AirSignal && !_OutMove.Value && _InMove.Value) cylinderOffMove = true;
-                else cylinderOffMove = false;
-
-                if (cylinderOffMove && !Condition.NoMoveShield)
-                    if (Delay.AlarmTime <= _watchAlarm[2].ElapsedMilliseconds) alarmDelayDone = true;
-                    else alarmDelayDone = false;
-                else _watchAlarm[2].Restart();
-                //气缸OFF时，动点信号报警
-                if ((cylinderOffMove && alarmDelayDone) || (_offMoveAlarm && !Condition.External.AlarmReset)) _offMoveAlarm = true;
-                else _offMoveAlarm = false;
-                return _offMoveAlarm;
-
+            if (cylinderOffMove && !Condition.NoMoveShield)
+                if (Delay.AlarmTime <= _watchAlarm[2].ElapsedMilliseconds) alarmDelayDone = true;
+                else alarmDelayDone = false;
+            else _watchAlarm[2].Restart();
+            //气缸OFF时，动点信号报警
+            if ((cylinderOffMove && alarmDelayDone) || (_offMoveAlarm && !Condition.External.AlarmReset)) _offMoveAlarm = true;
+            else _offMoveAlarm = false;
+            return _offMoveAlarm;
         }
         /// <summary>
         /// 气缸为On时，原点信号报警
@@ -139,29 +135,28 @@ namespace Motion.Enginee
         /// <returns></returns>
         private bool OnOriginAlarm()
         {
+            bool alarmDelayDone = false;
+            if (Condition.External.AirSignal && _OutMove.Value && _InOrigin.Value) cylinderOnOrigin = true;
+            else cylinderOnOrigin = false;
 
-                bool alarmDelayDone = false;
-                if (Condition.External.AirSignal && _OutMove.Value && _InOrigin.Value) cylinderOnOrigin = true;
-                else cylinderOnOrigin = false;
-
-                if (cylinderOnOrigin && !Condition.NoOriginShield)
-                    if (Delay.AlarmTime <= _watchAlarm[3].ElapsedMilliseconds) alarmDelayDone = true;
-                    else alarmDelayDone = false;
-                else _watchAlarm[3].Restart();
-                //气缸ON时，原点信号报警
-                if ((cylinderOnOrigin && alarmDelayDone) || (_onOriginAlarm && !Condition.External.AlarmReset)) _onOriginAlarm = true;
-                else _onOriginAlarm = false;
-                return _onOriginAlarm;
+            if (cylinderOnOrigin && !Condition.NoOriginShield)
+                if (Delay.AlarmTime <= _watchAlarm[3].ElapsedMilliseconds) alarmDelayDone = true;
+                else alarmDelayDone = false;
+            else _watchAlarm[3].Restart();
+            //气缸ON时，原点信号报警
+            if ((cylinderOnOrigin && alarmDelayDone) || (_onOriginAlarm && !Condition.External.AlarmReset)) _onOriginAlarm = true;
+            else _onOriginAlarm = false;
+            return _onOriginAlarm;
         }
         /// <summary>
         /// 自动时，手动模式为ON提示
         /// </summary>
         private bool AutoOnPrompt()
         {
-                //自动操作时，手动为ON提示
-                if (Condition.External.ManualAutoMode && Condition.External.InitializingDone && cylinderManual)
-                    return true;
-                else return false;
+            //自动操作时，手动为ON提示
+            if (Condition.External.ManualAutoMode && Condition.External.InitializingDone && cylinderManual)
+                return true;
+            else return false;
         }
         #endregion
 
@@ -257,18 +252,19 @@ namespace Motion.Enginee
         /// </summary>
         public override void Set()
         {
-            if (cylinderManual) return;        
-                _autoExecute = true;
+         
+            if (cylinderManual) return;
+            _autoExecute = true;
             CylinderActive();
         }
         /// <summary>
         /// 自动复位操作
         /// </summary>
         public override void Reset()
-        {
+        {        
             if (cylinderManual) return;
-                _autoExecute = false;
-                CylinderActive();
+            _autoExecute = false;
+            CylinderActive();
         }
         private void CylinderActive()
         {

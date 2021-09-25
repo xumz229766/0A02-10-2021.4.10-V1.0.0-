@@ -1,6 +1,6 @@
-﻿using Motion.Interfaces;
+﻿using System.Interfaces;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     ///     真空

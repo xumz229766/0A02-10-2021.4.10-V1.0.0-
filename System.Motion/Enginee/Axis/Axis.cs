@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Motion.Interfaces;
-using Motion.LSAps;
-namespace Motion.Enginee
+using System.Interfaces;
+using System.AdvantechAps;
+namespace System.Enginee
 {
     /// <summary>
     ///     表示一个运动轴。
@@ -33,9 +33,25 @@ namespace Motion.Enginee
         public int NoId { get; set; }
 
         /// <summary>
+        ///     回原点速度
+        /// </summary>
+        public VelocityCurve HomeSped { get; set; }
+        /// <summary>
+        ///     运行速度
+        /// </summary>
+        public VelocityCurve RunSped { get; set; }
+        /// <summary>
+        /// 手动动作
+        /// </summary>
+        public bool ManualAutoMode { get; set; }
+        /// <summary>
         ///     当前 Absolute 位置。
         /// </summary>
         public abstract double CurrentPos { get; }
+        /// <summary>
+        ///     当前 编码器返回位置。
+        /// </summary>
+        public abstract double BackPos { get; }
         /// <summary>
         /// 当前速度
         /// </summary>
@@ -49,15 +65,6 @@ namespace Motion.Enginee
         /// </summary>
         public abstract bool IsDone { get; }
         /// <summary>
-        ///     是否到达正限位。
-        /// </summary>
-        public abstract bool IsPositiveLimit { get; }
-
-        /// <summary>
-        ///     是否到达负限位。
-        /// </summary>
-        public abstract bool IsNegativeLimit { get; }
-        /// <summary>
         ///     是否报警
         /// </summary>
         public abstract bool IsAlarmed { get; }
@@ -66,7 +73,7 @@ namespace Motion.Enginee
         ///     是否急停
         /// </summary>
         public abstract bool IsEmg { get; }
-       
+
         /// <summary>
         ///     点位。
         /// </summary>
@@ -78,6 +85,14 @@ namespace Motion.Enginee
         /// <param name="value">将要移动到的位置。</param>
         /// <param name="velocityCurve">移动时的运行参数。</param>
         public abstract void MoveTo(double value, TVelocityCurve velocityCurve = default(TVelocityCurve));
+
+        /// <summary>
+        ///     运动轴轴移动到指定的位置(软着陆)。
+        /// </summary>
+        /// <param name="value1">将要移动到的位置第一段。</param>
+        /// <param name="value2">将要移动到的位置第二段。</param>
+        /// <param name="velocityCurve">移动时的运行参数。</param>
+        public abstract void MoveToExtern(double value1, double value2, VelocityCurve velocityCurve = null);
 
         /// <summary>
         ///     运动轴相对移动到指定位置。
@@ -98,7 +113,8 @@ namespace Motion.Enginee
         /// <summary>
         /// 回零
         /// </summary>
-        /// <param name="axisNo"></param>
+        /// <param name="homeMode"></param>
+        /// <param name="DirMode"></param>
         /// <returns></returns>
         public abstract void BackHome();
         /// <summary>
@@ -114,6 +130,7 @@ namespace Motion.Enginee
         /// <param name="velocityCurve"></param>
         public abstract void Stop(TVelocityCurve velocityCurve = default(TVelocityCurve));
 
+        public abstract void APS_set_command(int pos);
         public abstract StopReasons GetStopReasons { get; }
         public abstract bool IsInPosition(double pos);
         #endregion

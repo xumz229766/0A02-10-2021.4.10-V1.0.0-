@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO.Ports;
 
-namespace Motion.Interfaces.Base
+namespace System.Interfaces.Base
 {
     public interface ISerialPort
     {

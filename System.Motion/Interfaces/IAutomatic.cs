@@ -1,4 +1,4 @@
-﻿namespace Motion.Interfaces
+﻿namespace System.Interfaces
 {
     /// <summary>
     ///     元器件

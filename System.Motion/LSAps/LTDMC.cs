@@ -564,8 +564,6 @@ namespace Motion.LSAps //命名空间根据应用程序修改
         public static extern short dmc_set_position(UInt16 CardNo, UInt16 axis, Int32 current_position);
         [DllImport("LTDMC.dll", EntryPoint = "dmc_get_target_position", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern Int32 dmc_get_target_position(UInt16 CardNo, UInt16 axis);
-        [DllImport("LTDMC.dll", EntryPoint = "dmc_get_target_position_unit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 dmc_get_target_position_unit(UInt16 CardNo, UInt16 axis, ref Double target_position);
         [DllImport("LTDMC.dll", EntryPoint = "dmc_check_done", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern short dmc_check_done(UInt16 CardNo, UInt16 axis);
         [DllImport("LTDMC.dll", EntryPoint = "dmc_check_done_multicoor", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
@@ -623,10 +621,6 @@ namespace Motion.LSAps //命名空间根据应用程序修改
         public static extern short nmc_set_ad_mode(ushort CardNo, ushort NoteID, ushort channel, ushort mode, uint buffer_nums);
         [DllImport("LTDMC.dll")]
         public static extern short nmc_get_ad_mode(ushort CardNo, ushort NoteID, ushort channel, ref ushort mode, uint buffer_nums);
-        [DllImport("LTDMC.dll")]
-        public static extern short nmc_set_da_mode(ushort CardNo, ushort NoteID, ushort channel, ushort mode, uint buffer_nums);
-        [DllImport("LTDMC.dll")]
-        public static extern short nmc_get_da_mode(ushort CardNo, ushort NoteID, ushort channel, ref ushort mode, uint buffer_nums);
         [DllImport("LTDMC.dll")]
         public static extern short nmc_write_to_flash(ushort CardNo, ushort PortNum, ushort NodeNum);
 
@@ -1082,50 +1076,6 @@ namespace Motion.LSAps //命名空间根据应用程序修改
         public static extern short dmc_set_factor(UInt16 CardNo, UInt16 axis, double factor);
         [DllImport("LTDMC.dll")]
         public static extern short dmc_set_error(UInt16 CardNo, UInt16 axis, Int32 error);
-
-        //IO及编码器计数功能
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_set_io_count_profile(UInt16 CardNo, UInt16 chan, UInt16 bitno,UInt16 mode,double filter, double count_value, UInt16[] axis_list, UInt16 axis_num, UInt16 stop_mode );
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_get_io_count_profile(UInt16 CardNo, UInt16 chan, ref UInt16 bitno,ref UInt16 mode,ref double filter, ref double count_value, UInt16[] axis_list, ref UInt16 axis_num, ref UInt16 stop_mode );
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_set_io_count_enable(UInt16 CardNo, UInt16 chan, UInt16 ifenable);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_clear_io_count(UInt16 CardNo, UInt16 chan);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_get_io_count_value_extern(UInt16 CardNo, UInt16 chan, ref Int32 current_value);
-
-        //螺距补偿前的脉冲位置，编码器位置
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_get_position_ex(UInt16 CardNo,UInt16 axis, ref double pos);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_get_encoder_ex(UInt16 CardNo,UInt16 axis, ref double pos);
-        //回零偏移模式函数
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_set_home_shift_param(UInt16 CardNo, UInt16 axis, UInt16 pos_clear_mode, double ShiftValue);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_get_home_shift_param(UInt16 CardNo, UInt16 axis, ref UInt16 pos_clear_mode, ref double ShiftValue);
-
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_change_speed_extend(UInt16 CardNo,UInt16 axis,double Curr_Vel, double Taccdec, UInt16 pin_num, UInt16 trig_mode);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_follow_vector_speed_move(UInt16 CardNo,UInt16 axis,UInt16 Follow_AxisNum,UInt16[] Follow_AxisList,double ratio);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_conti_line_unit_extend(UInt16 CardNo, UInt16 Crd, UInt16 AxisNum, UInt16[] AxisList, double[] pPosList, UInt16 posi_mode, double Extend_Len, UInt16 enable,Int32 mark); //连续插补直线
-     
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_hcmp_2d_set_config_unit(UInt16 CardNo,UInt16 hcmp,UInt16 cmp_mode,UInt16 x_axis, UInt16 x_cmp_source, double x_cmp_error, UInt16 y_axis, UInt16 y_cmp_source, double y_cmp_error,UInt16 cmp_logic,int time);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_hcmp_2d_get_config_unit(UInt16 CardNo,UInt16 hcmp,ref UInt16 cmp_mode,ref UInt16 x_axis, ref UInt16 x_cmp_source, ref double x_cmp_error, ref UInt16 y_axis, ref UInt16 y_cmp_source, ref double y_cmp_error,ref UInt16 cmp_logic,ref int time);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_hcmp_2d_set_pwmoutput(UInt16 CardNo,UInt16 hcmp,UInt16 pwm_enable,double duty,double freq,UInt16 pwm_number);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_hcmp_2d_get_pwmoutput(UInt16 CardNo,UInt16 hcmp,ref UInt16 pwm_enable,ref double duty,ref double freq,ref UInt16 pwm_number);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_hcmp_2d_add_point_unit(UInt16 CardNo,UInt16 hcmp, double x_cmp_pos, double y_cmp_pos,UInt16 cmp_outbit);
-        [DllImport("LTDMC.dll")]
-        public static extern short dmc_hcmp_2d_get_current_state_unit(UInt16 CardNo, UInt16 hcmp, ref int remained_points, ref double x_current_point, ref double y_current_point, ref int runned_points, ref UInt16 current_state, ref UInt16 current_outbit); 
-
 
         //通用文件下载
         [DllImport("LTDMC.dll", EntryPoint = "dmc_download_file", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]

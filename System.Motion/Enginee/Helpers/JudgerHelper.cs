@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     public static class JudgerHelper
     {

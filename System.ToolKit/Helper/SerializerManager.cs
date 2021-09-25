@@ -30,7 +30,7 @@ namespace System.ToolKit.Helper
         public T Load(string fileName)
         {
             if (!File.Exists(fileName))
-            {
+            {             
                 string path = fileName;
                 XmlDocument xmlDocument = new XmlDocument();
                 XmlDeclaration xmlDeclaration = xmlDocument.CreateXmlDeclaration("1.0", "UTF-8", null);

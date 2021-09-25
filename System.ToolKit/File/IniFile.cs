@@ -60,8 +60,8 @@ namespace System.ToolKit
         /// <returns>返回string</returns>
         public static T ReadValue<T>(string Section, string Key, string filepath, T DefaultValue)//对ini文件进行读操作的函数
         {
-            StringBuilder temp = new StringBuilder(255);
-            long i = GetPrivateProfileString(Section, Key, null, temp, 255, filepath);
+            StringBuilder temp = new StringBuilder(2048);
+            long i = GetPrivateProfileString(Section, Key, null, temp, 2048, filepath);
             if (temp.ToString().Trim() == "" || temp.ToString() == null) return DefaultValue;
             return (T)Convert.ChangeType(temp.ToString(), typeof(T));
         }
@@ -448,5 +448,19 @@ namespace System.ToolKit
         }
 
         #endregion
+
+        public static void CreateDir(string subdir)
+        {
+            string path = AppDomain.CurrentDomain.BaseDirectory + "Config\\" + subdir;
+            if (Directory.Exists(path))
+            {
+                Console.WriteLine("此文件夹已经存在，无需创建！");
+            }
+            else
+            {
+                Directory.CreateDirectory(path);
+
+            }
+        }
     }
 }

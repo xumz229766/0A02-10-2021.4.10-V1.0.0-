@@ -1,4 +1,4 @@
-﻿namespace Motion.Interfaces
+﻿namespace System.Interfaces
 {
     /// <summary>
     ///     初始化接口
@@ -8,6 +8,6 @@
         /// <summary>
         ///     初始化
         /// </summary>
-        bool Initialize();
+        void Initialize();
     }
 }

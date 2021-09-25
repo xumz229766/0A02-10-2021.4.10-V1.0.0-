@@ -1,6 +1,6 @@
 ﻿using System;
-using Motion.Interfaces;
-namespace Motion.Enginee
+using System.Interfaces;
+namespace System.Enginee
 {
     public class CylinderCondition
     {

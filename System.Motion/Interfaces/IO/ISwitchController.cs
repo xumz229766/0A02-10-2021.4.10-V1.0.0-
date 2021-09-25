@@ -1,4 +1,4 @@
-﻿namespace Motion.Interfaces
+﻿namespace System.Interfaces
 {
     /// <summary>
     ///     通讯 IO 开关量控制器

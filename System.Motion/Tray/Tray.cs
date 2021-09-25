@@ -12,10 +12,31 @@ namespace System.Tray
     {
         private List<Index> lstEmpty = new List<Index>();//盘中无效位置
         public Action updateColor;//更新点位时的委托
+
+        //事件：更新点位时的事件
+        public event EventHandler<EventArgs> valueChanged;
+        /// <summary>
+        /// 当前位置加1
+        /// </summary>
+        public void Add()
+        {
+            CurrentPos++;
+            if (valueChanged != null) valueChanged(this, EventArgs.Empty);
+        }
+        /// <summary>
+        /// 当前位置减1
+        /// </summary>
+        public void Dec()
+        {
+            CurrentPos--;
+            if (valueChanged != null) valueChanged(this, EventArgs.Empty);
+        }
         /// <summary>
         /// 有效排序位置
         /// </summary>
         public Dictionary<int, Index> dic_Index = new Dictionary<int, Index>();
+
+
         /// <summary>
         /// 托盘ID号
         /// </summary>
@@ -563,6 +584,15 @@ namespace System.Tray
                 lstEmpty.Remove(pos);
             }
         }
+        public bool IsExistEmpty(string r_c)
+        {
+            Index pos = new Index(r_c);
+            if (lstEmpty.Contains(pos))
+            {
+                return true;
+            }
+            return false;
+        }
         //判断屏蔽位置是否存在
         public bool IsExistEmpty(Index _pos)
         {
@@ -598,9 +628,17 @@ namespace System.Tray
         /// <param name="bColor">颜色</param>
         public void SetNumColor(int num, Color bColor)
         {
-            Index index = dic_Index[num];
-            index.color = bColor;
-            dic_Index[num] = index;
+            try
+            {
+                Index index = dic_Index[num];
+                index.color = bColor;
+                dic_Index[num] = index;
+            }
+            catch (Exception ex)
+            {
+                LogHelper._WriteErrorLog(ex.ToString());
+            }
+         
         }
         /// <summary>
         /// 托盘颜色复位

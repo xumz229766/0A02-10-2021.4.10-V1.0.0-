@@ -39,11 +39,28 @@
             this.chxRemoveSheild = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.lblIsCalibration = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.ndnColumnYoffset = new System.Windows.Forms.NumericUpDown();
+            this.ndnColumnXoffset = new System.Windows.Forms.NumericUpDown();
+            this.ndnRowYoffset = new System.Windows.Forms.NumericUpDown();
+            this.ndnRowXoffset = new System.Windows.Forms.NumericUpDown();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.ndnFinalBaseIndex = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.ndnFinalRowIndex = new System.Windows.Forms.NumericUpDown();
+            this.label11 = new System.Windows.Forms.Label();
+            this.ndnFinalColumnIndex = new System.Windows.Forms.NumericUpDown();
             this.cbUnregular2 = new System.Windows.Forms.CheckBox();
             this.cbUnregular1 = new System.Windows.Forms.CheckBox();
             this.btnDelete = new System.Windows.Forms.Button();
-            this.lblIsCalibration = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.btnAdd = new System.Windows.Forms.Button();
             this.btnSelect = new System.Windows.Forms.Button();
             this.txtNewPlateType = new System.Windows.Forms.TextBox();
@@ -64,35 +81,21 @@
             this.label4 = new System.Windows.Forms.Label();
             this.btnSave = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.ndnFinalRowIndex = new System.Windows.Forms.NumericUpDown();
-            this.ndnFinalColumnIndex = new System.Windows.Forms.NumericUpDown();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.ndnFinalBaseIndex = new System.Windows.Forms.NumericUpDown();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label21 = new System.Windows.Forms.Label();
-            this.ndnColumnYoffset = new System.Windows.Forms.NumericUpDown();
-            this.ndnColumnXoffset = new System.Windows.Forms.NumericUpDown();
-            this.ndnRowYoffset = new System.Windows.Forms.NumericUpDown();
-            this.ndnRowXoffset = new System.Windows.Forms.NumericUpDown();
-            this.label18 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
+            this.radioButton3 = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.nudRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCol)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.panel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalRowIndex)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalColumnIndex)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalBaseIndex)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ndnColumnYoffset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ndnColumnXoffset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ndnRowYoffset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ndnRowXoffset)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalBaseIndex)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalRowIndex)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalColumnIndex)).BeginInit();
+            this.tableLayoutPanel2.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -132,7 +135,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.nudRow.Location = new System.Drawing.Point(42, 169);
             this.nudRow.Minimum = new decimal(new int[] {
-            2,
+            1,
             0,
             0,
             0});
@@ -151,7 +154,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.nudCol.Location = new System.Drawing.Point(42, 199);
             this.nudCol.Minimum = new decimal(new int[] {
-            2,
+            1,
             0,
             0,
             0});
@@ -187,6 +190,7 @@
             this.chxAddSheild.TabIndex = 5;
             this.chxAddSheild.Text = "添加屏蔽";
             this.chxAddSheild.UseVisualStyleBackColor = true;
+            this.chxAddSheild.Visible = false;
             this.chxAddSheild.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // chxRemoveSheild
@@ -200,6 +204,7 @@
             this.chxRemoveSheild.TabIndex = 5;
             this.chxRemoveSheild.Text = "移除屏蔽";
             this.chxRemoveSheild.UseVisualStyleBackColor = true;
+            this.chxRemoveSheild.Visible = false;
             this.chxRemoveSheild.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
             // 
             // tableLayoutPanel1
@@ -223,6 +228,9 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.radioButton3);
+            this.panel2.Controls.Add(this.radioButton2);
+            this.panel2.Controls.Add(this.radioButton1);
             this.panel2.Controls.Add(this.groupBox1);
             this.panel2.Controls.Add(this.nudCol);
             this.panel2.Controls.Add(this.nudRow);
@@ -248,6 +256,329 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(246, 588);
             this.panel2.TabIndex = 1;
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(116, 297);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(47, 16);
+            this.radioButton2.TabIndex = 14;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "小盘";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButton2.CheckedChanged += new System.EventHandler(this.RadioButton2_CheckedChanged);
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(116, 276);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(47, 16);
+            this.radioButton1.TabIndex = 13;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "大盘";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButton1.CheckedChanged += new System.EventHandler(this.RadioButton1_CheckedChanged);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Controls.Add(this.lblIsCalibration);
+            this.groupBox1.Controls.Add(this.label21);
+            this.groupBox1.Controls.Add(this.ndnColumnYoffset);
+            this.groupBox1.Controls.Add(this.ndnColumnXoffset);
+            this.groupBox1.Controls.Add(this.ndnRowYoffset);
+            this.groupBox1.Controls.Add(this.ndnRowXoffset);
+            this.groupBox1.Controls.Add(this.label18);
+            this.groupBox1.Controls.Add(this.label19);
+            this.groupBox1.Controls.Add(this.label20);
+            this.groupBox1.Controls.Add(this.ndnFinalBaseIndex);
+            this.groupBox1.Controls.Add(this.label12);
+            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Controls.Add(this.ndnFinalRowIndex);
+            this.groupBox1.Controls.Add(this.label11);
+            this.groupBox1.Controls.Add(this.ndnFinalColumnIndex);
+            this.groupBox1.Location = new System.Drawing.Point(17, 343);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(198, 229);
+            this.groupBox1.TabIndex = 12;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "标定托盘参数";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(9, 198);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(83, 12);
+            this.label9.TabIndex = 6;
+            this.label9.Text = "托盘是否标定:";
+            this.label9.Visible = false;
+            // 
+            // lblIsCalibration
+            // 
+            this.lblIsCalibration.AutoSize = true;
+            this.lblIsCalibration.Font = new System.Drawing.Font("宋体", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblIsCalibration.ForeColor = System.Drawing.Color.Red;
+            this.lblIsCalibration.Location = new System.Drawing.Point(87, 196);
+            this.lblIsCalibration.Name = "lblIsCalibration";
+            this.lblIsCalibration.Size = new System.Drawing.Size(55, 15);
+            this.lblIsCalibration.TabIndex = 6;
+            this.lblIsCalibration.Text = "未标定";
+            this.lblIsCalibration.Visible = false;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(9, 169);
+            this.label21.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(101, 12);
+            this.label21.TabIndex = 24;
+            this.label21.Text = "列方向Y偏差(mm):";
+            // 
+            // ndnColumnYoffset
+            // 
+            this.ndnColumnYoffset.DecimalPlaces = 3;
+            this.ndnColumnYoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.ndnColumnYoffset.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.ndnColumnYoffset.Location = new System.Drawing.Point(115, 167);
+            this.ndnColumnYoffset.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.ndnColumnYoffset.Minimum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            -2147483648});
+            this.ndnColumnYoffset.Name = "ndnColumnYoffset";
+            this.ndnColumnYoffset.Size = new System.Drawing.Size(68, 21);
+            this.ndnColumnYoffset.TabIndex = 28;
+            this.ndnColumnYoffset.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // ndnColumnXoffset
+            // 
+            this.ndnColumnXoffset.DecimalPlaces = 3;
+            this.ndnColumnXoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.ndnColumnXoffset.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.ndnColumnXoffset.Location = new System.Drawing.Point(115, 142);
+            this.ndnColumnXoffset.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.ndnColumnXoffset.Minimum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            -2147483648});
+            this.ndnColumnXoffset.Name = "ndnColumnXoffset";
+            this.ndnColumnXoffset.Size = new System.Drawing.Size(68, 21);
+            this.ndnColumnXoffset.TabIndex = 29;
+            this.ndnColumnXoffset.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // ndnRowYoffset
+            // 
+            this.ndnRowYoffset.DecimalPlaces = 3;
+            this.ndnRowYoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.ndnRowYoffset.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.ndnRowYoffset.Location = new System.Drawing.Point(115, 117);
+            this.ndnRowYoffset.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.ndnRowYoffset.Minimum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            -2147483648});
+            this.ndnRowYoffset.Name = "ndnRowYoffset";
+            this.ndnRowYoffset.Size = new System.Drawing.Size(68, 21);
+            this.ndnRowYoffset.TabIndex = 30;
+            this.ndnRowYoffset.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // ndnRowXoffset
+            // 
+            this.ndnRowXoffset.DecimalPlaces = 3;
+            this.ndnRowXoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.ndnRowXoffset.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.ndnRowXoffset.Location = new System.Drawing.Point(115, 92);
+            this.ndnRowXoffset.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.ndnRowXoffset.Minimum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            -2147483648});
+            this.ndnRowXoffset.Name = "ndnRowXoffset";
+            this.ndnRowXoffset.Size = new System.Drawing.Size(68, 21);
+            this.ndnRowXoffset.TabIndex = 31;
+            this.ndnRowXoffset.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(9, 94);
+            this.label18.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(101, 12);
+            this.label18.TabIndex = 25;
+            this.label18.Text = "行方向X偏差(mm):";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(9, 119);
+            this.label19.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(101, 12);
+            this.label19.TabIndex = 26;
+            this.label19.Text = "行方向Y偏差(mm):";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(9, 144);
+            this.label20.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(101, 12);
+            this.label20.TabIndex = 27;
+            this.label20.Text = "列方向X偏差(mm):";
+            // 
+            // ndnFinalBaseIndex
+            // 
+            this.ndnFinalBaseIndex.Location = new System.Drawing.Point(115, 17);
+            this.ndnFinalBaseIndex.Maximum = new decimal(new int[] {
+            2500,
+            0,
+            0,
+            0});
+            this.ndnFinalBaseIndex.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.ndnFinalBaseIndex.Name = "ndnFinalBaseIndex";
+            this.ndnFinalBaseIndex.Size = new System.Drawing.Size(48, 21);
+            this.ndnFinalBaseIndex.TabIndex = 18;
+            this.ndnFinalBaseIndex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ndnFinalBaseIndex.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(9, 19);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(77, 12);
+            this.label12.TabIndex = 16;
+            this.label12.Text = "基准点序号：";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(9, 44);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(77, 12);
+            this.label10.TabIndex = 16;
+            this.label10.Text = "行终点序号：";
+            // 
+            // ndnFinalRowIndex
+            // 
+            this.ndnFinalRowIndex.Location = new System.Drawing.Point(115, 42);
+            this.ndnFinalRowIndex.Maximum = new decimal(new int[] {
+            2500,
+            0,
+            0,
+            0});
+            this.ndnFinalRowIndex.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.ndnFinalRowIndex.Name = "ndnFinalRowIndex";
+            this.ndnFinalRowIndex.Size = new System.Drawing.Size(48, 21);
+            this.ndnFinalRowIndex.TabIndex = 18;
+            this.ndnFinalRowIndex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ndnFinalRowIndex.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(9, 69);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(77, 12);
+            this.label11.TabIndex = 17;
+            this.label11.Text = "列终点序号：";
+            // 
+            // ndnFinalColumnIndex
+            // 
+            this.ndnFinalColumnIndex.Location = new System.Drawing.Point(115, 67);
+            this.ndnFinalColumnIndex.Maximum = new decimal(new int[] {
+            2500,
+            0,
+            0,
+            0});
+            this.ndnFinalColumnIndex.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.ndnFinalColumnIndex.Name = "ndnFinalColumnIndex";
+            this.ndnFinalColumnIndex.Size = new System.Drawing.Size(48, 21);
+            this.ndnFinalColumnIndex.TabIndex = 19;
+            this.ndnFinalColumnIndex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ndnFinalColumnIndex.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             // 
             // cbUnregular2
             // 
@@ -283,26 +614,6 @@
             this.btnDelete.Text = "删除";
             this.btnDelete.UseVisualStyleBackColor = true;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
-            // 
-            // lblIsCalibration
-            // 
-            this.lblIsCalibration.AutoSize = true;
-            this.lblIsCalibration.Font = new System.Drawing.Font("宋体", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblIsCalibration.ForeColor = System.Drawing.Color.Red;
-            this.lblIsCalibration.Location = new System.Drawing.Point(87, 196);
-            this.lblIsCalibration.Name = "lblIsCalibration";
-            this.lblIsCalibration.Size = new System.Drawing.Size(55, 15);
-            this.lblIsCalibration.TabIndex = 6;
-            this.lblIsCalibration.Text = "未标定";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(9, 198);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(83, 12);
-            this.label9.TabIndex = 6;
-            this.label9.Text = "托盘是否标定:";
             // 
             // btnAdd
             // 
@@ -363,7 +674,7 @@
             this.cmbId.FormattingEnabled = true;
             this.cmbId.Location = new System.Drawing.Point(16, 85);
             this.cmbId.Name = "cmbId";
-            this.cmbId.Size = new System.Drawing.Size(201, 20);
+            this.cmbId.Size = new System.Drawing.Size(199, 20);
             this.cmbId.TabIndex = 7;
             // 
             // label8
@@ -526,282 +837,16 @@
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // ndnFinalRowIndex
+            // radioButton3
             // 
-            this.ndnFinalRowIndex.Location = new System.Drawing.Point(115, 42);
-            this.ndnFinalRowIndex.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.ndnFinalRowIndex.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ndnFinalRowIndex.Name = "ndnFinalRowIndex";
-            this.ndnFinalRowIndex.Size = new System.Drawing.Size(48, 21);
-            this.ndnFinalRowIndex.TabIndex = 18;
-            this.ndnFinalRowIndex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.ndnFinalRowIndex.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            // 
-            // ndnFinalColumnIndex
-            // 
-            this.ndnFinalColumnIndex.Location = new System.Drawing.Point(115, 67);
-            this.ndnFinalColumnIndex.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.ndnFinalColumnIndex.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ndnFinalColumnIndex.Name = "ndnFinalColumnIndex";
-            this.ndnFinalColumnIndex.Size = new System.Drawing.Size(48, 21);
-            this.ndnFinalColumnIndex.TabIndex = 19;
-            this.ndnFinalColumnIndex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.ndnFinalColumnIndex.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(9, 44);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(77, 12);
-            this.label10.TabIndex = 16;
-            this.label10.Text = "行终点序号：";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(9, 69);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(77, 12);
-            this.label11.TabIndex = 17;
-            this.label11.Text = "列终点序号：";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(9, 19);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(77, 12);
-            this.label12.TabIndex = 16;
-            this.label12.Text = "基准点序号：";
-            // 
-            // ndnFinalBaseIndex
-            // 
-            this.ndnFinalBaseIndex.Location = new System.Drawing.Point(115, 17);
-            this.ndnFinalBaseIndex.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.ndnFinalBaseIndex.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ndnFinalBaseIndex.Name = "ndnFinalBaseIndex";
-            this.ndnFinalBaseIndex.Size = new System.Drawing.Size(48, 21);
-            this.ndnFinalBaseIndex.TabIndex = 18;
-            this.ndnFinalBaseIndex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.ndnFinalBaseIndex.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Controls.Add(this.lblIsCalibration);
-            this.groupBox1.Controls.Add(this.label21);
-            this.groupBox1.Controls.Add(this.ndnColumnYoffset);
-            this.groupBox1.Controls.Add(this.ndnColumnXoffset);
-            this.groupBox1.Controls.Add(this.ndnRowYoffset);
-            this.groupBox1.Controls.Add(this.ndnRowXoffset);
-            this.groupBox1.Controls.Add(this.label18);
-            this.groupBox1.Controls.Add(this.label19);
-            this.groupBox1.Controls.Add(this.label20);
-            this.groupBox1.Controls.Add(this.ndnFinalBaseIndex);
-            this.groupBox1.Controls.Add(this.label12);
-            this.groupBox1.Controls.Add(this.label10);
-            this.groupBox1.Controls.Add(this.ndnFinalRowIndex);
-            this.groupBox1.Controls.Add(this.label11);
-            this.groupBox1.Controls.Add(this.ndnFinalColumnIndex);
-            this.groupBox1.Location = new System.Drawing.Point(17, 343);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(198, 229);
-            this.groupBox1.TabIndex = 12;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "标定托盘参数";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(9, 169);
-            this.label21.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(101, 12);
-            this.label21.TabIndex = 24;
-            this.label21.Text = "列方向Y偏差(mm):";
-            // 
-            // ndnColumnYoffset
-            // 
-            this.ndnColumnYoffset.DecimalPlaces = 3;
-            this.ndnColumnYoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ndnColumnYoffset.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.ndnColumnYoffset.Location = new System.Drawing.Point(115, 167);
-            this.ndnColumnYoffset.Maximum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            this.ndnColumnYoffset.Minimum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            -2147483648});
-            this.ndnColumnYoffset.Name = "ndnColumnYoffset";
-            this.ndnColumnYoffset.Size = new System.Drawing.Size(68, 21);
-            this.ndnColumnYoffset.TabIndex = 28;
-            this.ndnColumnYoffset.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            // 
-            // ndnColumnXoffset
-            // 
-            this.ndnColumnXoffset.DecimalPlaces = 3;
-            this.ndnColumnXoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ndnColumnXoffset.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.ndnColumnXoffset.Location = new System.Drawing.Point(115, 142);
-            this.ndnColumnXoffset.Maximum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            this.ndnColumnXoffset.Minimum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            -2147483648});
-            this.ndnColumnXoffset.Name = "ndnColumnXoffset";
-            this.ndnColumnXoffset.Size = new System.Drawing.Size(68, 21);
-            this.ndnColumnXoffset.TabIndex = 29;
-            this.ndnColumnXoffset.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            // 
-            // ndnRowYoffset
-            // 
-            this.ndnRowYoffset.DecimalPlaces = 3;
-            this.ndnRowYoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ndnRowYoffset.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.ndnRowYoffset.Location = new System.Drawing.Point(115, 117);
-            this.ndnRowYoffset.Maximum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            this.ndnRowYoffset.Minimum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            -2147483648});
-            this.ndnRowYoffset.Name = "ndnRowYoffset";
-            this.ndnRowYoffset.Size = new System.Drawing.Size(68, 21);
-            this.ndnRowYoffset.TabIndex = 30;
-            this.ndnRowYoffset.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            // 
-            // ndnRowXoffset
-            // 
-            this.ndnRowXoffset.DecimalPlaces = 3;
-            this.ndnRowXoffset.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ndnRowXoffset.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.ndnRowXoffset.Location = new System.Drawing.Point(115, 92);
-            this.ndnRowXoffset.Maximum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            this.ndnRowXoffset.Minimum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            -2147483648});
-            this.ndnRowXoffset.Name = "ndnRowXoffset";
-            this.ndnRowXoffset.Size = new System.Drawing.Size(68, 21);
-            this.ndnRowXoffset.TabIndex = 31;
-            this.ndnRowXoffset.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(9, 94);
-            this.label18.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(101, 12);
-            this.label18.TabIndex = 25;
-            this.label18.Text = "行方向X偏差(mm):";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(9, 119);
-            this.label19.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(101, 12);
-            this.label19.TabIndex = 26;
-            this.label19.Text = "行方向Y偏差(mm):";
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(9, 144);
-            this.label20.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(101, 12);
-            this.label20.TabIndex = 27;
-            this.label20.Text = "列方向X偏差(mm):";
+            this.radioButton3.AutoSize = true;
+            this.radioButton3.Location = new System.Drawing.Point(116, 255);
+            this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(59, 16);
+            this.radioButton3.TabIndex = 15;
+            this.radioButton3.TabStop = true;
+            this.radioButton3.Text = "特殊盘";
+            this.radioButton3.UseVisualStyleBackColor = true;
             // 
             // TestTray
             // 
@@ -813,24 +858,25 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "托盘设置";
             this.Load += new System.EventHandler(this.TestTray_Load);
+            this.Enter += new System.EventHandler(this.TestTray_Enter);
             ((System.ComponentModel.ISupportInitialize)(this.nudRow)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCol)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel2.PerformLayout();
-            this.panel3.ResumeLayout(false);
-            this.panel3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalRowIndex)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalColumnIndex)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalBaseIndex)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ndnColumnYoffset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ndnColumnXoffset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ndnRowYoffset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ndnRowXoffset)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalBaseIndex)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalRowIndex)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ndnFinalColumnIndex)).EndInit();
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -887,5 +933,8 @@
         private Windows.Forms.Label label18;
         private Windows.Forms.Label label19;
         private Windows.Forms.Label label20;
+        private Windows.Forms.RadioButton radioButton2;
+        private Windows.Forms.RadioButton radioButton1;
+        private Windows.Forms.RadioButton radioButton3;
     }
 }

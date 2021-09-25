@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Motion.Interfaces;
-namespace Motion.Enginee
+using System.Interfaces;
+namespace System.Enginee
 {
     /// <summary>
     /// 吸真空电磁阀

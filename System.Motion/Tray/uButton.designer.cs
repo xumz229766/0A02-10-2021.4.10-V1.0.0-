@@ -37,7 +37,7 @@
             this.BackColor = System.Drawing.Color.Transparent;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "uButton";
-            this.Size = new System.Drawing.Size(28, 28);
+            this.Size = new System.Drawing.Size(20, 20);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.useTray_Paint);
             this.MouseEnter += new System.EventHandler(this.useTray_MouseEnter);
             this.MouseLeave += new System.EventHandler(this.useTray_MouseLeave);

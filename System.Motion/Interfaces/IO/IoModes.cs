@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Motion.Interfaces
+namespace System.Interfaces
 {
     /// <summary>
     ///     IO 端口类型

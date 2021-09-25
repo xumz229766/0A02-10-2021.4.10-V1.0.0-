@@ -1,4 +1,4 @@
-﻿namespace Motion.Enginee
+﻿namespace System.Enginee
 {
     /// <summary>
     /// 初始化状态
@@ -34,6 +34,7 @@
         设备暂停中,
         设备复位中,
         设备报警中,
+        设备警示中,
         设备急停已按下
     }
 }

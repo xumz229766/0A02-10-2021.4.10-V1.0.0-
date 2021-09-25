@@ -1,60 +1,154 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Drawing;
 using System.ToolKit;
+using System.Windows.Forms;
 namespace System.Tray
 {
     public partial class TestTray : Form
     {
-        Tray tray = null;//当前托盘对象
-        TrayPanel tp;
-        
+        private Tray tray = null;//当前托盘对象
+        private TrayPanel tp;
+        string[] ID = new string[] { "8Hole", "12Hole", "16Hole", "20Hole", "24Hole", "32Hole" };
+        string STID = "SpecialTray";
+
+
         public TestTray()
         {
             //初始化托盘 
             InitializeComponent();
         }
-       
+
         private void TestTray_Load(object sender, EventArgs e)
+        {
+            radioButton2.Checked = true;
+            init(false,false);
+
+            timer1.Enabled = true;
+        }
+
+        private void Refreshing()
+        {
+            var Keys = TrayFactory.GetTrayDict.Keys;
+            //sskey = Keys;
+            var count = Keys.Count;
+            cmbId.Items.Clear();
+            bool stTrue = radioButton3.Checked;
+            bool seTrue = radioButton1.Checked;
+            bool isHave = false;
+            foreach (var key in Keys)
+            {
+                isHave = false;
+                if (stTrue)
+                {
+                    if (key == STID)
+                    {
+                        cmbId.Items.Add(key);
+                    }
+                }
+                else if(seTrue)
+                {
+                    foreach (var id in ID)
+                    {
+                        if (key == id)
+                        {
+                            cmbId.Items.Add(key);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var id in ID)
+                    {
+                        if (key == id)
+                        {
+                            isHave = true;
+                        }
+                    }
+                    if (!isHave) { cmbId.Items.Add(key); }
+                }
+
+            }
+        }
+
+        private void init(bool stTrue, bool seTrue)
         {
             //var i = 1;
             var Keys = TrayFactory.GetTrayDict.Keys;
+            //sskey = Keys;
             var count = Keys.Count;
+            cmbId.Items.Clear();
+            bool isHave=false;
             foreach (var key in Keys)
             {
-                cmbId.Items.Add(key);
+                isHave = false;
+                if (stTrue)
+                {
+                    if (key == STID)
+                    {
+                        cmbId.Items.Add(key);
+                    }
+                }
+                else if (seTrue)
+                {
+                    foreach (var id in ID)
+                    {
+                        if (key == id)
+                        {
+                            cmbId.Items.Add(key);
+                        }
+                    }                
+                }
+                else
+                {
+                    foreach (var id in ID)
+                    {
+                        if (key == id)
+                        {
+                            isHave = true;
+                        }
+                    }
+                    if (!isHave) { cmbId.Items.Add(key); }                  
+                }
+             
             }
             cmbStart.SelectedIndex = 0;
             cmbDirect.SelectedIndex = 0;
             cmbChangeLine.SelectedIndex = 0;
             tp = new TrayPanel();
-            tp.Dock = DockStyle.Fill;  
+            tp.Dock = DockStyle.Fill;
+            panel1.Controls.Clear();
             panel1.Controls.Add(tp);
             if (count > 0)
+            {
                 cmbId.SelectedIndex = 0;
+            }
             else
+            {
                 return;
+            }
+
             tray = TrayFactory.GetTrayFactory(cmbId.Text);
             tp.SetTrayObj(tray, Color.Gray);
             initControls();
             chShow.Checked = true;
-            timer1.Enabled = true;
         }
 
         private void btnCreate_Click(object sender, EventArgs e)
         {
-            if (cmbId.Items.Count <= 0) return;
+            if (cmbId.Items.Count <= 0)
+            {
+                return;
+            }
+
             cbUnregular1.Checked = false;
             cbUnregular2.Checked = false;
             chShow.Checked = false;
             tray = new Tray(cmbId.Text, txtName.Text, (int)nudRow.Value, (int)nudCol.Value);
-            tp.SetTrayObj(tray,Color.Blue);
+            ndnFinalBaseIndex.Value = 1;
+            ndnFinalRowIndex.Value = (int)nudRow.Value;
+            ndnFinalColumnIndex.Value = (int)nudRow.Value * ((int)nudCol.Value - 1) + 1;
+            tp.SetTrayObj(tray, Color.Blue);
         }
+
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             tp.BFlag = chxAddSheild.Checked;
@@ -75,9 +169,15 @@ namespace System.Tray
             tp.BShowModel = chShow.Checked;
             tray.StartPose = (EStartPos)Enum.Parse(typeof(EStartPos), cmbStart.Text);
             tray.Direction = (EIndexDirect)Enum.Parse(typeof(EIndexDirect), cmbDirect.Text);
-            if (chShow.Checked) tp.SetLayout(Color.Gray);
-            else
+            if (chShow.Checked)
+            {
                 tp.SetLayout(Color.Blue);
+            }
+            else
+            {
+                tp.SetLayout(Color.Blue);
+            }
+
             panel3.Enabled = chShow.Checked;
         }
 
@@ -86,15 +186,19 @@ namespace System.Tray
             tray.StartPose = (EStartPos)Enum.Parse(typeof(EStartPos), cmbStart.Text);
             tray.Direction = (EIndexDirect)Enum.Parse(typeof(EIndexDirect), cmbDirect.Text);
             tray.ChangeLineType = (EChangeLine)Enum.Parse(typeof(EChangeLine), cmbChangeLine.Text);
-            tp.SetLayout(Color.Gray);
+            tp.SetLayout(Color.Blue);
         }
 
         private void btnSelect_Click(object sender, EventArgs e)
         {
             var cout = cmbId.Items.Count;
-            if (cout <= 0) return;
+            if (cout <= 0)
+            {
+                return;
+            }
+
             tray = TrayFactory.GetTrayFactory(cmbId.Text);
-            tp.SetTrayObj(tray,Color.Gray);           
+            tp.SetTrayObj(tray, Color.Blue);
             initControls();
             chShow.Checked = true;
         }
@@ -119,7 +223,7 @@ namespace System.Tray
                     ndnColumnXoffset.Value = (decimal)tray.ColumnXoffset;
                     ndnColumnYoffset.Value = (decimal)tray.ColumnYoffset;
                 }
-                catch(Exception ex) { }
+                catch (Exception ex) { }
             }
         }
 
@@ -128,15 +232,20 @@ namespace System.Tray
             SaveParameter();
             TrayFactory.SetTray(cmbId.Text, tray);
             if (TrayFactory.SaveTrayFactory(AppConfig.ConfigTrayName))
+            {
                 MessageBox.Show("保存托盘参数成功!");
-            else 
+            }
+            else
+            {
                 MessageBox.Show("保存托盘参数失败!");
+            }
+
             tray.IsCalibration = false;
         }
 
         private void cbUnregular1_CheckedChanged(object sender, EventArgs e)
         {
-           
+
             if (chShow.Checked && cbUnregular1.Checked)
             {
                 MessageBox.Show("当前为显示模式，无法更改！");
@@ -152,7 +261,6 @@ namespace System.Tray
 
         private void cbUnregular2_CheckedChanged(object sender, EventArgs e)
         {
-           
             if (chShow.Checked && cbUnregular2.Checked)
             {
                 MessageBox.Show("当前为显示模式，无法更改！");
@@ -169,9 +277,13 @@ namespace System.Tray
         private void btnAdd_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("是否新建托盘型号？", "新建托盘型号", MessageBoxButtons.OKCancel);
-            if (result == DialogResult.Cancel) return;
+            if (result == DialogResult.Cancel)
+            {
+                return;
+            }
+
             var strType = txtNewPlateType.Text.Trim();
-            if(strType=="")
+            if (strType == "")
             {
                 MessageBox.Show("输入的字符为空！");
                 return;
@@ -194,7 +306,7 @@ namespace System.Tray
             var m_tray = new Tray(strType, "", 5, 5);
             TrayFactory.SetTray(strType, m_tray);
             cmbId.Items.Add(strType);
-            cmbId.SelectedIndex = cmbId.Items.Count-1;
+            cmbId.SelectedIndex = cmbId.Items.Count - 1;
             tray = TrayFactory.GetTrayFactory(cmbId.Text);
             tp.SetTrayObj(tray, Color.Gray);
             initControls();
@@ -204,22 +316,36 @@ namespace System.Tray
         private void btnDelete_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("是否删除当前托盘型号？", "删除托盘型号", MessageBoxButtons.OKCancel);
-            if (result == DialogResult.Cancel) return;
+            if (result == DialogResult.Cancel)
+            {
+                return;
+            }
+
             IniFile.EraseSection(cmbId.Text, AppConfig.ConfigTrayName);
-            cmbId.Items.Remove(cmbId.Text);
             TrayFactory.RemoveTray(cmbId.Text);
-            if (cmbId.Items.Count<=0) return;
+            cmbId.Items.Remove(cmbId.Text);            
+            if (cmbId.Items.Count <= 0)
+            {
+                return;
+            }
+
             cmbId.SelectedIndex = 0;
             tray = TrayFactory.GetTrayFactory(cmbId.Text);
             tp.SetTrayObj(tray, Color.Gray);
             initControls();
             chShow.Checked = true;
         }
+
         private bool IsDigitOrNumber(string str)
         {
             if (System.Text.RegularExpressions.Regex.IsMatch(str, @"(?i)^[0-9a-zA-Z]+$"))
-                return true ;
-            else return false;
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -230,6 +356,7 @@ namespace System.Tray
                 lblIsCalibration.ForeColor = tray.IsCalibration ? Color.Green : Color.Red;
             }
         }
+
         #region 标定位置
         private void SaveParameter()
         {
@@ -248,5 +375,20 @@ namespace System.Tray
             tray.ColumnYoffset = (double)ndnColumnYoffset.Value;
         }
         #endregion
+
+        private void TestTray_Enter(object sender, EventArgs e)
+        {
+            Refreshing();
+        }
+
+        private void RadioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            Refreshing();
+        }
+
+        private void RadioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            Refreshing();
+        }
     }
 }

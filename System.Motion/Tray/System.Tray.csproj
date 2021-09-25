@@ -63,6 +63,12 @@
     <Compile Include="TrayFactory.cs" />
     <Compile Include="UTray.cs" />
     <Compile Include="UTrayFactory.cs" />
+    <Compile Include="dTrayPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="dTrayPanel.designer.cs">
+      <DependentUpon>dTrayPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="uTrayPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -93,6 +99,9 @@
     </Compile>
     <EmbeddedResource Include="TestTray.resx">
       <DependentUpon>TestTray.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dTrayPanel.resx">
+      <DependentUpon>dTrayPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="uTrayPanel.resx">
       <DependentUpon>uTrayPanel.cs</DependentUpon>

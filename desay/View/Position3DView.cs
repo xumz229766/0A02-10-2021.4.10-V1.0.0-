@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
-using Motion.LSAps;
-using Motion.Enginee;
-using Motion.Interfaces;
+
+using System.Enginee;
+using System.Interfaces;
 using System.ToolKit;
 namespace desay
 {
@@ -12,9 +12,30 @@ namespace desay
         private AxisOperate[] m_AxisOperate;
         private ApsAxis[] m_axis;
         private readonly Action m_SaveValue, m_Location;
+        private CylinderOperate[] CylinderOperate;       
         public Position3DView()
         {
             InitializeComponent();
+        }
+        public Position3DView(ApsAxis[] axis, CylinderOperate[] mCylinderOperate, Action SaveValue, Action Location) : this()
+        {
+            m_axis = axis;
+            m_SaveValue = SaveValue;
+            m_Location = Location;
+            lblName1.Text = m_axis[0].Name;
+            lblName2.Text = m_axis[1].Name;
+            lblName3.Text = m_axis[2].Name;
+            CylinderOperate = mCylinderOperate;           
+           
+            m_AxisOperate = new AxisOperate[3]
+            {
+                new AxisOperate(m_axis[0], m_axis[2]),
+                new AxisOperate(m_axis[1], m_axis[2]),
+                new AxisOperate(m_axis[2])
+            };
+
+            foreach (var tempaxis in m_AxisOperate)
+                flpView.Controls.Add(tempaxis);
         }
         public Position3DView(ApsAxis[] axis, Action SaveValue, Action Location) : this()
         {
@@ -23,18 +44,18 @@ namespace desay
             m_Location = Location;
             lblName1.Text = m_axis[0].Name;
             lblName2.Text = m_axis[1].Name;
-            lblName3.Text = m_axis[2].Name;
-
+            lblName3.Text = m_axis[2].Name;          
             m_AxisOperate = new AxisOperate[3]
             {
-                new AxisOperate(m_axis[0]),
-                new AxisOperate(m_axis[1]),
+                new AxisOperate(m_axis[0], m_axis[2]),
+                new AxisOperate(m_axis[1], m_axis[2]),
                 new AxisOperate(m_axis[2])
             };
 
             foreach (var tempaxis in m_AxisOperate)
                 flpView.Controls.Add(tempaxis);
         }
+
         public AxisMoveMode MoveMode
         {
             set
@@ -47,7 +68,8 @@ namespace desay
         public T[] Point { get; set; }
         private void uc3DPointView_Load(object sender, EventArgs e)
         {
-
+            if (CylinderOperate != null)
+            { foreach (var Cylinder in CylinderOperate) { flowLayoutPanel1.Controls.Add(Cylinder); } }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -70,6 +92,13 @@ namespace desay
             lblPointX.Text = ((double)Convert.ChangeType(Point[0], typeof(double))).ToString("0.000");
             lblPointY.Text = ((double)Convert.ChangeType(Point[1], typeof(double))).ToString("0.000");
             lblPointZ.Text = ((double)Convert.ChangeType(Point[2], typeof(double))).ToString("0.000");
+            if (CylinderOperate != null)
+            {
+                foreach (var Cylinder in CylinderOperate)
+                {
+                    Cylinder.Refreshing();
+                }
+            }
         }
     }
 }

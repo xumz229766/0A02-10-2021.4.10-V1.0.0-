@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     /// 报警信息判断
@@ -15,7 +15,6 @@ namespace Motion.Enginee
         {
             _condition = condition;
         }
-      
         /// <summary>
         ///     报警级别
         /// </summary>

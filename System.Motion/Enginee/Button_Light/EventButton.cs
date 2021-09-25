@@ -1,7 +1,7 @@
 ﻿using System;
-using Motion.Interfaces;
+using System.Interfaces;
 // ReSharper disable DelegateSubtraction
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     ///     带指示灯的按钮

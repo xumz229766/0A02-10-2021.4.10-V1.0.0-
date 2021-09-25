@@ -109,7 +109,14 @@ namespace System.Device
             {
                 var WriteBuffer = new byte[Num];
                 WriteBuffer[0] = args.tryTimes;
-                WriteBuffer[2] = 0x20;
+                if(msg[0].Contains("WO"))
+                {
+                    WriteBuffer[2] = 0x21;
+                }
+                else
+                {
+                    WriteBuffer[2] = 0x20;
+                }              
                 switch(msg[0])
                 {
                     case "R1": WriteBuffer[3] = 0x00; break;
@@ -120,6 +127,10 @@ namespace System.Device
                     case "W2": WriteBuffer[3] = 0x0D; break;
                     case "W3": WriteBuffer[3] = 0x0E; break;
                     case "W4": WriteBuffer[3] = 0x0F; break;
+                    case "WO1": WriteBuffer[3] = 0x10; break;
+                    case "WO2": WriteBuffer[3] = 0x11; break;
+                    case "WO3": WriteBuffer[3] = 0x12; break;
+                    case "WO4": WriteBuffer[3] = 0x13; break;
                 }
                 WriteBuffer[4] = 0x00;
                 WriteBuffer[5] = 0x01;

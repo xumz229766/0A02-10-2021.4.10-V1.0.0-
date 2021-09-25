@@ -1,5 +1,5 @@
 ﻿
-namespace Motion.Interfaces
+namespace System.Interfaces
 {
     /// <summary>
     ///     部件状态外部刷新接口

@@ -34,8 +34,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\desay\bin\Release\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="MSMQ">
-      <HintPath>..\desay\bin\Debug\MSMQ.dll</HintPath>
+      <HintPath>..\desay\bin\Release\MSMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,6 +59,7 @@
     <Compile Include="File\CSVFile.cs" />
     <Compile Include="File\IniFile.cs" />
     <Compile Include="File\XmlFiles.cs" />
+    <Compile Include="Helper\LogHelper.cs" />
     <Compile Include="Helper\SerializerManager.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="Math\Calculate.cs" />

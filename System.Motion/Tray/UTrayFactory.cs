@@ -128,5 +128,49 @@ namespace System.Tray
             return bResult;
         }
 
+        /// <summary>
+        /// 标定计算
+        /// </summary>
+        /// <param name="key">键</param>
+        /// <returns></returns>
+        public static bool Calibration(string key)
+        {
+            Tray tray = TrayFactory.GetTrayFactory(key);
+            if (tray == null) throw new Exception("托盘不存在！");
+            var retR12 = (tray.dic_Index[tray.RowIndex].Row - tray.dic_Index[tray.BaseIndex].Row) != 0;
+            var retC12 = (tray.dic_Index[tray.RowIndex].Col - tray.dic_Index[tray.BaseIndex].Col) != 0;
+            var retR13 = (tray.dic_Index[tray.ColumnIndex].Row - tray.dic_Index[tray.BaseIndex].Row) != 0;
+            var retC13 = (tray.dic_Index[tray.ColumnIndex].Col - tray.dic_Index[tray.BaseIndex].Col) != 0;
+            if ((retR12 == retR13) || (retC12 == retC13)) throw new Exception("三点重合，或者三点再同一直线上！");
+            if ((retR12 == retC12) || (retR13 == retC13)) throw new Exception("三点无法形成直角坐标系，非有效点！");
+            var iRow = 0;
+            var iColumn = 0;
+            double detaRowX, detaRowY, detaColX, detaColY;
+            if (retR12 && !retR13)
+            {
+                iRow = tray.dic_Index[tray.RowIndex].Row - tray.dic_Index[tray.BaseIndex].Row;
+                iColumn = tray.dic_Index[tray.ColumnIndex].Col - tray.dic_Index[tray.BaseIndex].Col;
+                detaRowX = tray.RowPosition.X - tray.BasePosition.X;
+                detaRowY = tray.RowPosition.Y - tray.BasePosition.Y;
+                detaColX = tray.ColumnPosition.X - tray.BasePosition.X;
+                detaColY = tray.ColumnPosition.Y - tray.BasePosition.Y;
+            }
+            else
+            {
+                iRow = tray.dic_Index[tray.ColumnIndex].Row - tray.dic_Index[tray.BaseIndex].Row;
+                iColumn = tray.dic_Index[tray.RowIndex].Col - tray.dic_Index[tray.BaseIndex].Col;
+                detaColX = tray.RowPosition.X - tray.BasePosition.X;
+                detaColY = tray.RowPosition.Y - tray.BasePosition.Y;
+                detaRowX = tray.ColumnPosition.X - tray.BasePosition.X;
+                detaRowY = tray.ColumnPosition.Y - tray.BasePosition.Y;
+            }
+            tray.RowXoffset = detaRowX / iRow;
+            tray.RowYoffset = detaRowY / iRow;
+            tray.ColumnXoffset = detaColX / iColumn;
+            tray.ColumnYoffset = detaColY / iColumn;
+            tray.IsCalibration = true;
+            return true;
+        }
+
     }
 }

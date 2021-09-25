@@ -1,5 +1,5 @@
-﻿using Motion.Interfaces;
-namespace Motion.Enginee
+﻿using System.Interfaces;
+namespace System.Enginee
 {
     //2018.7.14修改..jiang
     /// <summary>
@@ -23,5 +23,15 @@ namespace Motion.Enginee
         /// 初始化完成标志
         /// </summary>
         public bool InitializingDone { get; set; }
+        /// <summary>
+        /// 回原位状态
+        /// </summary>
+        public bool GoRristatus { get; set; }
+        /// <summary>
+        /// 回原位完成
+        /// </summary>
+        public bool GoRriDone { get; set; }
+
+
     }
 }

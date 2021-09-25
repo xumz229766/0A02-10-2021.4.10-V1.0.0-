@@ -1,4 +1,4 @@
-﻿namespace Motion.Enginee
+﻿namespace System.Enginee
 {
     partial class CylinderOperate
     {
@@ -42,7 +42,7 @@
             this.btn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btn.Location = new System.Drawing.Point(0, 0);
             this.btn.Name = "btn";
-            this.btn.Size = new System.Drawing.Size(121, 35);
+            this.btn.Size = new System.Drawing.Size(147, 43);
             this.btn.TabIndex = 3;
             this.btn.UseVisualStyleBackColor = false;
             this.btn.Click += new System.EventHandler(this.btn_Click);
@@ -51,9 +51,9 @@
             // 
             this.picMove.BackColor = System.Drawing.Color.Red;
             this.picMove.Dock = System.Windows.Forms.DockStyle.Right;
-            this.picMove.Location = new System.Drawing.Point(111, 0);
+            this.picMove.Location = new System.Drawing.Point(137, 0);
             this.picMove.Name = "picMove";
-            this.picMove.Size = new System.Drawing.Size(10, 35);
+            this.picMove.Size = new System.Drawing.Size(10, 43);
             this.picMove.TabIndex = 5;
             this.picMove.TabStop = false;
             // 
@@ -63,7 +63,7 @@
             this.picOrigin.Dock = System.Windows.Forms.DockStyle.Left;
             this.picOrigin.Location = new System.Drawing.Point(0, 0);
             this.picOrigin.Name = "picOrigin";
-            this.picOrigin.Size = new System.Drawing.Size(10, 35);
+            this.picOrigin.Size = new System.Drawing.Size(10, 43);
             this.picOrigin.TabIndex = 4;
             this.picOrigin.TabStop = false;
             // 
@@ -75,7 +75,7 @@
             this.Controls.Add(this.picOrigin);
             this.Controls.Add(this.btn);
             this.Name = "CylinderOperate";
-            this.Size = new System.Drawing.Size(121, 35);
+            this.Size = new System.Drawing.Size(147, 43);
             ((System.ComponentModel.ISupportInitialize)(this.picMove)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picOrigin)).EndInit();
             this.ResumeLayout(false);

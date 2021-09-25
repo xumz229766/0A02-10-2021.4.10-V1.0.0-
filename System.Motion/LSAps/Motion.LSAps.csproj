@@ -63,9 +63,9 @@
       <Project>{ef59b053-6939-4338-bb28-6cc2030bc0e1}</Project>
       <Name>System.ToolKit</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Interfaces\Motion.Interfaces.csproj">
+    <ProjectReference Include="..\Interfaces\System.Interfaces.csproj">
       <Project>{e87bbf52-f612-40bb-ad3d-d6a20fd635b1}</Project>
-      <Name>Motion.Interfaces</Name>
+      <Name>System.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

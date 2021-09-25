@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Motion.Interfaces;
+using System.Interfaces;
 using System.Threading;
-namespace Motion.Enginee
+namespace System.Enginee
 {
     //2018.7.14修改..jiang
     /// <summary>

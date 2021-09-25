@@ -144,7 +144,6 @@
             this.Controls.Add(this.label1);
             this.Name = "frmPasswordChange";
             this.Text = "密码修改";
-            //this.Load += new System.EventHandler(this.frmPasswordChange_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

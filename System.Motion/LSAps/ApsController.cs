@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Motion.Interfaces;
+using System.Interfaces;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -10,7 +10,7 @@ using System.Windows.Forms;
 namespace Motion.LSAps
 {
     /// <summary>
-    ///     雷塞DMC3000运动控制卡控制器。修改于2019.3.5  aiwen
+    ///     雷塞EtherCAT总线。修改于2019.6.13 aiwen
     /// </summary>
     public class ApsController : Automatic, ISwitchController, IMotionController, INeedInitialization, IDisposable
     {
@@ -25,40 +25,15 @@ namespace Motion.LSAps
 
 
         private bool _disposed;
-     
+
+       
 
         public bool IsLoadXmlFile { get; private set; }
 
         public ApsController()
         {
-            uint AxisTotalNumer = 0;
-            var cards = LTDMC.dmc_board_init();
-            int I2 = 0;
-            LSCard lS = new LSCard();
-            if (cards > 0)
-            {
-                for (ushort i = 0; i < cards; i++)
-                {
-                    var Axis = LTDMC.dmc_get_total_axes(i, ref AxisTotalNumer);
-                    if (Axis == 0)
-                    {
-                        for (ushort i1 = 0; i1 < AxisTotalNumer; i1++)
-                        {
-                            lS.Card = i;
-                            lS.Axis = i1;
-                            I2++;
-                        }
-                        m_Axises.Add(I2, lS);
-                    }
-                    else { throw new ApsException(string.Format("运动控制卡功错误:{0}", ErrMessage(Axis))); }
-                    m_Devices.Add(i);
-                }
-            }
-            else
-            {
-                throw new ApsException(string.Format("未找到控制卡"));
-            }
-
+            m_Devices = new List<int>();
+            m_Axises = new Dictionary<int, LSCard>();
         }
 
         #region Implementation of INeedInitialization
@@ -66,9 +41,9 @@ namespace Motion.LSAps
         /// <summary>
         /// 板卡加载初始化
         /// </summary>
-        public bool Initialize()
+        public void Initialize()
         {
-            return InitializeCard();
+             InitializeCard();
         }
         /// <summary>
         /// 下载参数文件
@@ -76,14 +51,22 @@ namespace Motion.LSAps
         /// <param name="step">卡位置</param>
         /// <param name="xmlfilename">文件路径</param>
         /// <returns></returns>
-        public bool LoadParamFromFile(string xmlfilename)
+        public bool LoadParamFromFile(string CardEniName, string AxisIniName)
         {
             for (ushort i = 0; i < m_Devices.Count; i++)
             {
-                short ret = LTDMC.dmc_download_configfile(i, xmlfilename);
-                if (ret != 0)
+                byte[] buffer = Encoding.UTF8.GetBytes(CardEniName);
+                byte[] fileincontrol = Encoding.UTF8.GetBytes("");
+                ushort filetype = 200;
+                short eniret = LTDMC.dmc_download_memfile(i, buffer, (uint)buffer.Length, fileincontrol, filetype);
+                if (eniret != 0)
                 {
-                    throw new ApsException(string.Format("运动控制卡功错误:{0}", ErrMessage(ret)));
+                    throw new ApsException(string.Format("运动控制卡总线配置错误:{0}", ErrMessage(eniret)));
+                }
+                short iniret = LTDMC.dmc_download_configfile(i, AxisIniName);
+                if (iniret != 0)
+                {
+                    throw new ApsException(string.Format("运动控制卡轴配置错误:{0}", ErrMessage(iniret)));
                 }
             }
             return true;
@@ -277,19 +260,19 @@ namespace Motion.LSAps
         /// <returns></returns>
         public bool GetServo(int axisNo)
         {
-            short ret = 0;
-            ret = LTDMC.dmc_read_sevon_pin(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
-            return ret == 1 ? true : false;
+            ushort AxisServo = 0;
+            var ret = LTDMC.nmc_get_axis_state_machine(m_Axises[axisNo].Card, m_Axises[axisNo].Axis,ref AxisServo);
+            return AxisServo == 4 ? true : false;
         }
         /// <summary>
-        ///     获取电机励磁状态。
+        ///     设置电机励磁状态。
         /// </summary>
         /// <param name="axisNo"></param>
         /// <returns></returns>
         public bool ServoOn(int axisNo)
         {
             short ret = 0;
-            ret = LTDMC.dmc_write_sevon_pin(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, 1);
+            ret = LTDMC.nmc_set_axis_enable(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
             return ret == 0 ? true : false;
         }
         /// <summary>
@@ -299,7 +282,7 @@ namespace Motion.LSAps
         public bool ServoOff(int axisNo)
         {
             short ret = 0;
-            ret = LTDMC.dmc_write_sevon_pin(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, 0);
+            ret = LTDMC.nmc_set_axis_disable(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
             return ret == 0 ? true : false;
         }
         /// <summary>
@@ -310,10 +293,14 @@ namespace Motion.LSAps
         public bool SetServo(int axisNo, bool isOn)
         {
             short ret = 0;
-            ushort ret1;
-            if (isOn) { ret1 = 1; }
-            else { ret1 = 0; }
-            ret = LTDMC.dmc_write_sevon_pin(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, ret1);
+            if (isOn)
+            {
+                ret = LTDMC.nmc_set_axis_enable(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
+            }
+            else
+            {
+                ret = LTDMC.nmc_set_axis_disable(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
+            }
             return ret == 0 ? true : false;
 
         }
@@ -324,11 +311,11 @@ namespace Motion.LSAps
         /// </summary>
         /// <param name="axisNo">轴标识</param>
         /// <returns>当前位置</returns>
-        public int GetCurrentCommandPosition(int axisNo)
+        public double GetCurrentCommandPosition(int axisNo)
         {
-            var ret = 0;
-            ret = LTDMC.dmc_get_position(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
-            return ret;
+            double pos = 0;
+            var ret = LTDMC.dmc_get_position_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis,ref pos);
+            return pos;
         }
 
 
@@ -337,12 +324,11 @@ namespace Motion.LSAps
         /// </summary>
         /// <param name="axisNo"></param>
         /// <returns></returns>
-        public int GetCurrentFeedbackPosition(int axisNo)
+        public double GetCurrentFeedbackPosition(int axisNo)
         {
-            var ret = 0;
-            ret = LTDMC.dmc_get_encoder(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
-
-            return ret;
+            double pos = 0;
+            var ret = LTDMC.dmc_get_encoder_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis,ref pos);
+            return pos;
         }
         /// <summary>
         /// 获取当前速度
@@ -351,9 +337,9 @@ namespace Motion.LSAps
         /// <returns></returns>
         public double GetCurrentCommandSpeed(int axisNo)
         {
-            double ret = 0;
-            ret = LTDMC.dmc_read_current_speed(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
-            return ret;
+            double speed = 0;
+            var ret = LTDMC.dmc_read_current_speed_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, ref speed);
+            return speed;
         }
 
         /// <summary>
@@ -364,10 +350,8 @@ namespace Motion.LSAps
         public bool SetCommandPosition(int axisNo, int position)
         {
 
-            int ret = LTDMC.dmc_set_position(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, position);
+            int ret = LTDMC.dmc_set_position_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, position);
             return true;
-
-
 
         }
         /// <summary>
@@ -377,8 +361,7 @@ namespace Motion.LSAps
         /// <param name="position"></param>
         public bool SetFeedbackPosition(int axisNo, int position)
         {
-
-            int ret = LTDMC.dmc_set_encoder(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, position);
+            int ret = LTDMC.dmc_set_encoder_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, position);
             return true;
         }
 
@@ -399,7 +382,7 @@ namespace Motion.LSAps
 
             //设置速度
             SetAxisVelocity(axisNo, velocityCurveParams);
-            LTDMC.dmc_pmove(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, pulseNum, 0);
+            LTDMC.dmc_pmove_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, pulseNum, 0);
 
         }
         /// <summary>
@@ -410,7 +393,7 @@ namespace Motion.LSAps
         public void ChangeSpeed(int axisNo, int pulseNum, VelocityCurve velocityCurveParams)
         {
 
-            LTDMC.dmc_change_speed(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, velocityCurveParams.Maxvel, velocityCurveParams.Tacc);
+            LTDMC.dmc_change_speed_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, velocityCurveParams.Maxvel, velocityCurveParams.Tacc);
 
         }
         /// <summary>
@@ -422,7 +405,7 @@ namespace Motion.LSAps
         public void ChangePosition(int axisNo, int pulseNum, VelocityCurve velocityCurveParams)
         {
 
-            LTDMC.dmc_reset_target_position(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, pulseNum, 1);
+            LTDMC.dmc_reset_target_position_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, pulseNum);
 
         }
 
@@ -436,7 +419,7 @@ namespace Motion.LSAps
         {
             //设置速度
             SetAxisVelocity(axisNo, velocityCurveParams);
-            LTDMC.dmc_pmove(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, pulseNum, 1);
+            LTDMC.dmc_pmove_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, pulseNum, 1);
 
         }
 
@@ -577,11 +560,10 @@ namespace Motion.LSAps
         ///     回零
         /// </summary>
         /// <param name="axisNo"></param>
-        public void BackHome(int axisNo)
+        public void BackHome(int axisNo,uint HomeMode,uint HomeDir, VelocityCurve HomeVelocityCurve)
         {
-
+            LTDMC.nmc_set_home_profile(m_Axises[axisNo].Card, m_Axises[axisNo].Axis,1, HomeVelocityCurve.Strvel, HomeVelocityCurve.Maxvel, HomeVelocityCurve.Tacc, HomeVelocityCurve.Tdec,0);
             LTDMC.dmc_home_move(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
-
         }
 
         /// <summary>
@@ -652,7 +634,7 @@ namespace Motion.LSAps
 
         private void SetAxisVelocity(int axisNo, VelocityCurve velocityCurveParams)
         {
-            LTDMC.dmc_set_profile(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, velocityCurveParams.Strvel, velocityCurveParams.Maxvel, velocityCurveParams.Tacc, velocityCurveParams.Tdec, 1);//设置速度参数
+            LTDMC.dmc_set_profile_unit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, velocityCurveParams.Strvel, velocityCurveParams.Maxvel, velocityCurveParams.Tacc, velocityCurveParams.Tdec, 1);//设置速度参数
 
             LTDMC.dmc_set_s_profile(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, 0, velocityCurveParams.dS_para);//设置S段速度参数
 
@@ -682,17 +664,45 @@ namespace Motion.LSAps
         }
 
 
-        private bool  InitializeCard()
+        private bool InitializeCard()
         {
-            var ret = LTDMC.dmc_board_init();//获取卡数量
-            if (ret <= 0 || ret > 8)
+            //var ret = LTDMC.dmc_board_init();//获取卡数量
+            //if (ret <= 0 || ret > 8)
+            //{
+            //    return false;
+            //    //MessageBox.Show("初始卡失败!", "出错");
+            //}
+            //else { return true; }
+
+            uint AxisTotalNumer = 0;
+            var cards = LTDMC.dmc_board_init();
+            int I2 = 0;
+            LSCard lS = new LSCard();
+            if (cards > 0)
             {
-                return false;
-                //MessageBox.Show("初始卡失败!", "出错");
+                for (ushort i = 0; i < cards; i++)
+                {
+                    var Axis = LTDMC.nmc_get_total_axes(i, ref AxisTotalNumer);
+                    if (Axis == 0)
+                    {
+                        for (ushort i1 = 0; i1 < AxisTotalNumer; i1++)
+                        {
+                            lS.Card = i;
+                            lS.Axis = i1;
+                            I2++;
+                            m_Axises.Add(I2, lS);
+                        }
+                    }
+                    else { throw new ApsException(string.Format("运动控制卡功错误:{0}", ErrMessage(Axis))); }
+                    m_Devices.Add(i);
+                }
             }
-            else { return true; }
+            else
+            {
+                throw new ApsException(string.Format("未找到控制卡"));
+            }
 
-
+            return true;
         }
 
         #region  CAN连接函数
@@ -954,7 +964,121 @@ namespace Motion.LSAps
 
         #endregion
 
+        /// <summary>
+        /// 设置软限位
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <param name="nlimit">负限位位置</param>
+        /// <param name="plimit">正限位位置</param>
+        /// <returns></returns>
+        public bool SetSoftLimit(int axisNo,ref int nlimit, ref int plimit)
+        {
+            short var = 0;
+            var = LTDMC.dmc_set_softlimit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, 1, 1, 1, nlimit, plimit);
+            return var == 0 ? true : false;
+        }
 
+        /// <summary>
+        /// 读取软限位设置
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <param name="nlimit">返回负限位脉冲数</param>
+        /// <param name="plimit">返回正限位脉冲数</param>
+        /// <returns></returns>
+        public bool GetSoftLimit(int axisNo,ref int nlimit, ref int plimit)
+        {
+            ushort enable = 0;
+            ushort sourcesel = 0;
+            ushort slaction = 0;
+            var var = LTDMC.dmc_get_softlimit(m_Axises[axisNo].Card, m_Axises[axisNo].Axis,ref enable, ref sourcesel, ref slaction, ref nlimit, ref plimit);
+            return var == 0 ? true : false;
+        }
+
+        #region 扭力控制(总线）
+
+        /// <summary>
+        /// 读取伺服驱动器参数
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <param name="index">伺服参数目录索引</param>
+        /// <param name="subindex">伺服参数目录索引下编号</param>
+        /// <returns></returns>
+        public uint ReadServoParameter(int axisNo, ushort index, ushort subindex)
+        {
+            uint paradata = 0;
+            var var = LTDMC.nmc_read_parameter(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, index, subindex, ref paradata);
+            return paradata;
+        }
+
+        /// <summary>
+        /// 读取伺服驱动器参数
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <param name="index">伺服参数目录索引</param>
+        /// <param name="subindex">伺服参数目录索引下编号</param>
+        /// <param name="paradata">伺服参数写入值</param>
+        /// <returns></returns>
+        public bool WriteServoParameter(int axisNo, ushort index, ushort subindex, uint paradata)
+        {
+            short var = 0;
+            var = LTDMC.nmc_write_parameter(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, index, subindex, paradata);
+            return var == 0 ? true : false;
+        }
+
+        /// <summary>
+        /// 伺服参数写 EEPROM 操作
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <returns></returns>
+        public bool WriteSlaveEeprom(int axisNo)
+        {
+            short var = 0;
+            var = LTDMC.nmc_write_slave_eeprom(m_Axises[axisNo].Card, m_Axises[axisNo].Axis);
+            return var == 0 ? true : false;
+        }
+
+        /// <summary>
+        /// 获取当前轴的转矩值
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <returns></returns>
+        public int GetTorque(int axisNo)
+        {
+            int torque = 0;
+ //           var var = LTDMC.nmc_get_torque(m_Axises[axisNo].Card, m_Axises[axisNo].Axis,ref torque);
+            return torque;
+        }
+
+        /// <summary>
+        /// 启动转矩模式下的运动
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <param name="torque">扭力</param>
+        /// <param name="PosLimitValid">位置限制开关</param>
+        /// <param name="PosLimitValue">限制值</param>
+        /// <param name="PosMode">位置模式</param>
+        /// <returns></returns>
+        public bool TorqueMove(int axisNo, int torque, ushort PosLimitValid, double PosLimitValue, ushort PosMode)
+        {
+            short var = 0;
+  //          var = LTDMC.nmc_torque_move(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, torque, PosLimitValid, PosLimitValue, PosMode);
+            return var == 0 ? true : false;
+        }
+
+        /// <summary>
+        /// 转矩控制过程中在线调整转矩值
+        /// </summary>
+        /// <param name="axisNo"></param>
+        /// <param name="torque">扭力</param>
+        /// <returns></returns>
+        public bool ChangeTorque(int axisNo, int torque)
+        {
+            short var = 0;
+ //           var = LTDMC.nmc_change_torque(m_Axises[axisNo].Card, m_Axises[axisNo].Axis, torque); 
+            return var == 0 ? true : false;
+        }
+
+        #endregion
 
     }
 

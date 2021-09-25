@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ToolKit;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     /// 任意三点以上不在同一直线上的点，计算Tray盘的坐标

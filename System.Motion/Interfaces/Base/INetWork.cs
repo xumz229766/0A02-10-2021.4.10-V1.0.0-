@@ -5,7 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Motion.Interfaces.Base
+namespace System.Interfaces.Base
 {
     public interface INetWork
     {

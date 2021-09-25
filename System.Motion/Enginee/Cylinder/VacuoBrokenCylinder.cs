@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Motion.Interfaces;
-namespace Motion.Enginee
+using System.Interfaces;
+namespace System.Enginee
 {
     /// <summary>
     /// 吸破真空电磁阀
@@ -95,7 +95,6 @@ namespace Motion.Enginee
         /// <returns></returns>
         private bool OffSensorAlarm()
         {
-
             bool alarmDelayDone = false;
             if (Condition.External.AirSignal && !_OutVacuo.Value && _InSensor.Value) vacuoOffSensor = true;
             else vacuoOffSensor = false;
@@ -118,7 +117,6 @@ namespace Motion.Enginee
             if (!Condition.External.ManualAutoMode && Condition.External.InitializingDone && cylinderManual)
                 return true;
             else return false;
-
         }
         #endregion
 
@@ -277,6 +275,11 @@ namespace Motion.Enginee
                 _watchInhale.Restart();
                 _OutMoveStatus = false;
             }
+        }
+
+        public void ClearBrokenTime()
+        {
+            _watchBroken.Restart();
         }
 
         #endregion

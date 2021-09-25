@@ -1,6 +1,6 @@
-﻿using Motion.Interfaces;
+﻿using System.Interfaces;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     ///     IoPoint 驱动的回转体

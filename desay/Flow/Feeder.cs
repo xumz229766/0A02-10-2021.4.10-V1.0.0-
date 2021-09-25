@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
-using Motion.Enginee;
-using Motion.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Enginee;
+using System.Interfaces;
 using System.Threading;
+using System.Diagnostics;
 namespace desay
 {
     /// <summary>
-    /// 进料模块
+    /// 进料模块          
     /// </summary>
     public class Feeder : ThreadPart
     {
         private FeederAlarm m_Alarm;
+        public List<Alarm> Alarms;
         public Feeder(External ExternalSign, StationInitialize stationIni, StationOperate stationOpe)
         {
             externalSign = ExternalSign;
@@ -22,152 +25,209 @@ namespace desay
         /// <summary>
         /// 进料气缸
         /// </summary>
-        public SingleCylinder FeederCylinder { get; set; }  
-        private int FailCount;   
+        public SingleCylinder FeederCylinder { get; set; }
+
         /// <summary>
-        /// 流程控制
+        /// 回待机位
         /// </summary>
-        /// <param name="runningMode"></param>
+        public int homeWaitStep = 0;
+
         public override void Running(RunningModes runningMode)
         {
-            var step = 0;
-            FailCount = 0;
-            while (true)
+            try
             {
-                Thread.Sleep(10);
-                FeederCylinder.Condition.External = externalSign;
-                #region  //自动流程
-                if (stationOperate.Running)
+                var step = 0;
+                var throwerStep = 0;
+                Stopwatch IntWatch = new Stopwatch();
+                IntWatch.Start();
+
+                while (true)
                 {
-                    switch (step)
+                    Thread.Sleep(10);
+
+                    #region 自动流程
+                    if (stationOperate.Running)
                     {
-                        case 0:
-                            if (Marking.FeederHaveProduct) step = 20;
-                            else step = 10;
-                            break;
-                        case 10://判断进料气缸是否在原点，给出模组准备好信号
-                            if (FeederCylinder.OutOriginStatus)
-                            {
-                                Marking.FeederReady = true;
-                                step = 20;
-                            }
-                            break;
-                        case 20://判断缓冲放料完成、移料等待标志。进料气缸为ON
-                            if (((Marking.BufferFinish && !Marking.FeederHaveProduct) 
-                                || (!Marking.BufferFinish && Marking.FeederHaveProduct)|| stationOperate.SingleRunning)
-                                &&FeederCylinder.Condition.IsOnCondition)
-                            {
-                                FeederCylinder.Set();
-                                Marking.FeederHaveProduct = true;
-                                Marking.BufferFinish = false;
-                                Marking.FeederReady = false;
-                                step = 30;
-                            }
-                            break;
-                        case 30://进料气缸到位动点，复位进料等待、置位进料准备标志
-                            if (FeederCylinder.OutMoveStatus)
-                            {
-                                if (IO11Points.DI14.Value||Marking.HaveProductSensorSheild||Marking.CleanMachineProduct)
+                        switch (step)
+                        {
+                            case 0://判断是否报警
+                                if (Marking.AlarmStopRun)
+                                {
+                                    step = 10;
+                                }
+                                break;
+                            case 10: //移料左右气缸在原点
+                                if (!Marking.FeederFinish && IoPoints.T1IN10.Value && IoPoints.T1IN12.Value)
+                                {
+                                    FeederCylinder.Reset();
+                                    step = 20;
+                                }
+                                break;
+                            case 20:
+                                if (FeederCylinder.OutOriginStatus)
+                                {
+                                    Marking.BufferFinish = false;
+                                    step = 30;
+                                }
+                                break;
+                            case 30:
+                                if (Marking.BufferFinish && IoPoints.T1IN10.Value && IoPoints.T1IN12.Value)
+                                {
+                                    FeederCylinder.Set();
+                                    step = 40;
+                                }
+                                break;
+                            case 40:
+                                if (FeederCylinder.OutMoveStatus)
                                 {
                                     Marking.FeederFinish = true;
-                                    FailCount = 0;                                 
+                                    step = 50;
                                 }
-                                else
-                                {
-                                    Marking.FeederHaveProduct = false;
-                                    FailCount++;
-                                }
-                                step = 40;
-                            }
-                            break;
-                        case 40://判断移料等待信号，进料气缸为OFF
-                            if (((!Marking.FeederFinish&& Marking.FeederHaveProduct)||!Marking.FeederHaveProduct 
-                                || stationOperate.SingleRunning)&& FeederCylinder.Condition.IsOffCondition)
-                            {
-                                Marking.FeederHaveProduct = false;
-                                FeederCylinder.Reset();
-                                step = 50;
-                            }
-                            break;
-                        case 50:
-                            if (FeederCylinder.OutOriginStatus)
-                            {
-                                if (Marking.CleanMachineProduct)
-                                    if (Marking.CleanSign[1])
-                                        Marking.CleanSign[2] = true;
-                                step = 60;
-                            }
-                            break;
-                        default:
-                            stationOperate.RunningSign = false;
-                            step = 0;
-                            break;
+                                break;
+                            default:
+                                step = 0;
+                                break;
+                        }
                     }
-                }
-                #endregion
+                    #endregion
 
-                #region 初始化流程
-                if (stationInitialize.Running)
-                {
-                    switch (stationInitialize.Flow)
+                    #region  抛料流程
+                    if (!stationOperate.Running && Marking.ThrowerMode)
                     {
-                        case 0://复位初始化、等待、准备标志
-                            stationInitialize.InitializeDone = false;
-                            stationOperate.RunningSign = false;
-                            step = 0;
-                            Marking.FeederFinish = false;
-                            Marking.FeederReady = false;
-                            Marking.FeederHaveProduct = false;
-                            stationInitialize.Flow = 10;
-                            break;
-                        case 10://判断状态
-                            if (FeederCylinder.Condition.IsOffCondition)
-                            {
+                        switch (throwerStep)
+                        {
+                            case 0://判断是否报警
+                                if (Marking.AlarmStopRun)
+                                {
+                                    throwerStep = 10;
+                                }
+                                break;
+                            case 10: //移料左右气缸在原点
+                                if (!Marking.FeederFinish && IoPoints.T1IN10.Value && IoPoints.T1IN12.Value)
+                                {
+                                    FeederCylinder.Reset();
+                                    throwerStep = 20;
+                                }
+                                break;
+                            case 20:
+                                if (FeederCylinder.OutOriginStatus)
+                                {
+                                    Marking.BufferFinish = false;
+                                    throwerStep = 30;
+                                }
+                                break;
+                            case 30:
+                                if (Marking.BufferFinish && IoPoints.T1IN10.Value && IoPoints.T1IN12.Value)
+                                {
+                                    FeederCylinder.Set();
+                                    throwerStep = 40;
+                                }
+                                break;
+                            case 40:
+                                if (FeederCylinder.OutMoveStatus)
+                                {
+                                    Marking.FeederFinish = true;
+                                    throwerStep = 50;
+                                }
+                                break;
+                            default:
+                                throwerStep = 0;
+                                break;
+                        }
+
+                    }
+                    #endregion
+
+                    #region 初始化流程
+                    if (stationInitialize.Running)
+                    {
+                        switch (stationInitialize.Flow)
+                        {
+                            case 0:
+                                stationInitialize.InitializeDone = false;
+                                stationOperate.RunningSign = false;
+                                step = 0;
+                                Marking.FeederFinish = false;
+                                FeederCylinder.InitExecute(); FeederCylinder.Reset();
+                                m_Alarm = FeederAlarm.进料气缸复位中;
+                                stationInitialize.Flow = 10;
+                                break;
+                            case 10://复位完成，置位初始化标志
+                                if (FeederCylinder.OutOriginStatus)
+                                {
+                                    m_Alarm = FeederAlarm.无消息;
+                                    stationInitialize.InitializeDone = true;
+                                    stationInitialize.Flow = 20;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    #endregion
+
+                    #region  回初始位
+                    if (externalSign.GoRristatus)
+                    {
+                        switch (homeWaitStep)
+                        {
+                            case 0:
+                                step = 0;
+                                Marking.FeederFinish = false;
                                 FeederCylinder.InitExecute();
                                 FeederCylinder.Reset();
-                                stationInitialize.Flow = 20;
-                            }
-                            break;
-                        case 20://复位完成，置位初始化标志
-                            if (FeederCylinder.OutOriginStatus)
-                            {
-                                stationInitialize.InitializeDone = true;
-                                stationInitialize.Flow = 30;
-                            }
-                            break;
-                        default:
-                            break;
+                                Marking.equipmentHomeWaitState[9] = true;
+                                homeWaitStep = 10;
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                }
-                #endregion
+                    #endregion
 
-                //故障清除
-                if (externalSign.AlarmReset)
-                {
-                    FailCount = 0;
-                    m_Alarm = FeederAlarm.无消息;
+                    #region 故障清除
+                    if (externalSign.AlarmReset && !stationInitialize.Running)
+                    {
+                        m_Alarm = FeederAlarm.无消息;
+                    }
+                    #endregion
                 }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        /// <summary>
+        /// 气缸状态集合
+        /// </summary>
+        public IList<ICylinderStatusJugger> CylinderStatus
+        {
+            get
+            {
+                var list = new List<ICylinderStatusJugger>();
+                list.Add(FeederCylinder);
+                return list;
             }
         }
         /// <summary>
         /// 流程报警集合
         /// </summary>
-        public IList<Alarm> Alarms
+        public void AddAlarms()
         {
-            get
+            try
             {
-                var list = new List<Alarm>();
-                list.Add(new Alarm(() => m_Alarm == FeederAlarm.初始化故障)
+                Alarms = new List<Alarm>();
+                Alarms.Add(new Alarm(() => m_Alarm == FeederAlarm.进料气缸复位中)
                 {
                     AlarmLevel = AlarmLevels.None,
-                    Name = FeederAlarm.初始化故障.ToString()
+                    Name = FeederAlarm.进料气缸复位中.ToString()
                 });
-                list.Add(new Alarm(() => FailCount >= Product.FeederFailCount)
-                {
-                    AlarmLevel = AlarmLevels.Error,
-                    Name = string.Format("进料光纤有{0}次以上产品丢失或感应不良！",Product.FeederFailCount)
-                });
-                return list;
+                Alarms.AddRange(FeederCylinder.Alarms);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
     }

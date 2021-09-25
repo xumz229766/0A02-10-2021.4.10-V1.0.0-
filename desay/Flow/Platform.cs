@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Motion.Enginee;
-using Motion.Interfaces;
+﻿using System.Collections.Generic;
+using System.Enginee;
+using System.Interfaces;
 using System.Threading;
-using Motion.LSAps;
+using System.Drawing;
 using System.ToolKit;
+using System;
+using System.Diagnostics;
 namespace desay
 {
     /// <summary>
@@ -12,8 +13,8 @@ namespace desay
     /// </summary>
     public class Platform : ThreadPart
     {
-        private PlateformAlarm m_Alarm;
-
+        private PlateformAlarm m_Alarm, m_AlarmX, m_AlarmY;
+        public List<Alarm> Alarms;
         public Platform(External ExternalSign, StationInitialize stationIni, StationOperate stationOpe)
         {
             externalSign = ExternalSign;
@@ -38,620 +39,1096 @@ namespace desay
         /// </summary>
         public ServoAxis Zaxis { get; set; }
         /// <summary>
-        /// 左右1#气缸
+        /// 左右气缸(1#,2#,4#)
         /// </summary>
-        public SingleCylinder2 Left1Cylinder { get; set; }
+        public SingleCylinder3 Left1Cylinder { get; set; }
         /// <summary>
         /// 左右2#气缸
         /// </summary>
-        public SingleCylinder2 Left2Cylinder { get; set; }
+  //      public SingleCylinder2 Left2Cylinder { get; set; }
         /// <summary>
-        /// 左1#吸笔吸气电磁阀
+        /// 1#吸笔吸气电磁阀
         /// </summary>
         public VacuoBrokenCylinder Left1InhaleCylinder { get; set; }
         /// <summary>
-        /// 左2#吸笔吸气电磁阀
+        /// 2#吸笔吸气电磁阀
         /// </summary>
         public VacuoBrokenCylinder Left2InhaleCylinder { get; set; }
         /// <summary>
-        /// 右1#吸笔吸气电磁阀
+        /// 3#吸笔吸气电磁阀
         /// </summary>
         public VacuoBrokenCylinder Right1InhaleCylinder { get; set; }
         /// <summary>
-        /// 右2#吸笔吸气电磁阀
+        /// 4#吸笔吸气电磁阀
         /// </summary>
         public VacuoBrokenCylinder Right2InhaleCylinder { get; set; }
         /// <summary>
         /// 取放盘上下气缸
         /// </summary>
-        public SingleCylinder GetTrayCylinder { get; set; }
+        public SingleCylinder2 GetTrayCylinder { get; set; }
         /// <summary>
         /// 摆盘卡紧气缸
         /// </summary>
         public SingleCylinder LockCylinder { get; set; }
+
+        public static int step = 0;
+        /// <summary>
+        /// 抽检开始
+        /// </summary>
+        private bool SelectCheckStart;
+
+        /// <summary>
+        /// 托盘定位次数
+        /// </summary>   
+        private int TrayPositonNum = 1;
+
+        /// <summary>
+        /// 回待机位
+        /// </summary>   
+        public int homeWaitStep = 0;
+
         #endregion
-        private bool GettingPlate, PuttingPlate;
+
         public override void Running(RunningModes runningMode)
         {
-            var step = 0;
-            Point3D<int> pos = new Point3D<int>() ;
-            while (true)
+            try
             {
-                Thread.Sleep(10);
-                Left1Cylinder.Condition.External = externalSign;
-                Left2Cylinder.Condition.External = externalSign;
-                Left1InhaleCylinder.Condition.External = externalSign;
-                Left2InhaleCylinder.Condition.External = externalSign;
-                Right1InhaleCylinder.Condition.External = externalSign;
-                Right2InhaleCylinder.Condition.External = externalSign;
-                GetTrayCylinder.Condition.External = externalSign;
-                LockCylinder.Condition.External = externalSign;
-                //Y轴安全位置判断
-                if (Yaxis.IsAlarmed || (Yaxis.CurrentPos < Product.SafePosition.Y
-                    && Yaxis.IsDone) || !Yaxis.IsServon)
-                    Marking.YMoveToNoInSafePostioin = true;
-                else Marking.YMoveToNoInSafePostioin = false;
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                Point3D<double> pos = new Point3D<double>();
+                Marking.watchXYZ.Restart();
 
-                #region 自动流程
-                if (stationOperate.Running)
+                while (true)
                 {
-                    switch (step)
+                    Thread.Sleep(10);
+                    if (!stationOperate.Running) { Marking.watchXYZ.Stop(); } else { Marking.watchXYZ.Start(); }
+
+                    #region 自动流程
+                    if (stationOperate.Running)
                     {
-                        case 0:
-                            if (Marking.HavePlateInPlateform)
-                            {
-                                if (LockCylinder.OutOriginStatus
-                                    && GetTrayCylinder.OutOriginStatus)
-                                    step = 130;
-                                else m_Alarm = PlateformAlarm.卡紧气缸或取放盘气缸没有复位;
-                            }
-                            else
-                            {
-                                if (!Marking.HaveTraySensorSheild)
+                        switch (stationOperate.step)
+                        {
+                            case 0://判断是否有托盘                          
+                                if (GetTrayCylinder.OutOriginStatus)
                                 {
-                                    if (IO14Points.DI8.Value || IO14Points.DI9.Value || IO14Points.DI10.Value || IO14Points.DI11.Value)
-                                        m_Alarm = PlateformAlarm.台面上已有承盘设置报错;
-                                    else step = 10;
+                                    if ((IoPoints.T2IN26.Value && IoPoints.T2IN27.Value && !IoPoints.T2IN28.Value && !IoPoints.T2IN29.Value) || Marking.traySensorSheild)
+                                    {
+                                        if (LockCylinder.OutOriginStatus)
+                                        {
+                                            if (Config.Instance.SelectCheckRunState)
+                                            {
+                                                Marking.IsMMoveChangeTrayPos = 4;
+                                                if (Marking.StoreFinish)
+                                                {
+                                                    Config.Instance.SelectCheckRunState = false;
+                                                    if (Global.BigTray.CurrentPos < Global.BigTray.EndPos && Global.SmallTray.CurrentPos < Global.SmallTray.EndPos)
+                                                    {
+                                                        Marking.HookLayerPlate = true;
+                                                    }
+                                                    stationOperate.step = 270;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Marking.IsMMoveChangeTrayPos = 1;
+                                                stationOperate.step = 130;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            LockCylinder.Reset();
+                                        }
+                                    }
+                                    else if (!IoPoints.T2IN26.Value && !IoPoints.T2IN27.Value && !IoPoints.T2IN28.Value && !IoPoints.T2IN29.Value)
+                                    {
+                                        TrayPositonNum = 1;         //初始化托盘定位次数
+                                        Marking.IsMMoveChangeTrayPos = 2;
+                                        stationOperate.step = 10;
+                                    }
+                                    else
+                                    {
+                                        if (!IoPoints.T2IN26.Value || !IoPoints.T2IN27.Value)
+                                        {
+                                            m_Alarm = IoPoints.T2IN26.Value ? PlateformAlarm.T2IN26摆盘前感应故障 : PlateformAlarm.T2IN27摆盘前感应故障;
+                                        }
+                                        else if (IoPoints.T2IN28.Value || IoPoints.T2IN29.Value)
+                                        {
+                                            m_Alarm = IoPoints.T2IN28.Value ? PlateformAlarm.T2IN28摆盘后感应故障 : PlateformAlarm.T2IN29摆盘后感应故障;
+                                        }
+                                    }
                                 }
-                                else step = 10;
-                                
-                            }
-                            break;
-                        case 10://判断气缸是否在原点，Z轴是否在安全位置
-                            if (GetTrayCylinder.OutOriginStatus)
-                            {
-                                GettingPlate = true;
-                                if (!Zaxis.IsInPosition(Product.SafePosition.Z))
-                                    Zaxis.MoveTo(Product.SafePosition.Z, AxisParameter.ZvelocityCure);
-                                step = 20;
-                            }
-                            break;
-                        case 20://检测Z轴是否到达安全位置，判断Y轴是否在安全位置
-                            if (Zaxis.IsInPosition(Product.SafePosition.Z))
-                            {
-                                if (!Yaxis.IsInPosition(Product.SafePosition.Y))
-                                    Yaxis.MoveTo(Product.SafePosition.Y, AxisParameter.YvelocityCure);
-                                step = 30;
-                            }
-                            break;
-                        case 30://检测Y轴是否到达安全位置,卡紧气缸为ON
-                            if (Yaxis.IsInPosition(Product.SafePosition.Y) && LockCylinder.Condition.IsOnCondition)
-                            {
-                                //Thread.Sleep(20);
-                                LockCylinder.Set();
-                                step = 40;
-                            }
-                            break;
-                        case 40://判断M轴是否移动，仓储是否准备好
-                            if (LockCylinder.OutMoveStatus && ((Marking.MIsNoMoving && Marking.StoreFinish)
-                                ||stationOperate.SingleRunning))
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisGetPlateSpeed };
-                                Yaxis.MoveTo(Position.GetFirstGetPosition, velocityCure);
-                                step = 50;
-                            }
-                            break;
-                        case 50://判断Y轴是否到达首次取Tray位置，取放料盘气缸为ON
-                            if (Yaxis.IsInPosition(Position.GetFirstGetPosition) && GetTrayCylinder.Condition.IsOnCondition)
-                            {
-                                GetTrayCylinder.Set();
-                                step = 60;
-                            }
-                            break;
-                        case 60://取放料盘气缸到位，Y轴移动首次放Tray盘位置
-                            if (GetTrayCylinder.OutMoveStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisGetPlateSpeed };
-                                Yaxis.MoveTo(Position.GetFirstPutPosition, velocityCure);
-                                step = 70;
-                            }
-                            break;
-                        case 70://判断Y轴是否到达首次放Tray盘位置,取放料盘气缸为OFF
-                            if (Yaxis.IsInPosition(Position.GetFirstPutPosition) && GetTrayCylinder.Condition.IsOffCondition)
-                            {
-                                GetTrayCylinder.Reset();
-                                step = 80;
-                            }
-                            break;
-                        case 80://取放料盘气缸到位，Y轴移动二次放Tray盘位置
-                            if (GetTrayCylinder.OutOriginStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisGetPlateSpeed };
-                                Yaxis.MoveTo(Position.GetSecondGetPosition, velocityCure);
-                                step = 90;
-                            }
-                            break;
-                        case 90://判断Y轴是否到达二次取Tray位置，取放料盘气缸为ON
-                            if (Yaxis.IsInPosition(Position.GetSecondGetPosition) && GetTrayCylinder.Condition.IsOnCondition)
-                            {
-                                GetTrayCylinder.Set();
-                                step = 100;
-                            }
-                            break;
-                        case 100://判断取放盘气缸到位，Y轴移动二次放Tray盘位置
-                            if (GetTrayCylinder.OutMoveStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisGetPlateSpeed };
-                                Yaxis.MoveTo(Position.GetSecondPutPosition, velocityCure);
-                                step = 110;
-                            }
-                            break;
-                        case 110://判断Y轴是否到达二次放Tray盘位置,卡紧气缸为OFF，取放盘气缸为OFF
-                            if (Yaxis.IsInPosition(Position.GetSecondPutPosition) && LockCylinder.Condition.IsOffCondition)
-                            {
-                                LockCylinder.Reset();
-                                GetTrayCylinder.Reset();
-                                step = 120;
-                            }
-                            break;
-                        case 120://卡紧气缸，取放盘气缸到达
-                            if (LockCylinder.OutOriginStatus && GetTrayCylinder.OutOriginStatus
-                                && ((IO14Points.DI8.Value && IO14Points.DI9.Value)||Marking.HaveTraySensorSheild))
-                            {
-                                Marking.PlateIndex = 1;
-                                Marking.TrayIndex = 1;
-                                Marking.HavePlateInPlateform = true;
-                                step = 130;
-                            }
-                            break;
-                        case 130://判断Z轴是否在安全位置
-                            GettingPlate = false;
-                            if (!Zaxis.IsInPosition(Product.SafePosition.Z))
-                                Zaxis.MoveTo(Product.SafePosition.Z, AxisParameter.ZvelocityCure);
-                            try
-                            {
-                                pos = Plate.GetPosition(Marking.PlateIndex, Marking.TrayIndex);
-                            }
-                            catch(Exception ex)
-                            {
-                                m_Alarm = PlateformAlarm.坐标计算失败Tray盘设置出错;
-                            }
-                            step = 140;
-                            break;
-                        case 140://XY轴移动取产品位置
-                            if (Zaxis.IsInPosition(Product.SafePosition.Z)&&
-                                ((Position.InhaleLeft1OpenClose&& Left1Cylinder.Condition.IsOffCondition)||
-                                (!Position.InhaleLeft1OpenClose && Left1Cylinder.Condition.IsOnCondition)) &&
-                                ((Position.InhaleLeft2OpenClose && Left2Cylinder.Condition.IsOffCondition) ||
-                                (!Position.InhaleLeft2OpenClose && Left2Cylinder.Condition.IsOnCondition)))
-                            {
-                                if (Position.InhaleLeft1OpenClose) Left1Cylinder.Reset();
-                                else Left1Cylinder.Set();
-                                if (Position.InhaleLeft2OpenClose) Left2Cylinder.Reset();
-                                else Left2Cylinder.Set();
-                                if (!Marking.LeftCut1Done && !Marking.LeftCut2Done 
-                                    && !Marking.RightCut1Done && !Marking.RightCut2Done)
+                                else
                                 {
-                                    Xaxis.MoveTo(Position.GetProductPosition.X, AxisParameter.XvelocityCure);
-                                    Yaxis.MoveTo(Position.GetProductPosition.Y, AxisParameter.YvelocityCure);
-                                    step = 150;
+                                    m_Alarm = PlateformAlarm.取放盘气缸没有复位;
                                 }
-                                else step = 270;
-                            }
-                            break;
-                        case 150://XY到达取产品位置,判断左右剪切是否准备好
-                            var status0 = Xaxis.IsInPosition(Position.GetProductPosition.X);
-                            var status1 = Yaxis.IsInPosition(Position.GetProductPosition.Y);
-                            if (status0 && status1 &&
-                                ((Position.InhaleLeft1OpenClose&& Left1Cylinder.OutOriginStatus) 
-                                ||(!Position.InhaleLeft1OpenClose && Left1Cylinder.OutMoveStatus)) &&
-                                ((Position.InhaleLeft2OpenClose && Left2Cylinder.OutOriginStatus)
-                                || (!Position.InhaleLeft2OpenClose && Left2Cylinder.OutMoveStatus)))
-                            {
-                                if ((Marking.LeftCut1Finish && Marking.LeftCut2Finish && Marking.RightCut1Finish && Marking.RightCut2Finish)
-                                    || stationOperate.SingleRunning)
+                                break;
+                            case 10://判断气缸是否在原点，Z轴是否在安全位置
+                                if (GetTrayCylinder.OutOriginStatus && Marking.StoreFinish)
                                 {
-                                    Zaxis.MoveTo(Position.GetProductPosition.Z, AxisParameter.ZvelocityCure);
-                                    step = 160;
+                                    Marking.GettingPlate = true;
+                                    if (!Zaxis.IsInPosition(Position.Instance.ZsafePosition.Z))
+                                    {
+                                        Zaxis.MoveTo(Position.Instance.ZsafePosition.Z, AxisParameter.Instance.ZVelocityCurve);
+                                    }
+                                    stationOperate.step = 20;
                                 }
-                            }
-                            break;
-                        case 160://判断Z轴到达，左右吸笔为ON
-                            if (Zaxis.IsInPosition(Position.GetProductPosition.Z))
-                            {
-                                Left1InhaleCylinder.Set();
-                                Left2InhaleCylinder.Set();
-                                Right1InhaleCylinder.Set();
-                                Right2InhaleCylinder.Set();
-                                step = 170;
-                            }
-                            break;
-                        case 170://判断左右吸笔到位，吸笔吸气标志输出
-                            if (Left1InhaleCylinder.OutMoveStatus&&Left2InhaleCylinder.OutMoveStatus
-                                &&Right1InhaleCylinder.OutMoveStatus&&Right2InhaleCylinder.OutMoveStatus)
-                            {
-                                Marking.XYZLeftInhale1Sign = true;
-                                Marking.XYZLeftInhale2Sign = true;
-                                Marking.XYZRightInhale1Sign = true;
-                                Marking.XYZRightInhale2Sign = true;
-                                step = 180;
-                            }
-                            break;
-                        case 180://等待左右剪切清除吸笔吸气输出标志，Z轴移动安全位置
-                            if ((!Marking.XYZLeftInhale1Sign && !Marking.XYZLeftInhale2Sign && !Marking.XYZRightInhale1Sign 
-                                && !Marking.XYZRightInhale2Sign) || stationOperate.SingleRunning)
-                            {
-                                Zaxis.MoveTo(Product.SafePosition.Z, AxisParameter.ZvelocityCure);
-                                step = 190;
-                            }
-                            break;
-                        case 190://Z轴到达安全位置，XY移动对应点位置,吸笔左右气缸为ON
-                            if (Zaxis.IsInPosition(Product.SafePosition.Z) &&
-                                ((Position.InhaleLeft1OpenClose && Left1Cylinder.Condition.IsOnCondition) ||
-                                (!Position.InhaleLeft1OpenClose && Left1Cylinder.Condition.IsOffCondition)) &&
-                                ((Position.InhaleLeft2OpenClose && Left2Cylinder.Condition.IsOnCondition) ||
-                                (!Position.InhaleLeft2OpenClose && Left2Cylinder.Condition.IsOffCondition)))
-                            {
-                                Marking.LeftCut1Finish = false;
-                                Marking.LeftCut2Finish = false;
-                                Marking.RightCut1Finish = false;
-                                Marking.RightCut2Finish = false;
-                                if (Position.InhaleLeft1OpenClose) Left1Cylinder.Set();
-                                else Left1Cylinder.Reset();
-                                if (Position.InhaleLeft2OpenClose) Left2Cylinder.Set();
-                                else Left2Cylinder.Reset();
-                                Xaxis.MoveTo(pos.X, AxisParameter.XvelocityCure);
-                                Yaxis.MoveTo(pos.Y, AxisParameter.YvelocityCure);
-                                step = 200;
-                            }
-                            break;
-                        case 200://XY到达对应点位置，吸笔左右气缸到达，Z轴移动对应点位置
-                            if (Xaxis.IsInPosition(pos.X)&& Yaxis.IsInPosition(pos.Y)&& 
-                                ((!Position.InhaleLeft1OpenClose && Left1Cylinder.OutOriginStatus)
-                                || (Position.InhaleLeft1OpenClose && Left1Cylinder.OutMoveStatus)) &&
-                                ((!Position.InhaleLeft2OpenClose && Left2Cylinder.OutOriginStatus)
-                                || (Position.InhaleLeft2OpenClose && Left2Cylinder.OutMoveStatus)))
-                            {
-                                Zaxis.MoveTo(pos.Z, AxisParameter.ZvelocityCure);
-                                step = 220;
-                            }
-                            break;
-                        case 220://Z轴到达对应点位置，左右吸笔为OFF，破真空
-                            if (Zaxis.IsInPosition(pos.Z))
-                            {
-                                Thread.Sleep(Product.ZAxisInTrayStopTime <= 0 ? 100 : Product.ZAxisInTrayStopTime);
-                                Left1InhaleCylinder.Reset();
-                                Left2InhaleCylinder.Reset();
-                                Right1InhaleCylinder.Reset();
-                                Right2InhaleCylinder.Reset();
-                                step = 230;
-                            }
-                            break;
-                        case 230://左右吸笔到达
-                            if (Left1InhaleCylinder.OutOriginStatus&&Left2InhaleCylinder.OutOriginStatus
-                                &&Right1InhaleCylinder.OutOriginStatus&&Right2InhaleCylinder.OutOriginStatus)
-                            {
-                                Zaxis.MoveTo(Product.SafePosition.Z, AxisParameter.ZvelocityCure);
-                                step = 240;
-                            }
-                            break;
-                        case 240://Z轴到达安全位置，吸笔左右气缸为OFF
-                            if (Zaxis.IsInPosition(Product.SafePosition.Z))
-                            { 
-                                Marking.PlateIndex += 1;
-                                //var Num = Position.MainTrayColumnNum * Position.MainTrayRowNum;
-                                if (Marking.PlateIndex <= Position.TrayCellNum) step = 130;
-                                else step = 260;
-                            }
-                            break;
-                        case 260://承盘大于设定值，Tray盘计数+1
-                            Marking.TrayIndex += 1;
-                            if (Marking.TrayIndex <= Position.SubTray.EndPos)
-                            {
-                                Marking.PlateIndex = 1;
-                                step = 130;
-                            }
-                            else step = 270;
-                            break;
-                        case 270://Tray盘大于设定值，判断仓储轴是否动作,卡紧气缸为ON
-                            if((Marking.MIsNoMoving || stationOperate.SingleRunning) && LockCylinder.Condition.IsOnCondition)
-                            {
-                                PuttingPlate = true;
-                                LockCylinder.Set();
-                                step = 280;
-                            }
-                            break;
-                        case 280://判断卡紧气缸气缸到位，Y轴移动二次放Tray盘位置
-                            if (LockCylinder.OutMoveStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisPutPlateSpeed };
-                                Yaxis.MoveTo(Position.PutFirstGetPosition, velocityCure);
-                                step = 290;
-                            }
-                            break;
-                        case 290://判断Y轴是否到达二次放Tray盘位置,取放盘气缸为ON
-                            if (Yaxis.IsInPosition(Position.PutFirstGetPosition) && GetTrayCylinder.Condition.IsOnCondition)
-                            {
-                                GetTrayCylinder.Set();
-                                step = 300;
-                            }
-                            break;
-                        case 300://判断取放盘气缸到位，Y轴移动二次取Tray盘位置
-                            if (GetTrayCylinder.OutMoveStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisPutPlateSpeed };
-                                Yaxis.MoveTo(Position.PutFirstPutPosition, velocityCure);
-                                step = 310;
-                            }
-                            break;
-                        case 310://判断Y轴是否到达二次取Tray盘位置,取放盘气缸为OFF
-                            if (Yaxis.IsInPosition(Position.PutFirstPutPosition) && GetTrayCylinder.Condition.IsOffCondition)
-                            {
-                                GetTrayCylinder.Reset();
-                                step = 320;
-                            }
-                            break;
-                        case 320://判断取放盘气缸到位，Y轴移动首次放Tray盘位置
-                            if (GetTrayCylinder.OutOriginStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisPutPlateSpeed };
-                                Yaxis.MoveTo(Position.PutSecondGetPosition, velocityCure);
-                                step = 330;
-                            }
-                            break;
-                        case 330://判断Y轴是否到达首次放Tray盘位置,取放料气缸为ON
-                            if (Yaxis.IsInPosition(Position.PutSecondGetPosition) && GetTrayCylinder.Condition.IsOnCondition)
-                            {
-                                GetTrayCylinder.Set();
-                                step = 340;
-                            }
-                            break;
-                        case 340://判断取放盘气缸到位，Y轴移动首次取Tray盘位置
-                            if (GetTrayCylinder.OutMoveStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisPutPlateSpeed };
-                                Yaxis.MoveTo(Position.PutSecondPutPosition, velocityCure);
-                                step = 350;
-                            }
-                            break;
-                        case 350://判断Y轴是否到达首次取Tray盘位置,取放料气缸为Off
-                            if (Yaxis.IsInPosition(Position.PutSecondPutPosition) && GetTrayCylinder.Condition.IsOffCondition)
-                            {
-                                GetTrayCylinder.Reset();
-                                step = 360;
-                            }
-                            break;
-                        case 360://判断取放盘气缸到位，Y轴移动安全位置
-                            if (GetTrayCylinder.OutOriginStatus)
-                            {
-                                var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisPutPlateSpeed };
-                                Yaxis.MoveTo(Product.SafePosition.Y, velocityCure);
-                                step = 370;
-                            }
-                            break;
-                        case 370://判断Y轴是否到达安全位置,复位取Tray完成信号、仓储准备好信号
-                            if (Yaxis.IsInPosition(Product.SafePosition.Y)&&(!IO14Points.DI8.Value 
-                                && !IO14Points.DI9.Value && !IO14Points.DI10.Value && !IO14Points.DI11.Value)
-                                ||Marking.HaveTraySensorSheild)
-                            {
-                                Marking.ForceInPlate = false;
-                                Marking.LeftCut1Done = false;
-                                Marking.LeftCut2Done = false;
-                                Marking.RightCut1Done = false;
-                                Marking.RightCut2Done = false;
-                                Marking.HavePlateInPlateform = false;
-                                Marking.StoreFinish = false;
-                                step = 380;
-                            }
-                            break;
-                        default:
-                            PuttingPlate = false;
-                            stationOperate.RunningSign = false;
-                            step = 0;
-                            break;
+                                break;
+                            case 20://检测Z轴是否到达安全位置，判断Y轴是否在安全位置
+                                if (Zaxis.IsInPosition(Position.Instance.ZsafePosition.Z))
+                                {
+                                    if (!Yaxis.IsInPosition(Position.Instance.ZsafePosition.Y))
+                                    {
+                                        if (!Marking.MIsNoMoving) Yaxis.MoveTo(Position.Instance.ZsafePosition.Y, AxisParameter.Instance.YVelocityCurve);
+                                    }
+                                    else
+                                    {
+                                        stationOperate.step = 30;
+                                    }
+                                }
+                                break;
+                            case 30://检测Y轴是否到达安全位置,卡紧气缸为ON
+                                if (Yaxis.IsInPosition(Position.Instance.ZsafePosition.Y) && LockCylinder.Condition.IsOnCondition)
+                                {
+                                    LockCylinder.Set();//卡紧松开
+                                    stationOperate.step = 40;
+                                }
+                                break;
+                            case 40://判断M轴是否移动，仓储是否准备好
+                                if (LockCylinder.OutMoveStatus && Marking.StoreFinish && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosGTrayOriPosition[0].Y, AxisParameter.Instance.YVelocityCurve);
+                                    stationOperate.step = 50;
+                                }
+                                break;
+                            case 50://判断Y轴是否到达首次取Tray位置，取放料盘气缸为ON
+                                if (Yaxis.IsInPosition(Position.Instance.PosGTrayOriPosition[0].Y) && GetTrayCylinder.Condition.IsOnCondition)
+                                {
+                                    GetTrayCylinder.Set();
+                                    stationOperate.step = 60;
+                                }
+                                break;
+                            case 60://取放料盘气缸到位，Y轴移动首次放Tray盘位置
+                                if (GetTrayCylinder.OutMoveStatus && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosGTrayMovePosition[0].Y, AxisParameter.Instance.SlowvelocityCurve);
+                                    stationOperate.step = 70;
+                                }
+                                break;
+                            case 70://判断Y轴是否到达首次放Tray盘位置,取放料盘气缸为OFF
+                                if (Yaxis.IsInPosition(Position.Instance.PosGTrayMovePosition[0].Y) && GetTrayCylinder.Condition.IsOffCondition)
+                                {
+                                    if ((IoPoints.T2IN28.Value && IoPoints.T2IN29.Value) || Marking.traySensorSheild)
+                                    {
+                                        GetTrayCylinder.Reset();
+                                        stationOperate.step = 80;
+                                    }
+                                    else
+                                    {
+                                        if (!IoPoints.T2IN28.Value || !IoPoints.T2IN29.Value)
+                                        {
+                                            m_Alarm = IoPoints.T2IN28.Value ? PlateformAlarm.T2IN28摆盘后感应故障 : PlateformAlarm.T2IN29摆盘后感应故障;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 80://取放料盘气缸到位，Y轴移动二次放Tray盘位置
+                                if (GetTrayCylinder.OutOriginStatus && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosGTrayOriPosition[1].Y, AxisParameter.Instance.YVelocityCurve);
+                                    stationOperate.step = 90;
+                                }
+                                break;
+                            case 90://判断Y轴是否到达二次取Tray位置，取放料盘气缸为ON
+                                if (Yaxis.IsInPosition(Position.Instance.PosGTrayOriPosition[1].Y) && GetTrayCylinder.Condition.IsOnCondition)
+                                {
+                                    GetTrayCylinder.Set();
+                                    stationOperate.step = 100;
+                                }
+                                break;
+                            case 100://判断取放盘气缸到位，Y轴移动二次放Tray盘位置
+                                if (GetTrayCylinder.OutMoveStatus && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosGTrayMovePosition[1].Y, AxisParameter.Instance.SlowvelocityCurve);
+                                    stationOperate.step = 103;
+                                }
+                                break;
+                            case 103://判断Y轴是否到达二次放Tray盘位置,卡紧气缸为OFF
+                                if (Yaxis.IsInPosition(Position.Instance.PosGTrayMovePosition[1].Y))
+                                {
+                                    GetTrayCylinder.Reset();
+                                    stationOperate.step = 105;
+                                }
+                                break;
+                            case 105://卡紧气缸为ON                            
+                                if (GetTrayCylinder.OutOriginStatus && LockCylinder.Condition.IsOffCondition)
+                                {
+                                    if (TrayPositonNum < Position.Instance.numTrayPositon)
+                                    {
+                                        if (LockCylinder.OutMoveStatus)
+                                        {
+                                            TrayPositonNum++;
+                                            LockCylinder.Reset();
+                                            stationOperate.step = 106;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        stationOperate.step = 110;
+                                    }
+                                }
+                                break;
+                            case 106://卡紧气缸为ON                            
+                                if (LockCylinder.Condition.IsOnCondition && LockCylinder.OutOriginStatus)
+                                {
+                                    LockCylinder.Set();
+                                    stationOperate.step = 105;
+                                }
+                                break;
+                            case 110://卡紧气缸为OFF，取放盘气缸为OFF
+                                if (LockCylinder.Condition.IsOffCondition && LockCylinder.OutMoveStatus)
+                                {
+                                    LockCylinder.Reset();
+                                    stationOperate.step = 120;
+                                }
+                                break;
+                            case 120://卡紧气缸，取放盘气缸到达
+                                if (LockCylinder.OutOriginStatus)
+                                {
+                                    if ((IoPoints.T2IN26.Value && IoPoints.T2IN27.Value && !IoPoints.T2IN28.Value && !IoPoints.T2IN29.Value) || Marking.traySensorSheild)
+                                    {
+                                        Marking.MancelChangeTray = false;
+                                        Marking.MancelChangeRunState = false;
+                                        Marking.IsMMoveChangeTrayPos = 3;
+                                        if (Config.Instance.SpecialTrayStart) Global.SpecialTray.CurrentPos = 0; //开启特殊盘
+                                        if (Marking.SelectTarySign)
+                                        {
+                                            Marking.SelectTarySign = false;
+                                            Global.BigTray.CurrentPos = Global.SelectCheckBigPos;
+                                            Global.SmallTray.CurrentPos = Global.SelectCheckSmallPos;
+                                        }
+                                        else
+                                        {
+                                            Global.BigTray.CurrentPos = 0;
+                                            Global.SmallTray.CurrentPos = 0;
+                                        }
+                                        Global.SmallTray.ResetTrayColor(Color.Gray);
+                                        Global.SmallTray.updateColor();
+                                        stationOperate.step = 130;
+                                    }
+                                    else
+                                    {
+                                        if (!IoPoints.T2IN26.Value || !IoPoints.T2IN27.Value)
+                                        {
+                                            m_Alarm = IoPoints.T2IN26.Value ? PlateformAlarm.T2IN26摆盘前感应故障 : PlateformAlarm.T2IN27摆盘前感应故障;
+                                        }
+                                        else if (IoPoints.T2IN28.Value || IoPoints.T2IN29.Value)
+                                        {
+                                            m_Alarm = IoPoints.T2IN28.Value ? PlateformAlarm.T2IN28摆盘后感应故障 : PlateformAlarm.T2IN29摆盘后感应故障;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 130://判断Z轴是否在安全位置
+                                Marking.watchXYZValue = Marking.watchXYZ.ElapsedMilliseconds / 1000.0;
+                                Marking.watchXYZ.Restart();
+                                Marking.GettingPlate = false;
+                                if (!Zaxis.IsInPosition(Position.Instance.PuchSafetyZ))
+                                {
+                                    Zaxis.MoveTo(Position.Instance.PuchSafetyZ, AxisParameter.Instance.ZVelocityCurve);
+                                }
+                                try//获取大盘的第一个位置,通过第一个位置来获取小盘实际位置
+                                {
+                                    if(((Position.Instance.MLayerFillCount[Position.Instance.MLayerIndex] == 0 && Global.SmallTray.CurrentPos >= (Global.SmallTray.EndPos - 1)) ||
+                                       (Position.Instance.MLayerFillCount[Position.Instance.MLayerIndex] != 0 && Global.SmallTray.CurrentPos >= (Position.Instance.MLayerFillCount[0] - 1)) ||
+                                       (SelectCheckStart && Global.SmallTray.CurrentPos >= (Position.Instance.SelectCheckModulus - 1)) ||
+                                       (!(Marking.SelectCheckMode && SelectCheckStart) && Marking.SelectCheckMode) || Marking.MancelChangeTray) && !Marking.traySensorSheild)
+                                    {
+                                        Marking.changeTrayLayoutWaitSign = true;
+                                    }
+
+                                    if (!SelectCheckStart) //摆盘坐标计算
+                                    {
+                                        if (Config.Instance.SpecialTrayStart) //开启特殊盘，计算坐标
+                                        {
+                                            if (Global.SpecialTray.CurrentPos >= Global.SpecialTray.EndPos) { Global.SpecialTray.CurrentPos = 0; }
+                                            Point3D<double> pos1 = Global.SpecialTray.GetPosition(Position.Instance.PuchProductPosition, Global.SpecialTray.CurrentPos + 1);
+                                            if (Global.BigTray.CurrentPos < Global.BigTray.EndPos)
+                                            {
+                                                Point3D<double> pos2 = Global.BigTray.GetPosition(pos1, Global.BigTray.CurrentPos + 1);
+                                                if (Global.SmallTray.CurrentPos < Global.SmallTray.EndPos)
+                                                {
+                                                    pos = Global.SmallTray.GetPosition(pos2, Global.SmallTray.CurrentPos + 1);
+                                                }
+                                                else
+                                                {
+                                                    Global.SmallTray.CurrentPos = 0;
+                                                    pos = Global.SmallTray.GetPosition(pos2, Global.SmallTray.CurrentPos + 1);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Global.BigTray.CurrentPos = 0;
+                                                Point3D<double> pos2 = Global.BigTray.GetPosition(pos1, Global.BigTray.CurrentPos + 1);
+                                                if (Global.SmallTray.CurrentPos < Global.SmallTray.EndPos)
+                                                {
+                                                    pos = Global.SmallTray.GetPosition(pos2, Global.SmallTray.CurrentPos + 1);
+                                                }
+                                                else
+                                                {
+                                                    Global.SmallTray.CurrentPos = 0;
+                                                    pos = Global.SmallTray.GetPosition(pos2, Global.SmallTray.CurrentPos + 1);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (Global.BigTray.CurrentPos >= Global.BigTray.EndPos) { Global.BigTray.CurrentPos = 0; }
+                                            Point3D<double> pos1 = Global.BigTray.GetPosition(Position.Instance.PuchProductPosition, Global.BigTray.CurrentPos + 1);
+                                            if (Global.SmallTray.CurrentPos < Global.SmallTray.EndPos)
+                                            {
+                                                pos = Global.SmallTray.GetPosition(pos1, Global.SmallTray.CurrentPos + 1);
+                                            }
+                                            else
+                                            {
+                                                Global.SmallTray.CurrentPos = 0;
+                                                pos = Global.SmallTray.GetPosition(pos1, Global.SmallTray.CurrentPos + 1);
+                                            }
+                                        }
+                                    }
+                                    else if (Position.Instance.SelectCheckModulus < Global.SmallTray.EndPos) //抽检坐标计算
+                                    {
+                                        if (Global.BigTray.CurrentPos >= Global.BigTray.EndPos) { Global.BigTray.CurrentPos = 0; }
+                                        Point3D<double> pos1 = Global.BigTray.GetPosition(Position.Instance.SelectCheckPosition, Global.BigTray.CurrentPos + 1);
+                                        if (Global.SmallTray.CurrentPos < Global.SmallTray.EndPos)
+                                        {
+                                            pos = Global.SmallTray.GetPosition(pos1, Global.SmallTray.CurrentPos + 1);
+                                        }
+                                        else
+                                        {
+                                            Global.SmallTray.CurrentPos = 0;
+                                            pos = Global.SmallTray.GetPosition(pos1, Global.SmallTray.CurrentPos + 1);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        m_Alarm = PlateformAlarm.抽检大盘穴数超出最大穴数;
+                                    }
+                                    stationOperate.step = 135;
+                                }
+                                catch
+                                {
+                                    m_Alarm = PlateformAlarm.获取Tray盘坐标点错误;
+                                }
+                                break;
+                            case 135://取料时左右气缸移动到动点
+                                if (Zaxis.IsInPosition(Position.Instance.PuchSafetyZ))
+                                {
+                                    Left1Cylinder.Reset();
+                                    stationOperate.step = 140;
+                                }
+                                break;
+                            case 140://XY轴移动取产品位置                               
+                                if (!Marking.LeftCut1Done && !Marking.LeftCut2Done && !Marking.RightCut1Done && !Marking.RightCut2Done)//剪切数量完成
+                                {
+                                    Xaxis.MoveTo(Position.Instance.GetProductPosition.X, AxisParameter.Instance.XVelocityCurve);
+                                    Yaxis.MoveTo(Position.Instance.GetProductPosition.Y, AxisParameter.Instance.YVelocityCurve);
+                                    Zaxis.MoveTo(Position.Instance.GetSafetyZ, AxisParameter.Instance.ZVelocityCurve);
+                                    stationOperate.step = 150;
+                                }
+                                else
+                                {
+                                    Marking.IsMMoveChangeTrayPos = 4;
+                                    stationOperate.step = 270;
+                                }
+                                break;
+                            case 150:////XY到达取产品位置,判断左右剪切是否准备好                          
+                                if (Xaxis.IsInPosition(Position.Instance.GetProductPosition.X) && Yaxis.IsInPosition(Position.Instance.GetProductPosition.Y) &&
+                                    Zaxis.IsInPosition(Position.Instance.GetSafetyZ) && Left1Cylinder.OutOriginStatus && Left1Cylinder.Condition.IsOffCondition)
+                                {
+                                    if ((Marking.LeftCut1Finish && Marking.LeftCut2Finish && Marking.RightCut1Finish && Marking.RightCut2Finish))
+                                    {
+                                        if (Marking.CutCount[0] == Global.BigTray.CurrentPos && Marking.CutCount[1] == Global.BigTray.CurrentPos &&
+                                            Marking.CutCount[2] == Global.BigTray.CurrentPos && Marking.CutCount[3] == Global.BigTray.CurrentPos)
+                                        {
+                                            Zaxis.MoveTo(Position.Instance.GetProductPosition.Z, AxisParameter.Instance.ZVelocityCurve);
+                                            Left1InhaleCylinder.Delay.InhaleTime = Delay.Instance.InspireDelay[0];
+                                            Left2InhaleCylinder.Delay.InhaleTime = Delay.Instance.InspireDelay[0];
+                                            Right1InhaleCylinder.Delay.InhaleTime = Delay.Instance.InspireDelay[0];
+                                            Right2InhaleCylinder.Delay.InhaleTime = Delay.Instance.InspireDelay[0];
+                                            Left1InhaleCylinder.Set();
+                                            Left2InhaleCylinder.Set();
+                                            Right1InhaleCylinder.Set();
+                                            Right2InhaleCylinder.Set();
+                                            stationOperate.step = 160;
+                                        }
+                                        else if (Marking.CutCount[0] == Marking.CutCount[1] && Marking.CutCount[1] == Marking.CutCount[2]
+                                            && Marking.CutCount[2] == Marking.CutCount[3])
+                                        {
+                                            Global.BigTray.CurrentPos = Marking.CutCount[0];
+                                        }
+                                        else
+                                        {
+                                            m_Alarm = PlateformAlarm.剪切穴号错误;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 160://判断Z轴到达，左右吸笔为ON
+                                if (Zaxis.IsInPosition(Position.Instance.GetProductPosition.Z))
+                                {
+                                    Thread.Sleep(Delay.Instance.ZaxisDoneDelay);
+                                    watch.Restart();
+                                    stationOperate.step = 170;
+                                }
+                                break;
+                            case 170://判断左右吸笔到位，吸笔吸气标志输出
+                                if (watch.ElapsedMilliseconds > Delay.Instance.InspireDelay[0])
+                                {
+                                    Marking.XYZLeftInhale1Sign = true;
+                                    Marking.XYZLeftInhale2Sign = true;
+                                    Marking.XYZRightInhale1Sign = true;
+                                    Marking.XYZRightInhale2Sign = true;
+                                    stationOperate.step = 180;
+                                }
+                                break;
+                            case 180://等待左右剪切清除吸笔吸气输出标志，Z轴移动安全位置
+                                if (Marking.XYZCut1Finish && Marking.XYZCut2Finish && Marking.XYZCut3Finish && Marking.XYZCut4Finish)
+                                {
+                                    Zaxis.MoveTo(Position.Instance.GetSafetyZ, AxisParameter.Instance.ZVelocityCurve);
+                                    stationOperate.step = 185;
+                                }
+                                break;
+                            case 185:
+                                if ((Zaxis.BackPos < (Position.Instance.GetProductPosition.Z - Position.Instance.ZInformHeight)) || Zaxis.IsInPosition(Position.Instance.GetSafetyZ))
+                                {
+                                    Marking.XYZLeftInhale1Sign = false;
+                                    Marking.XYZLeftInhale2Sign = false;
+                                    Marking.XYZRightInhale1Sign = false;
+                                    Marking.XYZRightInhale2Sign = false;
+                                    stationOperate.step = 190;
+                                }
+                                break;
+                            case 190://Z轴到达安全位置，XY移动对应点位置,吸笔左右气缸为ON
+                                if (Left1Cylinder.OutOriginStatus && (!Marking.XYZCut1Finish && !Marking.XYZCut2Finish && !Marking.XYZCut3Finish && !Marking.XYZCut4Finish))
+                                {
+                                    Marking.ZUpTrayLensFinish[0] = true;
+                                    Marking.ZUpTrayLensFinish[1] = true;
+                                    Marking.ZUpTrayLensFinish[2] = true;
+                                    Marking.ZUpTrayLensFinish[3] = true;
+                                    if (Zaxis.IsInPosition(Position.Instance.GetSafetyZ))
+                                    {
+                                        pos.X = pos.X + Position.Instance.trayOffces[Global.BigTray.CurrentPos].X;
+                                        pos.Y = pos.Y + Position.Instance.trayOffces[Global.BigTray.CurrentPos].Y;
+                                        Yaxis.MoveTo(pos.Y, AxisParameter.Instance.YVelocityCurve);
+                                        Zaxis.MoveTo(Position.Instance.PuchSafetyZ, AxisParameter.Instance.ZVelocityCurve);
+                                        stationOperate.step = 200;
+                                    }
+                                }
+                                break;
+                            case 200:
+                                if (Yaxis.BackPos < (Position.Instance.GetProductPosition.Y - Position.Instance.YAvoidDistance) || Yaxis.IsInPosition(pos.Y))
+                                {
+                                    Xaxis.MoveTo(pos.X, AxisParameter.Instance.XVelocityCurve);
+                                    Left1Cylinder.Set();
+                                    stationOperate.step = 210;
+                                }
+                                break;
+                            case 210://XY到达对应点位置，吸笔左右气缸到达，Z轴移动对应点位置
+                                if (Xaxis.IsInPosition(pos.X) && Yaxis.IsInPosition(pos.Y) && Zaxis.IsInPosition(Position.Instance.PuchSafetyZ)
+                                    && Left1Cylinder.OutMoveStatus)
+                                {
+                                    if (Position.Instance.ZxiasUp > 0)
+                                    {
+                                        Zaxis.MoveToExtern(pos.Z + Position.Instance.trayOffces[Global.BigTray.CurrentPos].Z - Position.Instance.ZxiasUp,
+                                                           pos.Z + Position.Instance.trayOffces[Global.BigTray.CurrentPos].Z, AxisParameter.Instance.ZVelocityCurve);
+                                    }
+                                    else
+                                    {
+                                        Zaxis.MoveTo(pos.Z + Position.Instance.trayOffces[Global.BigTray.CurrentPos].Z, AxisParameter.Instance.ZVelocityCurve);
+                                    }
+                                    stationOperate.step = 220;
+                                }
+                                break;
+                            case 220://Z轴到达对应点位置，左右吸笔为OFF，破真空
+                                if (Zaxis.IsInPosition(pos.Z + Position.Instance.trayOffces[Global.BigTray.CurrentPos].Z))
+                                {
+                                    Thread.Sleep(Delay.Instance.ZaxisDoneDelay);
+                                    Left1InhaleCylinder.Delay.BrokenTime = Delay.Instance.SoproDelay[0] + Delay.Instance.ZSoproDelay[0];
+                                    Left2InhaleCylinder.Delay.BrokenTime = Delay.Instance.SoproDelay[0] + Delay.Instance.ZSoproDelay[0];
+                                    Right1InhaleCylinder.Delay.BrokenTime = Delay.Instance.SoproDelay[0] + Delay.Instance.ZSoproDelay[0];
+                                    Right2InhaleCylinder.Delay.BrokenTime = Delay.Instance.SoproDelay[0] + Delay.Instance.ZSoproDelay[0];
+                                    Left1InhaleCylinder.Reset();
+                                    Left2InhaleCylinder.Reset();
+                                    Right1InhaleCylinder.Reset();
+                                    Right2InhaleCylinder.Reset();
+                                    watch.Restart();
+                                    stationOperate.step = 230;
+                                }
+                                break;
+                            case 230://左右吸笔到达
+                                if (watch.ElapsedMilliseconds > Delay.Instance.SoproDelay[0])
+                                {
+                                    Thread.Sleep(Delay.Instance.InspireStopDelay[0]);
+                                    Zaxis.MoveTo(Position.Instance.PuchSafetyZ, AxisParameter.Instance.ZVelocityCurve);
+                                    try
+                                    {
+                                        Global.BigTray.SetNumColor(Global.BigTray.CurrentPos + 1, Color.Green);
+                                        Global.BigTray.updateColor();
+                                        if (!SelectCheckStart)//抽检不刷新状态
+                                        {
+                                            if (Config.Instance.SpecialTrayStart)
+                                            {
+                                                if (Global.SpecialTray.CurrentPos >= (Global.SpecialTray.EndPos - 1))
+                                                {
+                                                    Global.SmallTray.SetNumColor(Global.SmallTray.CurrentPos + 1, Color.Green);
+                                                    Global.SmallTray.updateColor();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Global.SmallTray.SetNumColor(Global.SmallTray.CurrentPos + 1, Color.Green);
+                                                Global.SmallTray.updateColor();
+                                            }
+                                        }
+                                        Global.BigTray.CurrentPos++;
+                                    }
+                                    catch (Exception ex) { throw ex; }
+                                    stationOperate.step = 240;
+                                }
+                                break;
+                            case 240://Z轴到达安全位置
+                                try
+                                {
+                                    if (Zaxis.IsInPosition(Position.Instance.PuchSafetyZ))
+                                    {
+                                        //判断大盘是否完成数量
+                                        if (Global.BigTray.CurrentPos < Global.BigTray.EndPos)
+                                        {
+                                            stationOperate.step = 130;
+                                        }
+                                        else
+                                        {
+                                            if (Config.Instance.SpecialTrayStart && !SelectCheckStart) Global.SpecialTray.CurrentPos++;
+                                            stationOperate.step = 260;
+                                        }
+                                    }
+                                }
+                                catch (Exception ex) { throw ex; }
+                                break;
+                            case 260: //复位托盘颜色，小盘计算+1
+                                Global.BigTray.ResetTrayColor(Color.Gray);
+                                Global.BigTray.updateColor();
+                                if (SelectCheckStart)
+                                {
+                                    Global.SmallTray.CurrentPos++;
+                                    if (Global.SmallTray.CurrentPos < Position.Instance.SelectCheckModulus)//判断抽检是否完成
+                                    {
+                                        Global.BigTray.CurrentPos = 0;
+                                        stationOperate.step = 130;
+                                    }
+                                    else
+                                    {
+                                        stationOperate.step = 265;
+                                    }
+                                }
+                                else
+                                {
+                                    Global.BigTray.CurrentPos = 0;
+                                    if (Config.Instance.SpecialTrayStart)
+                                    {
+                                        if (Global.SpecialTray.CurrentPos >= Global.SpecialTray.EndPos)
+                                        {
+                                            Global.SpecialTray.CurrentPos = 0;
+                                            Global.SmallTray.CurrentPos++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Global.SmallTray.CurrentPos++;
+                                    }
+                                    stationOperate.step = 265;
+                                }
+                                break;
+                            case 265://抽检、强制换盘、周期停止
+                                if (Marking.SelectCheckMode)
+                                {
+                                    if (SelectCheckStart && Marking.SelectCheckMode)
+                                    {
+                                        SelectCheckStart = false;
+                                        Marking.SelectCheckModeFinish = true;
+                                        Config.Instance.SelectCheckRunState = false;
+                                        if (Global.SelectCheckBigPos < Global.BigTray.EndPos && Global.SelectCheckSmallPos < Global.SmallTray.EndPos)
+                                        {
+                                            Marking.SelectTarySign = true;
+                                            Marking.HookLayerPlate = true;
+                                        }
+                                        Marking.IsMMoveChangeTrayPos = 4;
+                                        stationOperate.step = 270;
+                                        break;
+                                    }//抽检一穴完
+                                    if (Marking.SelectCheckMode && !SelectCheckStart && !Marking.SelectCheckModeFinish)//抽检模式
+                                    {
+                                        if (!SelectCheckStart)
+                                        {
+                                            SelectCheckStart = true;
+                                            Config.Instance.SelectCheckRunState = true;
+                                            Global.SelectCheckBigPos = Global.BigTray.CurrentPos;
+                                            Global.SelectCheckSmallPos = Global.SmallTray.CurrentPos;
+                                            Marking.IsMMoveChangeTrayPos = 4;
+                                            stationOperate.step = 270;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else { SelectCheckStart = false; }
+                                if (Marking.MancelChangeTray)//手动强制换盘
+                                {
+                                    Marking.MancelChangeRunState = true;
+                                    Marking.IsMMoveChangeTrayPos = 4;
+                                    stationOperate.step = 270;
+                                    break;
+                                }
+                                if (!Marking.SystemStop)
+                                {
+                                    if (Position.Instance.MLayerFillCount[Position.Instance.MLayerIndex] != 0)//如果仓储换盘数量设定了，则跑设定数量
+                                    {
+                                        if ((Global.SmallTray.CurrentPos < Position.Instance.MLayerFillCount[0]))//判断
+                                        {
+                                            Global.BigTray.CurrentPos = 0;
+                                            stationOperate.step = 130;
+                                        }
+                                        else
+                                        {
+                                            Marking.IsMMoveChangeTrayPos = 4;
+                                            stationOperate.step = 270;
+                                        }
+                                        break;
+                                    }
+                                    if (Global.SmallTray.CurrentPos < Global.SmallTray.EndPos)//判断一盘数量是否完成
+                                    {
+                                        Global.BigTray.CurrentPos = 0;
+                                        stationOperate.step = 130;
+                                    }
+                                    else
+                                    {
+                                        Marking.IsMMoveChangeTrayPos = 4;
+                                        stationOperate.step = 270;
+                                    }
+                                }
+                                break;
+                            case 270://Tray盘大于设定值，判断仓储轴是否动作,卡紧气缸为ON
+                                if (!Marking.MIsNoMoving && LockCylinder.Condition.IsOnCondition && Marking.StoreFinish)
+                                {
+                                    if (!Marking.MSelectIndex) Config.Instance.TrayFinishcount++;
+                                    Marking.ModelCount = 0;
+                                    Marking.changeTrayLayoutSign = true;
+                                    Marking.PuttingPlate = true;
+                                    LockCylinder.Set();
+                                    stationOperate.step = 280;
+                                }
+                                break;
+                            case 280://判断卡紧气缸气缸到位，Y轴移动二次放Tray盘位置
+                                if (LockCylinder.OutMoveStatus && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosExitTrayOriPosition[0].Y, AxisParameter.Instance.YVelocityCurve);
+                                    stationOperate.step = 290;
+                                }
+                                break;
+                            case 290://判断Y轴是否到达二次放Tray盘位置,取放盘气缸为ON
+                                if (Yaxis.IsInPosition(Position.Instance.PosExitTrayOriPosition[0].Y) && GetTrayCylinder.Condition.IsOnCondition)
+                                {
+                                    GetTrayCylinder.Set();
+                                    stationOperate.step = 300;
+                                }
+                                break;
+                            case 300://判断取放盘气缸到位，Y轴移动二次取Tray盘位置
+                                if (GetTrayCylinder.OutMoveStatus && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosExitTrayMovePosition[0].Y, AxisParameter.Instance.SlowExitvelocityCurve);
+                                    stationOperate.step = 310;
+                                }
+                                break;
+                            case 310://判断Y轴是否到达二次取Tray盘位置,取放盘气缸为OFF
+                                if (Yaxis.IsInPosition(Position.Instance.PosExitTrayMovePosition[0].Y) && GetTrayCylinder.Condition.IsOffCondition)
+                                {
+                                    GetTrayCylinder.Reset();
+                                    stationOperate.step = 320;
+                                }
+                                break;
+                            case 320://判断取放盘气缸到位，Y轴移动首次放Tray盘位置
+                                if (GetTrayCylinder.OutOriginStatus && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosExitTrayOriPosition[1].Y, AxisParameter.Instance.YVelocityCurve);
+                                    stationOperate.step = 330;
+                                }
+                                break;
+                            case 330://判断Y轴是否到达首次放Tray盘位置,取放料气缸为ON
+                                if (Yaxis.IsInPosition(Position.Instance.PosExitTrayOriPosition[1].Y) && GetTrayCylinder.Condition.IsOnCondition)
+                                {
+                                    GetTrayCylinder.Set();
+                                    stationOperate.step = 340;
+                                }
+                                break;
+                            case 340://判断取放盘气缸到位，Y轴移动首次取Tray盘位置
+                                if (GetTrayCylinder.OutMoveStatus && !Marking.ChangeTrayPadlock)
+                                {
+                                    Yaxis.MoveTo(Position.Instance.PosExitTrayMovePosition[1].Y, AxisParameter.Instance.SlowExitvelocityCurve);
+                                    stationOperate.step = 350;
+                                }
+                                break;
+                            case 350://判断Y轴是否到达首次取Tray盘位置,取放料气缸为Off
+                                if (Yaxis.IsInPosition(Position.Instance.PosExitTrayMovePosition[1].Y) && GetTrayCylinder.Condition.IsOffCondition)
+                                {
+                                    GetTrayCylinder.Reset();
+                                    stationOperate.step = 360;
+                                }
+                                break;
+                            case 360://判断取放盘气缸到位，Y轴移动安全位置
+                                if (GetTrayCylinder.OutOriginStatus && !Marking.ChangeTrayPadlock)
+                                {
+
+                                    Yaxis.MoveTo(Position.Instance.ZsafePosition.Y, AxisParameter.Instance.YVelocityCurve);
+                                    stationOperate.step = 370;
+                                }
+                                break;
+                            case 370://判断Y轴是否到达安全位置,复位取Tray完成信号、仓储准备好信号
+                                if (Yaxis.IsInPosition(Position.Instance.ZsafePosition.Y) && !Marking.ChangeTrayPadlock)
+                                {
+                                    if ((!IoPoints.T2IN26.Value && !IoPoints.T2IN27.Value && !IoPoints.T2IN28.Value &&
+                                        !IoPoints.T2IN29.Value && IoPoints.T2IN18.Value && IoPoints.T2IN19.Value) || Marking.traySensorSheild)
+                                    {
+                                        Marking.LeftCut1Done = false;
+                                        Marking.LeftCut2Done = false;
+                                        Marking.RightCut1Done = false;
+                                        Marking.RightCut2Done = false;
+                                        Marking.IsMMoveChangeTrayPos = 5;
+                                        Marking.StoreFinish = false;
+                                        Marking.PuttingPlate = false;
+                                        stationOperate.step = 380;
+                                    }
+                                    else
+                                    {
+                                        if (IoPoints.T2IN26.Value || IoPoints.T2IN27.Value)
+                                        {
+                                            m_Alarm = IoPoints.T2IN26.Value ? PlateformAlarm.T2IN26摆盘前感应故障 : PlateformAlarm.T2IN27摆盘前感应故障;
+                                        }
+                                        else if (IoPoints.T2IN28.Value || IoPoints.T2IN29.Value)
+                                        {
+                                            m_Alarm = IoPoints.T2IN28.Value ? PlateformAlarm.T2IN28摆盘后感应故障 : PlateformAlarm.T2IN29摆盘后感应故障;
+                                        }
+                                        else if (!IoPoints.T2IN18.Value || !IoPoints.T2IN19.Value)
+                                        {
+                                            m_Alarm = !IoPoints.T2IN18.Value ? PlateformAlarm.T2IN18左卡盘感应故障 : PlateformAlarm.T2IN19右卡盘感应故障;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 380:
+                                if (!Marking.StoreFinish) stationOperate.step = 390;
+                                break;
+                            default:
+                                stationOperate.RunningSign = false;
+                                stationOperate.step = 0;
+                                break;
+                        }
                     }
-                }
-                #endregion
+                    #endregion
 
-                #region 初始化流程
-                if (stationInitialize.Running)
-                {
-                    switch (stationInitialize.Flow)
+                    #region 初始化流程
+                    if (stationInitialize.Running)
                     {
-                        case 0:   //清除所有标志位的状态
-                            stationInitialize.InitializeDone = false;
-                            stationOperate.RunningSign = false;
-                            step = 0;
-                            Xaxis.Stop();
-                            Yaxis.Stop();
-                            Zaxis.Stop();
-                            if (!Xaxis.IsAlarmed && !Yaxis.IsAlarmed && !Zaxis.IsAlarmed)
-                            {
+                        switch (stationInitialize.Flow)
+                        {
+                            case 0:   //清除所有标志位的状态
+                                stationInitialize.InitializeDone = false;
+                                stationOperate.RunningSign = false;
+                                stationOperate.step = 0;
+                                Marking.StoreFinish = false;
+                                Marking.SelectCheckMode = false;
+                                Marking.SelectCheckModeFinish = false;
+                                SelectCheckStart = false;
+                                Marking.XYZLeftInhale1Sign = false;
+                                Marking.XYZLeftInhale2Sign = false;
+                                Marking.XYZRightInhale1Sign = false;
+                                Marking.XYZRightInhale2Sign = false;
+                                Marking.ZUpTrayLensFinish[0] = false;
+                                Marking.ZUpTrayLensFinish[1] = false;
+                                Marking.ZUpTrayLensFinish[2] = false;
+                                Marking.ZUpTrayLensFinish[3] = false;
+                                Marking.GettingPlate = false;
+                                Marking.PuttingPlate = false;
+                                Marking.MancelChangeTray = false;
+                                Marking.IsMMoveChangeTrayPos = 0;
+                                Global.SpecialTray.CurrentPos = 0;
+                                if (Global.BigTray.CurrentPos > 0)
+                                {
+                                    Global.SmallTray.CurrentPos++;
+                                }
+                                Global.BigTray.CurrentPos = 0;
+                                GetTrayCylinder.InitExecute(); GetTrayCylinder.Reset();
+                                m_Alarm = PlateformAlarm.取放盘上下气缸复位中;
+                                stationInitialize.Flow = 10;
+                                break;
+                            case 10:
+                                if (GetTrayCylinder.OutOriginStatus && !Xaxis.IsAlarmed && !Yaxis.IsAlarmed && !Zaxis.IsAlarmed)
+                                {
+                                    m_Alarm = PlateformAlarm.Z轴复位中;
+                                    Xaxis.IsServon = true;
+                                    Yaxis.IsServon = true;
+                                    Zaxis.IsServon = true;
+                                    Thread.Sleep(500);
+                                    stationInitialize.Flow = 20;
+                                }
+                                break;
+                            case 20:
+                                if (Xaxis.IsDone && Yaxis.IsDone && Zaxis.IsDone && Xaxis.IsInPosition(Xaxis.CurrentPos)
+                                    && Yaxis.IsInPosition(Yaxis.CurrentPos) && Zaxis.IsInPosition(Zaxis.CurrentPos))
+                                {
+                                    stationInitialize.Flow = 30;
+                                }
+                                else
+                                {
+                                    Xaxis.Stop();
+                                    Yaxis.Stop();
+                                    Zaxis.Stop();
+                                }
+                                break;
+                            case 30:  //若Z轴在原点位异常，启动Z轴寸动循环                          
+                                Zaxis.BackHome();
+                                Thread.Sleep(30);
+                                stationInitialize.Flow = 40;
+                                break;
+                            case 40://判断Z轴是否动作完成
+                                if (Zaxis.IsInPosition(0))
+                                {
+                                    Zaxis.MoveTo(Position.Instance.ZsafePosition.Z, AxisParameter.Instance.ZHomeVelocityCurve);
+                                    stationInitialize.Flow = 50;
+                                }
+                                break;
+                            case 50://启动Z轴回原点
+                                if (Zaxis.IsInPosition(Position.Instance.ZsafePosition.Z))
+                                {
+                                    m_Alarm = PlateformAlarm.无消息;
+                                    Xaxis.BackHome(); m_AlarmX = PlateformAlarm.X轴复位中;
+                                    Yaxis.BackHome(); m_AlarmY = PlateformAlarm.Y轴复位中;
+                                    stationInitialize.Flow = 60;
+                                }
+                                break;
+                            case 60://判断Z轴回原点是否完成，Z轴移动安全位置
+                                if (Yaxis.IsInPosition(0) && Xaxis.IsInPosition(0))
+                                {
+                                    Xaxis.MoveTo(Position.Instance.ZsafePosition.X, AxisParameter.Instance.XVelocityCurve);
+                                    Yaxis.MoveTo(Position.Instance.ZsafePosition.Y, AxisParameter.Instance.YVelocityCurve);
+                                    stationInitialize.Flow = 70;
+                                }
+                                break;
+                            case 70://复位所有气缸的动作
+                                if (Yaxis.IsInPosition(Position.Instance.ZsafePosition.Y) && Xaxis.IsInPosition(Position.Instance.ZsafePosition.X))
+                                {
+                                    Left1Cylinder.InitExecute(); Left1Cylinder.Reset();
+                                    m_Alarm = PlateformAlarm.吸笔左右气缸复位中;
+                                    Left1InhaleCylinder.InitExecute(); Left1InhaleCylinder.Reset();
+                                    Left2InhaleCylinder.InitExecute(); Left2InhaleCylinder.Reset();
+                                    Right1InhaleCylinder.InitExecute(); Right1InhaleCylinder.Reset();
+                                    Right2InhaleCylinder.InitExecute(); Right2InhaleCylinder.Reset();
+                                    IoPoints.T1DO31.Value = false;
+                                    IoPoints.T1DO29.Value = false;
+                                    IoPoints.T1DO27.Value = false;
+                                    IoPoints.T1DO25.Value = false;
+                                    stationInitialize.Flow = 80;
+                                }
+                                if (Xaxis.IsInPosition(Position.Instance.ZsafePosition.X)) m_AlarmX = PlateformAlarm.无消息;
+                                if (Yaxis.IsInPosition(Position.Instance.ZsafePosition.Y)) m_AlarmY = PlateformAlarm.无消息;
+                                break;
+                            case 80:    //判断所有气缸到位，启动Z轴回原点
+                                if (Left1Cylinder.OutOriginStatus)
+                                {
+                                    LockCylinder.InitExecute(); LockCylinder.Reset();
+                                    m_Alarm = PlateformAlarm.摆盘卡紧气缸复位中;
+                                    stationInitialize.Flow = 90;
+                                }
+                                break;
+                            case 90:
+                                if (LockCylinder.OutOriginStatus)
+                                {
+                                    m_Alarm = PlateformAlarm.无消息;
+                                    stationInitialize.InitializeDone = true;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    #endregion
+
+                    #region  回初始位
+                    if (externalSign.GoRristatus)
+                    {
+                        switch (homeWaitStep)
+                        {
+                            case 0:
+                                stationOperate.step = 0;
+                                Marking.StoreFinish = false;
+                                Marking.SelectCheckMode = false;
+                                Marking.SelectCheckModeFinish = false;
+                                SelectCheckStart = false;
+                                Marking.XYZLeftInhale1Sign = false;
+                                Marking.XYZLeftInhale2Sign = false;
+                                Marking.XYZRightInhale1Sign = false;
+                                Marking.XYZRightInhale2Sign = false;
+                                Marking.ZUpTrayLensFinish[0] = false;
+                                Marking.ZUpTrayLensFinish[1] = false;
+                                Marking.ZUpTrayLensFinish[2] = false;
+                                Marking.ZUpTrayLensFinish[3] = false;
+                                Marking.GettingPlate = false;
+                                Marking.PuttingPlate = false;
+                                Marking.MancelChangeTray = false;
+                                Marking.IsMMoveChangeTrayPos = 0;
+                                GetTrayCylinder.InitExecute(); GetTrayCylinder.Reset();
+                                LockCylinder.InitExecute(); LockCylinder.Reset();
                                 Xaxis.IsServon = true;
                                 Yaxis.IsServon = true;
                                 Zaxis.IsServon = true;
-                                stationInitialize.Flow = 10;
-                            }
-                            break;
-                        case 10:  //复位所有气缸的动作
-                            Left1Cylinder.InitExecute();
-                            Left1Cylinder.Reset();
-                            Left2Cylinder.InitExecute();
-                            Left2Cylinder.Reset();
-                            Left1InhaleCylinder.InitExecute();
-                            Left1InhaleCylinder.Reset();
-                            Left2InhaleCylinder.InitExecute();
-                            Left2InhaleCylinder.Reset();
-                            Right1InhaleCylinder.InitExecute();
-                            Right1InhaleCylinder.Reset();
-                            Right2InhaleCylinder.InitExecute();
-                            Right2InhaleCylinder.Reset();
-                            GetTrayCylinder.InitExecute();
-                            GetTrayCylinder.Reset();
-                            LockCylinder.InitExecute();
-                            LockCylinder.Reset();
-                            stationInitialize.Flow = 20;
-                            break;
-                        case 20:    //判断所有气缸到位，启动Z轴回原点
-                            if (Left1Cylinder.OutOriginStatus&&Left2Cylinder.OutOriginStatus
-                                &&Left1InhaleCylinder.OutOriginStatus&&Left2InhaleCylinder.OutOriginStatus
-                                &&Right1InhaleCylinder.OutOriginStatus&&Right2InhaleCylinder.OutOriginStatus
-                                &&LockCylinder.OutOriginStatus&&GetTrayCylinder.OutOriginStatus)
-                                stationInitialize.Flow = 40;
-                            break;
-                        case 40:  //若Z轴在原点位异常，启动Z轴寸动循环
-                            if (Zaxis.IsOrigin)
-                            {
-                                Zaxis.MoveDelta(15000, AxisParameter.ZvelocityCure);
-                                stationInitialize.Flow = 50;
-                            }
-                            else
-                                stationInitialize.Flow = 60;
-                            break;
-                        case 50://判断Z轴是否动作完成
-                            if (Zaxis.IsDone)
-                            {
-                                stationInitialize.Flow = 60;
-                                Thread.Sleep(30);
-                            }
-                            break;
-                        case 60://启动Z轴回原点
-                            Global.apsController.BackHome(Zaxis.NoId);
-                            stationInitialize.Flow = 70;
-                            break;
-                        case 70://判断Z轴回原点是否完成，Z轴移动安全位置
-                            if (Global.apsController.CheckHomeDone(Zaxis.NoId, 10.0) == 0)
-                            {
-                                Thread.Sleep(30);
-                                Zaxis.MoveTo(Product.SafePosition.Z, AxisParameter.ZvelocityCure);
-                                stationInitialize.Flow = 80;
-                            }
-                            else  //异常处理
-                            {
-                                stationInitialize.InitializeDone = false; ;
-                                stationInitialize.Flow = -1;
-                            }
-                            break;
-                        case 80://判断Z轴是否到达安全位置
-                            if (Zaxis.IsInPosition(Product.SafePosition.Z))
-                            {
-                                Global.apsController.BackHome(Xaxis.NoId);
-                                Global.apsController.BackHome(Yaxis.NoId);
-                                stationInitialize.Flow = 90;
-                            }
-                            break;
-                        case 90://判断XY轴是否异常，为0,正常，为1：原点异常，为<0：故障
-                            var resultX = Global.apsController.CheckHomeDone(Xaxis.NoId, 10.0);
-                            var resultY = Global.apsController.CheckHomeDone(Yaxis.NoId, 10.0);
-                            if (resultX == 0 && resultY == 0) stationInitialize.Flow = 130;
-                            else if (resultX == 1 || resultY == 1)
-                            {
-                                Xaxis.Stop();
-                                Yaxis.Stop();
-                                Thread.Sleep(20);
-                                stationInitialize.Flow = 100;
-                            }
-                            else//异常处理
-                            {
-                                stationInitialize.InitializeDone = false; ;
-                                stationInitialize.Flow = -1;
-                            }
-                            break;
-                        case 100:  //若XY轴在原点位异常，启动Z轴寸动循环
-                            var velocityCure = new VelocityCurve() { Maxvel = AxisParameter.YAxisPutPlateSpeed };
-                            if (Xaxis.IsOrigin) Xaxis.MoveDelta(25000, velocityCure);
-                            if (Yaxis.IsOrigin) Yaxis.MoveDelta(25000, velocityCure);
-                            stationInitialize.Flow = 110;
-                            break;
-                        case 110:
-                            if (Xaxis.IsDone && Yaxis.IsDone)
-                            {
-                                stationInitialize.Flow = 120;
-                                Thread.Sleep(50);
-                            }
-                            break;
-                        case 120:
-                            Global.apsController.BackHome(Xaxis.NoId);
-                            Global.apsController.BackHome(Yaxis.NoId);
-                            stationInitialize.Flow = 130;
-                            break;
-                        case 130:
-                            if (Global.apsController.CheckHomeDone(Xaxis.NoId, 10.0) == 0 &&
-                                Global.apsController.CheckHomeDone(Yaxis.NoId, 10.0) == 0)
-                            {
-                                var velocityCure2 = new VelocityCurve() { Maxvel = AxisParameter.YAxisPutPlateSpeed };
-                                Thread.Sleep(30);
-                                Xaxis.MoveTo(Product.SafePosition.X, velocityCure2);
-                                Yaxis.MoveTo(Product.SafePosition.Y, velocityCure2);
-                                stationInitialize.Flow = 140;
-                            }
-                            else
-                            {
-                                stationInitialize.InitializeDone = false; 
-                                stationInitialize.Flow = -1;
-                            }
-                            break;
-                        case 140:
-                            if (Xaxis.IsInPosition(Product.SafePosition.X) && Yaxis.IsInPosition(Product.SafePosition.Y))
-                            {
-                                stationInitialize.InitializeDone = true; 
-                                stationInitialize.Flow = 150;
-                            }
-                            break;
-                        default:
-                            break;
+                                Thread.Sleep(500);
+                                Zaxis.MoveTo(Position.Instance.ZsafePosition.Z, AxisParameter.Instance.ZHomeVelocityCurve);
+                                homeWaitStep = 10;
+                                break;
+                            case 10:
+                                if (Zaxis.IsInPosition(Position.Instance.ZsafePosition.Z) && GetTrayCylinder.OutOriginStatus)
+                                {
+                                    Xaxis.MoveTo(Position.Instance.ZsafePosition.X, AxisParameter.Instance.XVelocityCurve);
+                                    Yaxis.MoveTo(Position.Instance.ZsafePosition.Y, AxisParameter.Instance.YVelocityCurve);
+                                    homeWaitStep = 20;
+                                }
+                                break;
+                            case 20:
+                                if (Yaxis.IsInPosition(Position.Instance.ZsafePosition.Y) && Xaxis.IsInPosition(Position.Instance.ZsafePosition.X))
+                                {
+                                    Left1Cylinder.InitExecute(); Left1Cylinder.Reset();
+                                    Left1InhaleCylinder.InitExecute(); Left1InhaleCylinder.Reset();
+                                    Left2InhaleCylinder.InitExecute(); Left2InhaleCylinder.Reset();
+                                    Right1InhaleCylinder.InitExecute(); Right1InhaleCylinder.Reset();
+                                    Right2InhaleCylinder.InitExecute(); Right2InhaleCylinder.Reset();
+                                    IoPoints.T1DO31.Value = false;
+                                    IoPoints.T1DO29.Value = false;
+                                    IoPoints.T1DO27.Value = false;
+                                    IoPoints.T1DO25.Value = false;
+                                    Marking.equipmentHomeWaitState[8] = true;
+                                    homeWaitStep = 30;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                }
-                #endregion
+                    #endregion
 
-                //故障清除
-                if (externalSign.AlarmReset) m_Alarm = PlateformAlarm.无消息;
+                    #region  故障清除
+                    if (externalSign.AlarmReset && !stationInitialize.Running)
+                    {
+                        m_Alarm = PlateformAlarm.无消息;
+                    }
+                    #endregion
+                }
+            }
+            catch(Exception ex)
+            {
+                throw(ex);
             }
         }
+
         /// <summary>
-        /// 流程报警集合
+        /// 气缸状态集合
         /// </summary>
-        public IList<Alarm> Alarms
+        public IList<ICylinderStatusJugger> CylinderStatus
         {
             get
             {
-                var list = new List<Alarm>();
-                list.Add(new Alarm(() => m_Alarm == PlateformAlarm.初始化故障) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.初始化故障.ToString() });
-                list.Add(new Alarm(() => m_Alarm == PlateformAlarm.卡紧气缸或取放盘气缸没有复位)
-                {
-                    AlarmLevel = AlarmLevels.Error,
-                    Name = PlateformAlarm.卡紧气缸或取放盘气缸没有复位.ToString()
-                });
-                list.Add(new Alarm(() => m_Alarm == PlateformAlarm.台面上已有承盘设置报错)
-                {
-                    AlarmLevel = AlarmLevels.Error,
-                    Name = PlateformAlarm.台面上已有承盘设置报错.ToString()
-                });
-                list.Add(new Alarm(() => m_Alarm == PlateformAlarm.坐标计算失败Tray盘设置出错)
-                {
-                    AlarmLevel = AlarmLevels.Error,
-                    Name = PlateformAlarm.坐标计算失败Tray盘设置出错.ToString()
-                });
-                list.Add(new Alarm(() => stationOperate.Running ? 
-                (GettingPlate||PuttingPlate)? false:(Marking.HavePlateInPlateform ?
-                !(IO14Points.DI8.Value & IO14Points.DI9.Value)&!Marking.HaveTraySensorSheild 
-                :(IO14Points.DI8.Value | IO14Points.DI9.Value)) : false)
-                {
-                    AlarmLevel = AlarmLevels.Error,
-                    Name = "台面有盘感应异常！"
-                });
+                var list = new List<ICylinderStatusJugger>();
+                list.Add(Left1Cylinder);
+                list.Add(Left1InhaleCylinder);
+                list.Add(Left2InhaleCylinder);
+                list.Add(Right1InhaleCylinder);
+                list.Add(Right2InhaleCylinder);
+                list.Add(GetTrayCylinder);
+                list.Add(LockCylinder);
                 return list;
             }
+        }
+
+        public void AddAlarms()
+        {
+            try 
+            { 
+            
+            }
+            catch(Exception ex)
+            {
+                throw(ex);
+            }
+            Alarms = new List<Alarm>();
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.取放盘气缸没有复位)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.取放盘气缸没有复位.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.T2IN26摆盘前感应故障)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.T2IN26摆盘前感应故障.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.T2IN27摆盘前感应故障)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.T2IN27摆盘前感应故障.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.T2IN28摆盘后感应故障)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.T2IN28摆盘后感应故障.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.T2IN29摆盘后感应故障)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.T2IN29摆盘后感应故障.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.T2IN18左卡盘感应故障)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.T2IN18左卡盘感应故障.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.T2IN19右卡盘感应故障)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.T2IN19右卡盘感应故障.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.获取Tray盘坐标点错误)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.获取Tray盘坐标点错误.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.抽检大盘穴数超出最大穴数)
+            {
+                AlarmLevel = AlarmLevels.Error,
+                Name = PlateformAlarm.抽检大盘穴数超出最大穴数.ToString()
+            });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.取放盘上下气缸复位中) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.取放盘上下气缸复位中.ToString() });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.Z轴复位中) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.Z轴复位中.ToString() });
+            Alarms.Add(new Alarm(() => m_AlarmX == PlateformAlarm.X轴复位中) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.X轴复位中.ToString() });
+            Alarms.Add(new Alarm(() => m_AlarmY == PlateformAlarm.Y轴复位中) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.Y轴复位中.ToString() });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.吸笔左右气缸复位中) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.吸笔左右气缸复位中.ToString() });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.摆盘卡紧气缸复位中) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.摆盘卡紧气缸复位中.ToString() });
+            Alarms.Add(new Alarm(() => m_Alarm == PlateformAlarm.剪切穴号错误) { AlarmLevel = AlarmLevels.None, Name = PlateformAlarm.剪切穴号错误.ToString() });
+            Alarms.AddRange(Xaxis.Alarms);
+            Alarms.AddRange(Yaxis.Alarms);
+            Alarms.AddRange(Zaxis.Alarms);
+            Alarms.AddRange(Left1Cylinder.Alarms);
+            Alarms.AddRange(GetTrayCylinder.Alarms);
+            Alarms.AddRange(LockCylinder.Alarms);
+            Alarms.AddRange(Left1InhaleCylinder.Alarms);
+            Alarms.AddRange(Left2InhaleCylinder.Alarms);
+            Alarms.AddRange(Right1InhaleCylinder.Alarms);
+            Alarms.AddRange(Right2InhaleCylinder.Alarms);
         }
     }
 }

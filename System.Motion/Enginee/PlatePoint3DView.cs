@@ -1,8 +1,7 @@
 ﻿using System.Windows.Forms;
 using System.ToolKit;
-using Motion.LSAps;
-using Motion.Interfaces;
-namespace Motion.Enginee
+
+namespace System.Enginee
 {
     public partial class PlatePoint3DView : UserControl
     {

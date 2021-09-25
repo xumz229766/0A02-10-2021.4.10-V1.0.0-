@@ -1,4 +1,4 @@
-﻿namespace Motion.Enginee
+﻿namespace System.Enginee
 {
     partial class AxisSpeed
     {
@@ -39,8 +39,7 @@
             // lblAxisSpeed
             // 
             this.lblAxisSpeed.AutoSize = true;
-            this.lblAxisSpeed.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lblAxisSpeed.Location = new System.Drawing.Point(352, 0);
+            this.lblAxisSpeed.Location = new System.Drawing.Point(306, 4);
             this.lblAxisSpeed.Name = "lblAxisSpeed";
             this.lblAxisSpeed.Size = new System.Drawing.Size(59, 12);
             this.lblAxisSpeed.TabIndex = 85;
@@ -51,10 +50,10 @@
             // 
             this.tkrSpeedRate.AutoSize = false;
             this.tkrSpeedRate.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tkrSpeedRate.Location = new System.Drawing.Point(0, 14);
+            this.tkrSpeedRate.Location = new System.Drawing.Point(0, 22);
             this.tkrSpeedRate.Maximum = 1000;
             this.tkrSpeedRate.Name = "tkrSpeedRate";
-            this.tkrSpeedRate.Size = new System.Drawing.Size(411, 16);
+            this.tkrSpeedRate.Size = new System.Drawing.Size(365, 29);
             this.tkrSpeedRate.TabIndex = 84;
             this.tkrSpeedRate.TickStyle = System.Windows.Forms.TickStyle.None;
             this.tkrSpeedRate.Value = 10;
@@ -64,9 +63,10 @@
             // 
             this.lblAxisSpeedRate.AutoSize = true;
             this.lblAxisSpeedRate.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblAxisSpeedRate.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblAxisSpeedRate.Location = new System.Drawing.Point(0, 0);
             this.lblAxisSpeedRate.Name = "lblAxisSpeedRate";
-            this.lblAxisSpeedRate.Size = new System.Drawing.Size(101, 12);
+            this.lblAxisSpeedRate.Size = new System.Drawing.Size(136, 16);
             this.lblAxisSpeedRate.TabIndex = 83;
             this.lblAxisSpeedRate.Text = "X轴运行速度(10%)";
             // 
@@ -78,7 +78,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(411, 14);
+            this.panel1.Size = new System.Drawing.Size(365, 22);
             this.panel1.TabIndex = 86;
             // 
             // AxisSpeed
@@ -89,7 +89,7 @@
             this.Controls.Add(this.panel1);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "AxisSpeed";
-            this.Size = new System.Drawing.Size(411, 30);
+            this.Size = new System.Drawing.Size(365, 51);
             ((System.ComponentModel.ISupportInitialize)(this.tkrSpeedRate)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

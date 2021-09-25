@@ -1,6 +1,6 @@
 ﻿
-using Motion.Interfaces;
-using Motion.LSAps;
+using System.Interfaces;
+using System.AdvantechAps;
 namespace desay
 {
     /// <summary>
@@ -8,752 +8,1166 @@ namespace desay
     /// </summary>
     public class IoPoints
     {
-        private const string ApsControllerName = "雷塞控制卡";  
-        internal static readonly ushort DMC3C00 = 0;
-        internal static readonly ushort DMC3400 = 1;
-        internal static readonly byte PCI7432_0 = 0;
+        private const string ApsControllerName = "雷赛总线控制卡";
+
         public static ApsController ApsController = new ApsController() { Name = ApsControllerName };
 
-        #region DMC3C00 IO list
+        #region IO输入 - 1
 
         /// <summary>
         ///   接料原点信号
         /// </summary>
-        public static IoPoint T0DI0 = new IoPoint(ApsController, DMC3C00, 0, IoModes.Senser)
+        public static IoPoint T1IN0 = new IoPoint(ApsController, 0, 8, IoModes.Senser)
         {
-            Name = "T0DI0",
+            Name = "T1IN0",
             Description = "接料原点信号"
         };
 
         /// <summary>
         ///   接料动点信号
         /// </summary>
-        public static IoPoint T0DI1 = new IoPoint(ApsController, DMC3C00, 1, IoModes.Senser)
+        public static IoPoint T1IN1 = new IoPoint(ApsController, 0, 9, IoModes.Senser)
         {
-            Name = "T0DI0",
+            Name = "T1IN1",
             Description = "接料动点信号"
+        };
+
+        /// <summary>
+        ///   接料中点信号
+        /// </summary>
+        public static IoPoint T1IN2 = new IoPoint(ApsController, 0, 10, IoModes.Senser)
+        {
+            Name = "T1IN2",
+            Description = "接料中点信号"
         };
 
         /// <summary>
         ///   1#来料光电感应
         /// </summary>
-        public static IoPoint T0DI2 = new IoPoint(ApsController, DMC3C00, 2, IoModes.Senser)
+        public static IoPoint T1IN3 = new IoPoint(ApsController, 0, 11, IoModes.Senser)
         {
-            Name = "T0DI2",
+            Name = "T1IN3",
             Description = "1#来料光电感应"
         };
 
         /// <summary>
-        ///   气压检测信号
+        ///   碎料气缸原点
         /// </summary>
-        public static IoPoint T0DI3 = new IoPoint(ApsController, DMC3C00, 3, IoModes.Senser)
+        public static IoPoint T1IN4 = new IoPoint(ApsController, 0, 12, IoModes.Senser)
         {
-            Name = "T0DI3",
-            Description = "气压检测信号"
+            Name = "T1IN4",
+            Description = "碎料气缸原点"
         };
 
         /// <summary>
-        ///   仓储自动门按钮
+        ///   碎料气缸动点
         /// </summary>
-        public static IoPoint T0DI4 = new IoPoint(ApsController, DMC3C00, 4, IoModes.Senser)
+        public static IoPoint T1IN5 = new IoPoint(ApsController, 0, 13, IoModes.Senser)
         {
-            Name = "T0DI4",
-            Description = "仓储自动门按钮"
+            Name = "T1IN5",
+            Description = "碎料气缸动点"
         };
 
         /// <summary>
-        ///   切废料气缸原点
+        ///   排料气缸原点
         /// </summary>
-        public static IoPoint T0DI5 = new IoPoint(ApsController, DMC3C00, 5, IoModes.Senser)
+        public static IoPoint T1IN6 = new IoPoint(ApsController, 0, 14, IoModes.Senser)
         {
-            Name = "T0DI5",
-            Description = "切废料气缸原点"
+            Name = "T1IN6",
+            Description = "排料气缸原点"
         };
 
         /// <summary>
-        ///   切废料气缸动点
+        ///   排料气缸动点
         /// </summary>
-        public static IoPoint T0DI6 = new IoPoint(ApsController, DMC3C00, 6, IoModes.Senser)
+        public static IoPoint T1IN7 = new IoPoint(ApsController, 0, 15, IoModes.Senser)
         {
-            Name = "T0DI6",
-            Description = "切废料气缸动点"
+            Name = "T1IN7",
+            Description = "排料气缸动点"
+        };
+        /// <summary>
+        ///   碎料盖子气缸原点
+        /// </summary>
+        public static IoPoint T1IN8 = new IoPoint(ApsController, 0, 16, IoModes.Senser)
+        {
+            Name = "T1IN8",
+            Description = "碎料盖子气缸原点"
+        };
+        /// <summary>
+        ///   碎料盖子气缸动点
+        /// </summary>
+        public static IoPoint T1IN9 = new IoPoint(ApsController, 0, 17, IoModes.Senser)
+        {
+            Name = "T1IN9",
+            Description = "碎料盖子气缸动点"
+        };
+        /// <summary>
+        ///   1#移料左右原点信号
+        /// </summary>
+        public static IoPoint T1IN10 = new IoPoint(ApsController, 0, 18, IoModes.Senser)
+        {
+            Name = "T1IN10",
+            Description = "1#移料左右原点信号"
+        };
+        /// <summary>
+        ///  1#移料左右动点信号
+        /// </summary>
+        public static IoPoint T1IN11 = new IoPoint(ApsController, 0, 19, IoModes.Senser)
+        {
+            Name = "T1IN11",
+            Description = "1#移料左右动点信号"
+        };
+        /// <summary>
+        ///   2#移料左右原点信号
+        /// </summary>
+        public static IoPoint T1IN12 = new IoPoint(ApsController, 0, 20, IoModes.Senser)
+        {
+            Name = "T1IN12",
+            Description = "2#移料左右原点信号"
         };
 
         /// <summary>
-        ///   备用
+        ///   2#移料左右动点信号
         /// </summary>
-        public static IoPoint T0DI7 = new IoPoint(ApsController, DMC3C00, 7, IoModes.Senser)
+        public static IoPoint T1IN13 = new IoPoint(ApsController, 0, 21, IoModes.Senser)
         {
-            Name = "T0DI7",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   移料左右原点信号（1#）
-        /// </summary>
-        public static IoPoint T0DI8 = new IoPoint(ApsController, DMC3C00, 8, IoModes.Senser)
-        {
-            Name = "T0DI8",
-            Description = "移料左右原点信号（1#）"
-        };
-        /// <summary>
-        ///   移料左右动点信号（1#）
-        /// </summary>
-        public static IoPoint T0DI9 = new IoPoint(ApsController, DMC3C00, 9, IoModes.Senser)
-        {
-            Name = "T0DI9",
-            Description = "移料左右动点信号（1#）"
-        };
-        /// <summary>
-        ///   进料原点信号
-        /// </summary>
-        public static IoPoint T0DI10 = new IoPoint(ApsController, DMC3C00, 10, IoModes.Senser)
-        {
-            Name = "T0DI10",
-            Description = "进料原点信号"
-        };
-        /// <summary>
-        ///   进料动点信号
-        /// </summary>
-        public static IoPoint T0DI11 = new IoPoint(ApsController, DMC3C00, 11, IoModes.Senser)
-        {
-            Name = "T0DI11",
-            Description = "进料动点信号"
-        };
-        /// <summary>
-        ///   移料左右原点信号（2#）
-        /// </summary>
-        public static IoPoint T0DI12 = new IoPoint(ApsController, DMC3C00, 12, IoModes.Senser)
-        {
-            Name = "T0DI12",
-            Description = "移料左右原点信号（2#）"
-        };
-
-        /// <summary>
-        ///   移料左右动点信号（2#）
-        /// </summary>
-        public static IoPoint T0DI13 = new IoPoint(ApsController, DMC3C00, 13, IoModes.Senser)
-        {
-            Name = "T0DI13",
-            Description = "移料左右动点信号（2#）"
+            Name = "T1IN13",
+            Description = "2#移料左右动点信号"
         };
         /// <summary>
         ///   移料上下原点信号
         /// </summary>
-        public static IoPoint T0DI14 = new IoPoint(ApsController, DMC3C00, 14, IoModes.Senser)
+        public static IoPoint T1IN14 = new IoPoint(ApsController, 0, 22, IoModes.Senser)
         {
-            Name = "T0DI14",
+            Name = "T1IN14",
             Description = "移料上下原点信号"
         };
         /// <summary>
         ///   移料上下动点信号
         /// </summary>
-        public static IoPoint T0DI15 = new IoPoint(ApsController, DMC3C00, 15, IoModes.Senser)
+        public static IoPoint T1IN15 = new IoPoint(ApsController, 0, 23, IoModes.Senser)
         {
-            Name = "T0DI15",
+            Name = "T1IN15",
             Description = "移料上下动点信号"
         };
 
         /// <summary>
+        ///   缓冲升降气缸原点
+        /// </summary>
+        public static IoPoint T1IN16 = new IoPoint(ApsController, 0, 24, IoModes.Senser)
+        {
+            Name = "T1IN16",
+            Description = "缓冲升降气缸原点"
+        };
+
+        /// <summary>
+        ///   缓冲升降气缸动点
+        /// </summary>
+        public static IoPoint T1IN17 = new IoPoint(ApsController, 0, 25, IoModes.Senser)
+        {
+            Name = "T1IN17",
+            Description = "缓冲升降气缸动点"
+        };
+
+        /// <summary>
+        ///   缓冲左右气缸原点
+        /// </summary>
+        public static IoPoint T1IN18 = new IoPoint(ApsController, 0, 26, IoModes.Senser)
+        {
+            Name = "T1IN18",
+            Description = "缓冲左右气缸原点"
+        };
+
+        /// <summary>
+        ///   缓冲左右气缸动点
+        /// </summary>
+        public static IoPoint T1IN19 = new IoPoint(ApsController, 0, 27, IoModes.Senser)
+        {
+            Name = "T1IN19",
+            Description = "缓冲左右气缸动点"
+        };
+
+        /// <summary>
+        ///   缓冲夹子气缸原点（备用）
+        /// </summary>
+        public static IoPoint T1IN20 = new IoPoint(ApsController, 0, 28, IoModes.Senser)
+        {
+            Name = "T1IN20",
+            Description = "缓冲夹子气缸原点（备用）"
+        };
+
+        /// <summary>
+        ///   缓冲夹子气缸动点（备用）
+        /// </summary>
+        public static IoPoint T1IN21 = new IoPoint(ApsController, 0, 29, IoModes.Senser)
+        {
+            Name = "T1IN21",
+            Description = "缓冲夹子气缸动点（备用）"
+        };
+
+        /// <summary>
+        ///   进料气缸原点
+        /// </summary>
+        public static IoPoint T1IN22 = new IoPoint(ApsController, 0, 30, IoModes.Senser)
+        {
+            Name = "T1IN22",
+            Description = "进料气缸原点"
+        };
+
+        /// <summary>
+        ///  进料气缸动点
+        /// </summary>
+        public static IoPoint T1IN23 = new IoPoint(ApsController, 0, 31, IoModes.Senser)
+        {
+            Name = "T1IN23",
+            Description = "进料气缸动点"
+        };
+        /// <summary>
+        ///   1#剪切翻转气缸原点
+        /// </summary>
+        public static IoPoint T1IN24 = new IoPoint(ApsController, 0, 32, IoModes.Senser)
+        {
+            Name = "T1IN24",
+            Description = "1#剪切翻转气缸原点"
+        };
+        /// <summary>
+        ///   1#剪切翻转气缸动点
+        /// </summary>
+        public static IoPoint T1IN25 = new IoPoint(ApsController, 0, 33, IoModes.Senser)
+        {
+            Name = "T1IN25",
+            Description = "1#剪切翻转气缸动点"
+        };
+        /// <summary>
+        ///   2#剪切夹料上下原点
+        /// </summary>
+        public static IoPoint T1IN26 = new IoPoint(ApsController, 0,34, IoModes.Senser)
+        {
+            Name = "T1IN26",
+            Description = "2#剪切翻转气缸原点"
+        };
+        /// <summary>
+        ///  2#剪切夹料上下动点
+        /// </summary>
+        public static IoPoint T1IN27 = new IoPoint(ApsController, 0, 35, IoModes.Senser)
+        {
+            Name = "T1IN27",
+            Description = "2#剪切翻转气缸动点"
+        };
+        /// <summary>
+        ///   3#剪切夹料上下原点
+        /// </summary>
+        public static IoPoint T1IN28 = new IoPoint(ApsController, 0, 36, IoModes.Senser)
+        {
+            Name = "T1IN28",
+            Description = "3#剪切翻转气缸原点"
+        };
+
+        /// <summary>
+        ///   3#剪切夹料上下动点
+        /// </summary>
+        public static IoPoint T1IN29 = new IoPoint(ApsController, 0, 37, IoModes.Senser)
+        {
+            Name = "T1IN29",
+            Description = "3#剪切翻转气缸动点"
+        };
+        /// <summary>
+        ///  4#剪切夹料上下原点
+        /// </summary>
+        public static IoPoint T1IN30 = new IoPoint(ApsController, 0, 38, IoModes.Senser)
+        {
+            Name = "T1IN30",
+            Description = "4#剪切翻转气缸原点"
+        };
+        /// <summary>
+        ///   4#剪切夹料上下动点
+        /// </summary>
+        public static IoPoint T1IN31 = new IoPoint(ApsController, 0, 39, IoModes.Senser)
+        {
+            Name = "T1IN31",
+            Description = "4#剪切翻转气缸动点"
+        };
+
+        #endregion
+
+        #region IO输入 - 2
+
+        /// <summary>
+        ///   1#剪切夹料前后原点信号
+        /// </summary>
+        public static IoPoint T2IN0 = new IoPoint(ApsController, 0, 40, IoModes.Senser)
+        {
+            Name = "T2IN0",
+            Description = "1#剪切夹料前后原点信号"
+        };
+
+        /// <summary>
+        ///   1#剪切夹料前后动点信号
+        /// </summary>
+        public static IoPoint T2IN1 = new IoPoint(ApsController, 0, 41, IoModes.Senser)
+        {
+            Name = "T2IN1",
+            Description = "1#剪切夹料前后动点信号"
+        };
+
+        /// <summary>
+        ///   2#剪切夹料前后原点信号
+        /// </summary>
+        public static IoPoint T2IN2 = new IoPoint(ApsController, 0, 42, IoModes.Senser)
+        {
+            Name = "T2IN2",
+            Description = "2#剪切夹料前后原点信号"
+        };
+
+        /// <summary>
+        ///   2#剪切夹料前后动点信号
+        /// </summary>
+        public static IoPoint T2IN3 = new IoPoint(ApsController, 0, 43, IoModes.Senser)
+        {
+            Name = "T2IN3",
+            Description = "2#剪切夹料前后动点信号"
+        };
+
+        /// <summary>
+        ///   3#剪切夹料前后原点信号
+        /// </summary>
+        public static IoPoint T2IN4 = new IoPoint(ApsController, 0, 44, IoModes.Senser)
+        {
+            Name = "T2IN4",
+            Description = "3#剪切夹料前后原点信号"
+        };
+
+        /// <summary>
+        ///   3#剪切夹料前后动点信号
+        /// </summary>
+        public static IoPoint T2IN5 = new IoPoint(ApsController, 0, 45, IoModes.Senser)
+        {
+            Name = "T2IN5",
+            Description = "3#剪切夹料前后动点信号"
+        };
+
+        /// <summary>
+        ///   4#剪切夹料前后原点信号
+        /// </summary>
+        public static IoPoint T2IN6 = new IoPoint(ApsController, 0, 46, IoModes.Senser)
+        {
+            Name = "T2IN6",
+            Description = "4#剪切夹料前后原点信号"
+        };
+
+        /// <summary>
+        ///  4#剪切夹料前后动点信号
+        /// </summary>
+        public static IoPoint T2IN7 = new IoPoint(ApsController, 0, 47, IoModes.Senser)
+        {
+            Name = "T2IN7",
+            Description = "4#剪切夹料前后动点信号"
+        };
+        /// <summary>
+        ///   1#夹子动点信号
+        /// </summary>
+        public static IoPoint T2IN8 = new IoPoint(ApsController, 0, 48, IoModes.Senser)
+        {
+            Name = "T2IN8",
+            Description = "1#夹子动点信号"
+        };
+        /// <summary>
+        ///  2#夹子动点信号
+        /// </summary>
+        public static IoPoint T2IN9 = new IoPoint(ApsController, 0, 49, IoModes.Senser)
+        {
+            Name = "T2IN9",
+            Description = "2#夹子动点信号"
+        };
+        /// <summary>
+        ///  3#夹子动点信号
+        /// </summary>
+        public static IoPoint T2IN10 = new IoPoint(ApsController, 0, 50, IoModes.Senser)
+        {
+            Name = "T2IN10",
+            Description = "3#夹子动点信号"
+        };
+        /// <summary>
+        ///   4#夹子动点信号
+        /// </summary>
+        public static IoPoint T2IN11 = new IoPoint(ApsController, 0, 51, IoModes.Senser)
+        {
+            Name = "T2IN11",
+            Description = "4#夹子动点信号"
+        };
+        /// <summary>
+        ///  1#吸笔左右原点信号
+        /// </summary>
+        public static IoPoint T2IN12 = new IoPoint(ApsController, 0, 52, IoModes.Senser)
+        {
+            Name = "T2IN12",
+            Description = "1#吸笔左右原点信号"
+        };
+
+        /// <summary>
+        ///   1#吸笔左右动点信号
+        /// </summary>
+        public static IoPoint T2IN13 = new IoPoint(ApsController, 0, 53, IoModes.Senser)
+        {
+            Name = "T2IN13",
+            Description = "1#吸笔左右动点信号"
+        };
+        /// <summary>
+        ///  2#吸笔左右原点信号
+        /// </summary>
+        public static IoPoint T2IN14 = new IoPoint(ApsController, 0, 54, IoModes.Senser)
+        {
+            Name = "T2IN14",
+            Description = "2#吸笔左右原点信号"
+        };
+        /// <summary>
+        ///   2#吸笔左右动点信号
+        /// </summary>
+        public static IoPoint T2IN15 = new IoPoint(ApsController, 0, 55, IoModes.Senser)
+        {
+            Name = "T2IN15",
+            Description = "2#吸笔左右动点信号"
+        };
+        /// <summary>
+        ///   4#吸笔左右原点信号
+        /// </summary>
+        public static IoPoint T2IN16 = new IoPoint(ApsController, 0, 56, IoModes.Senser)
+        {
+            Name = "T2IN16",
+            Description = "4#吸笔左右原点信号"
+        };
+
+        /// <summary>
+        ///  4#吸笔左右动点信号
+        /// </summary>
+        public static IoPoint T2IN17 = new IoPoint(ApsController, 0, 57, IoModes.Senser)
+        {
+            Name = "T2IN17",
+            Description = "4#吸笔左右动点信号"
+        };
+
+        /// <summary>
+        ///   M左卡盘检测信号
+        /// </summary>
+        public static IoPoint T2IN18 = new IoPoint(ApsController, 0, 58, IoModes.Senser)
+        {
+            Name = "T2IN18",
+            Description = "M左卡盘检测信号"
+        };
+
+        /// <summary>
+        ///   M右卡盘检测信号
+        /// </summary>
+        public static IoPoint T2IN19 = new IoPoint(ApsController, 0, 59, IoModes.Senser)
+        {
+            Name = "T2IN19",
+            Description = "M右卡盘检测信号"
+        };
+
+        /// <summary>
+        ///   左拉盘上下原点信号
+        /// </summary>
+        public static IoPoint T2IN20 = new IoPoint(ApsController, 0, 60, IoModes.Senser)
+        {
+            Name = "T2IN20",
+            Description = "左拉盘上下原点信号"
+        };
+
+        /// <summary>
+        ///   左拉盘上下动点信号
+        /// </summary>
+        public static IoPoint T2IN21 = new IoPoint(ApsController, 0, 61, IoModes.Senser)
+        {
+            Name = "T2IN21",
+            Description = "左拉盘上下动点信号"
+        };
+
+        /// <summary>
+        ///   右拉盘上下原点信号
+        /// </summary>
+        public static IoPoint T2IN22 = new IoPoint(ApsController, 0, 62, IoModes.Senser)
+        {
+            Name = "T2IN22",
+            Description = "右拉盘上下原点信号"
+        };
+
+        /// <summary>
+        ///   右拉盘上下动点信号
+        /// </summary>
+        public static IoPoint T2IN23 = new IoPoint(ApsController, 0, 63, IoModes.Senser)
+        {
+            Name = "T2IN23",
+            Description = "右拉盘上下动点信号"
+        };
+        /// <summary>
+        ///  摆盘卡紧原点信号
+        /// </summary>
+        public static IoPoint T2IN24 = new IoPoint(ApsController, 0, 64, IoModes.Senser)
+        {
+            Name = "T2IN24",
+            Description = "摆盘卡紧原点信号"
+        };
+        /// <summary>
+        ///   摆盘卡紧动点信号
+        /// </summary>
+        public static IoPoint T2IN25 = new IoPoint(ApsController, 0, 65, IoModes.Senser)
+        {
+            Name = "T2IN25",
+            Description = "摆盘卡紧动点信号"
+        };
+        /// <summary>
+        ///   1#摆盘前感应
+        /// </summary>
+        public static IoPoint T2IN26 = new IoPoint(ApsController, 0, 66, IoModes.Senser)
+        {
+            Name = "T2IN26",
+            Description = "1#摆盘前感应"
+        };
+        /// <summary>
+        ///   2#摆盘前感应
+        /// </summary>
+        public static IoPoint T2IN27 = new IoPoint(ApsController, 0, 67, IoModes.Senser)
+        {
+            Name = "T2IN27",
+            Description = "2#摆盘前感应"
+        };
+        /// <summary>
+        ///   1#摆盘后感应
+        /// </summary>
+        public static IoPoint T2IN28 = new IoPoint(ApsController, 0, 68, IoModes.Senser)
+        {
+            Name = "T2IN28",
+            Description = "1#摆盘后感应"
+        };
+
+        /// <summary>
+        ///  2#摆盘后感应
+        /// </summary>
+        public static IoPoint T2IN29 = new IoPoint(ApsController, 0, 69, IoModes.Senser)
+        {
+            Name = "T2IN29",
+            Description = "2#摆盘后感应"
+        };
+        /// <summary>
+        ///   仓储自动门原点信号
+        /// </summary>
+        public static IoPoint T2IN30 = new IoPoint(ApsController, 0, 70, IoModes.Senser)
+        {
+            Name = "T2IN30",
+            Description = "仓储自动门原点信号"
+        };
+        /// <summary>
+        ///   仓储自动门动点信号
+        /// </summary>
+        public static IoPoint T2IN31 = new IoPoint(ApsController, 0, 71, IoModes.Senser)
+        {
+            Name = "T2IN31",
+            Description = "仓储自动门动点信号"
+        };
+
+        #endregion
+
+        #region IO输入 - 3
+
+        /// <summary>
+        ///   启动按钮
+        /// </summary>
+        public static IoPoint T3IN0 = new IoPoint(ApsController, 0, 72, IoModes.Senser)
+        {
+            Name = "T3IN0",
+            Description = "启动按钮"
+        };
+
+        /// <summary>
+        ///   停止按钮
+        /// </summary>
+        public static IoPoint T3IN1 = new IoPoint(ApsController, 0, 73, IoModes.Senser)
+        {
+            Name = "T3IN1",
+            Description = "停止按钮"
+        };
+
+        /// <summary>
+        ///   急停按钮
+        /// </summary>
+        public static IoPoint T3IN2 = new IoPoint(ApsController, 0, 74, IoModes.Senser)
+        {
+            Name = "T3IN2",
+            Description = "急停按钮"
+        };
+
+        /// <summary>
+        ///   复位按钮
+        /// </summary>
+        public static IoPoint T3IN3 = new IoPoint(ApsController, 0, 75, IoModes.Senser)
+        {
+            Name = "T3IN3",
+            Description = "复位按钮"
+        };
+
+        /// <summary>
+        ///  报警清除按钮
+        /// </summary>
+        public static IoPoint T3IN4 = new IoPoint(ApsController, 0, 76, IoModes.Senser)
+        {
+            Name = "T3IN4",
+            Description = "报警清除按钮"
+        };
+
+        /// <summary>
+        ///   左门禁信号
+        /// </summary>
+        public static IoPoint T3IN5 = new IoPoint(ApsController, 0, 77, IoModes.Senser)
+        {
+            Name = "T3IN5",
+            Description = "左门禁信号"
+        };
+
+        /// <summary>
+        ///   右门禁信号
+        /// </summary>
+        public static IoPoint T3IN6 = new IoPoint(ApsController, 0, 78, IoModes.Senser)
+        {
+            Name = "T3IN6",
+            Description = "右门禁信号"
+        };
+
+        /// <summary>
+        /// 安全光幕
+        /// </summary>
+        public static IoPoint T3IN7 = new IoPoint(ApsController, 0, 79, IoModes.Senser)
+        {
+            Name = "T3IN7",
+            Description = "安全光幕"
+        };
+        /// <summary>
+        ///   气压检测信号
+        /// </summary>
+        public static IoPoint T3IN8 = new IoPoint(ApsController, 0, 80, IoModes.Senser)
+        {
+            Name = "T3IN8",
+            Description = "气压检测信号"
+        };
+        /// <summary>
+        ///  仓储自动门按钮
+        /// </summary>
+        public static IoPoint T3IN9 = new IoPoint(ApsController, 0, 81, IoModes.Senser)
+        {
+            Name = "T3IN9",
+            Description = "仓储自动门按钮"
+        };
+        /// <summary>
+        ///  移料光纤感应
+        /// </summary>
+        public static IoPoint T3IN10 = new IoPoint(ApsController, 0, 82, IoModes.Senser)
+        {
+            Name = "T3IN10",
+            Description = "移料光纤感应"
+        };
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN11 = new IoPoint(ApsController, 0, 83, IoModes.Senser)
+        {
+            Name = "T3IN11",
+            Description = "备用"
+        };
+        /// <summary>
+        /// 备用
+        /// </summary>
+        public static IoPoint T3IN12 = new IoPoint(ApsController, 0, 84, IoModes.Senser)
+        {
+            Name = "T3IN12",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///  备用
+        /// </summary>
+        public static IoPoint T3IN13 = new IoPoint(ApsController, 0, 85, IoModes.Senser)
+        {
+            Name = "T3IN13",
+            Description = "备用"
+        };
+        /// <summary>
+        ///  备用
+        /// </summary>
+        public static IoPoint T3IN14 = new IoPoint(ApsController, 0, 86, IoModes.Senser)
+        {
+            Name = "T3IN14",
+            Description = "备用"
+        };
+        /// <summary>
+        ///  碎料电机过载报警
+        /// </summary>
+        public static IoPoint T3IN15 = new IoPoint(ApsController, 0, 87, IoModes.Senser)
+        {
+            Name = "T3IN15",
+            Description = "碎料电机过载报警"
+        };
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN16 = new IoPoint(ApsController, 0, 88, IoModes.Senser)
+        {
+            Name = "T3IN16",
+            Description = "备用"
+        };
+
+        /// <summary>
+        /// 备用
+        /// </summary>
+        public static IoPoint T3IN17 = new IoPoint(ApsController, 0, 89, IoModes.Senser)
+        {
+            Name = "T3IN17",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN18 = new IoPoint(ApsController, 0, 90, IoModes.Senser)
+        {
+            Name = "T3IN18",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN19 = new IoPoint(ApsController, 0, 91, IoModes.Senser)
+        {
+            Name = "T3IN19",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN20 = new IoPoint(ApsController, 0, 92, IoModes.Senser)
+        {
+            Name = "T3IN20",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN21 = new IoPoint(ApsController, 0, 93, IoModes.Senser)
+        {
+            Name = "T3IN21",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN22 = new IoPoint(ApsController, 0, 94, IoModes.Senser)
+        {
+            Name = "T3IN22",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN23 = new IoPoint(ApsController, 0, 95, IoModes.Senser)
+        {
+            Name = "T3IN23",
+            Description = "备用"
+        };
+        /// <summary>
+        ///  备用
+        /// </summary>
+        public static IoPoint T3IN24 = new IoPoint(ApsController, 0, 96, IoModes.Senser)
+        {
+            Name = "T3IN24",
+            Description = "备用"
+        };
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN25 = new IoPoint(ApsController, 0, 07, IoModes.Senser)
+        {
+            Name = "T3IN25",
+            Description = "备用"
+        };
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN26 = new IoPoint(ApsController, 0, 99, IoModes.Senser)
+        {
+            Name = "T3IN26",
+            Description = "备用"
+        };
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN27 = new IoPoint(ApsController, 0, 100, IoModes.Senser)
+        {
+            Name = "T3IN27",
+            Description = "备用"
+        };
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN28 = new IoPoint(ApsController, 0, 101, IoModes.Senser)
+        {
+            Name = "T3IN28",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///  备用
+        /// </summary>
+        public static IoPoint T3IN29 = new IoPoint(ApsController, 0, 102, IoModes.Senser)
+        {
+            Name = "T3IN29",
+            Description = "备用"
+        };
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T3IN30 = new IoPoint(ApsController, 0, 103, IoModes.Senser)
+        {
+            Name = "T3IN30",
+            Description = "备用"
+        };
+        /// <summary>
+        /// 虚似输入端子(请勿接线)
+        /// </summary>
+        public static IoPoint T3IN31 = new IoPoint(ApsController, 0, 104, IoModes.Senser)
+        {
+            Name = "T3IN31",
+            Description = "虚似输入端子(请勿接线)"
+        };
+
+        #endregion
+
+        #region IO输出 - 1
+        /// <summary>
         /// 接料原点动作
         /// </summary>
-        public static IoPoint T0DO0 = new IoPoint(ApsController, DMC3C00, 0, IoModes.Signal)
+        public static IoPoint T1DO0 = new IoPoint(ApsController, 0, 8, IoModes.Signal)
         {
-            Name = "T0DO0",
+            Name = "T1DO0",
             Description = "接料原点动作"
         };
 
         /// <summary>
         ///   接料动点动作
         /// </summary>
-        public static IoPoint T0DO1 = new IoPoint(ApsController, DMC3C00, 1, IoModes.Signal)
+        public static IoPoint T1DO1 = new IoPoint(ApsController, 0, 9, IoModes.Signal)
         {
-            Name = "T0DO1",
+            Name = "T1DO1",
             Description = "接料动点动作"
         };
 
         /// <summary>
-        ///   切废料气缸1#
+        /// 缓冲升降原点动作
         /// </summary>
-        public static IoPoint T0DO2 = new IoPoint(ApsController, DMC3C00, 2, IoModes.Signal)
+        public static IoPoint T1DO2 = new IoPoint(ApsController, 0, 10, IoModes.Signal)
         {
-            Name = "T0DO2",
-            Description = "切废料气缸1#"
+            Name = "T1DO2",
+            Description = "缓冲升降原点动作"
         };
 
         /// <summary>
-        ///   切废料气缸2#（备用）
+        ///   缓冲左右气缸
         /// </summary>
-        public static IoPoint T0DO3 = new IoPoint(ApsController, DMC3C00, 3, IoModes.Signal)
+        public static IoPoint T1DO3 = new IoPoint(ApsController, 0, 11, IoModes.Signal)
         {
-            Name = "T0DO3",
-            Description = "切废料气缸2#（备用）"
+            Name = "T1DO3",
+            Description = "缓冲左右气缸"
         };
 
         /// <summary>
-        ///   备用
+        ///  缓冲夹子气缸
         /// </summary>
-        public static IoPoint T0DO4 = new IoPoint(ApsController, DMC3C00, 4, IoModes.Signal)
+        public static IoPoint T1DO4 = new IoPoint(ApsController, 0, 12, IoModes.Signal)
         {
-            Name = "T0DO4",
-            Description = "备用"
+            Name = "T1DO4",
+            Description = "缓冲夹子气缸"
         };
 
         /// <summary>
-        ///  进料
+        ///移料左右
         /// </summary>
-        public static IoPoint T0DO5 = new IoPoint(ApsController, DMC3C00, 5, IoModes.Signal)
+        public static IoPoint T1DO5 = new IoPoint(ApsController, 0, 13, IoModes.Signal)
         {
-            Name = "T0DO5",
-            Description = "进料"
-        };
-
-        /// <summary>
-        ///  移料左右
-        /// </summary>
-        public static IoPoint T0DO6 = new IoPoint(ApsController, DMC3C00, 6, IoModes.Signal)
-        {
-            Name = "T0DO6",
+            Name = "T1DO5",
             Description = "移料左右"
         };
 
         /// <summary>
         ///   移料上下
         /// </summary>
-        public static IoPoint T0DO7 = new IoPoint(ApsController, DMC3C00, 7, IoModes.Signal)
+        public static IoPoint T1DO6 = new IoPoint(ApsController, 0, 14, IoModes.Signal)
         {
-            Name = "T0DO7",
+            Name = "T1DO6",
             Description = "移料上下"
         };
 
         /// <summary>
-        ///  移料夹子
+        ///    移料夹子
         /// </summary>
-        public static IoPoint T0DO8 = new IoPoint(ApsController, DMC3C00, 8, IoModes.Signal)
+        public static IoPoint T1DO7 = new IoPoint(ApsController, 0, 15, IoModes.Signal)
         {
-            Name = "T0DO8",
+            Name = "T2DO7",
             Description = "移料夹子"
         };
 
         /// <summary>
-        ///  1#剪刀夹料上下
+        ///  碎料气缸
         /// </summary>
-        public static IoPoint T0DO9 = new IoPoint(ApsController, DMC3C00, 9, IoModes.Signal)
+        public static IoPoint T1DO8 = new IoPoint(ApsController, 0, 16, IoModes.Signal)
         {
-            Name = "T0DO9",
-            Description = "1#剪刀夹料上下"
+            Name = "T1DO8",
+            Description = "碎料气缸"
+        };
+
+        /// <summary>
+        /// 排料气缸
+        /// </summary>
+        public static IoPoint T1DO9 = new IoPoint(ApsController, 0, 17, IoModes.Signal)
+        {
+            Name = "T1DO9",
+            Description = "排料气缸"
+        };
+
+        /// <summary>
+        /// 碎料盖子气缸
+        /// </summary>
+        public static IoPoint T1DO10 = new IoPoint(ApsController, 0, 18, IoModes.Signal)
+        {
+            Name = "T1DO10",
+            Description = "碎料盖子气缸"
+        };
+
+        /// <summary>
+        ///  进料气缸
+        /// </summary>
+        public static IoPoint T1DO11 = new IoPoint(ApsController, 0, 19, IoModes.Signal)
+        {
+            Name = "T1DO11",
+            Description = "进料气缸"
+        };
+
+        /// <summary>
+        ///   1#剪刀夹料上下
+        /// </summary>
+        public static IoPoint T1DO12 = new IoPoint(ApsController, 0, 20, IoModes.Signal)
+        {
+            Name = "T1DO12",
+            Description = "1#剪刀翻转气缸"
         };
 
         /// <summary>
         ///  2#剪刀夹料上下
         /// </summary>
-        public static IoPoint T0DO10 = new IoPoint(ApsController, DMC3C00, 10, IoModes.Signal)
+        public static IoPoint T1DO13 = new IoPoint(ApsController, 0, 21, IoModes.Signal)
         {
-            Name = "T0DO10",
-            Description = "2#剪刀夹料上下"
+            Name = "T1DO13",
+            Description = "2#剪刀翻转气缸"
         };
 
         /// <summary>
         ///  3#剪刀夹料上下
         /// </summary>
-        public static IoPoint T0DO11 = new IoPoint(ApsController, DMC3C00, 11, IoModes.Signal)
+        public static IoPoint T1DO14 = new IoPoint(ApsController, 0, 22, IoModes.Signal)
         {
-            Name = "T0DO11",
-            Description = "3#剪刀夹料上下"
+            Name = "T1DO14",
+            Description = "3#剪刀翻转气缸"
         };
 
         /// <summary>
         ///   4#剪刀夹料上下
         /// </summary>
-        public static IoPoint T0DO12 = new IoPoint(ApsController, DMC3C00, 12, IoModes.Signal)
+        public static IoPoint T1DO15 = new IoPoint(ApsController, 0, 23, IoModes.Signal)
         {
-            Name = "T0DO12",
-            Description = "4#剪刀夹料上下"
+            Name = "T1DO15",
+            Description = "4#剪刀翻转气缸"
         };
-
-        /// <summary>
-        ///  1#C轴推进
-        /// </summary>
-        public static IoPoint T0DO13 = new IoPoint(ApsController, DMC3C00, 13, IoModes.Signal)
-        {
-            Name = "T0DO13",
-            Description = "1#C轴推进"
-        };
-
-        /// <summary>
-        ///  2#C轴推进
-        /// </summary>
-        public static IoPoint T0DO14 = new IoPoint(ApsController, DMC3C00, 14, IoModes.Signal)
-        {
-            Name = "T0DO14",
-            Description = "2#C轴推进"
-        };
-
-        /// <summary>
-        ///   3#C轴推进
-        /// </summary>
-        public static IoPoint T0DO15 = new IoPoint(ApsController, DMC3C00, 15, IoModes.Signal)
-        {
-            Name = "T0DO15",
-            Description = "3#C轴推进"
-        };
-
-        #endregion
-
-        #region DMC3400 IO list
-
-        /// <summary>
-        ///   1#剪切夹料上下原点
-        /// </summary>
-        public static IoPoint T1DI0 = new IoPoint(ApsController, DMC3400, 0, IoModes.Senser)
-        {
-            Name = "T1DI0",
-            Description = "1#剪切夹料上下原点"
-        };
-
-        /// <summary>
-        ///   1#剪切夹料上下动点
-        /// </summary>
-        public static IoPoint T1DI1 = new IoPoint(ApsController, DMC3400, 1, IoModes.Senser)
-        {
-            Name = "T1DI1",
-            Description = "1#剪切夹料上下动点"
-        };
-
-        /// <summary>
-        ///   2#剪切夹料上下原点
-        /// </summary>
-        public static IoPoint T1DI2 = new IoPoint(ApsController, DMC3400, 2, IoModes.Senser)
-        {
-            Name = "T1DI2",
-            Description = "2#剪切夹料上下原点"
-        };
-
-        /// <summary>
-        ///   2#剪切夹料上下动点
-        /// </summary>
-        public static IoPoint T1DI3 = new IoPoint(ApsController, DMC3400, 3, IoModes.Senser)
-        {
-            Name = "T1DI3",
-            Description = "2#剪切夹料上下动点"
-        };
-
-        /// <summary>
-        ///   3#剪切夹料上下原点
-        /// </summary>
-        public static IoPoint T1DI4 = new IoPoint(ApsController, DMC3400, 4, IoModes.Senser)
-        {
-            Name = "T1DI4",
-            Description = "3#剪切夹料上下原点"
-        };
-
-        /// <summary>
-        ///   3#剪切夹料上下动点
-        /// </summary>
-        public static IoPoint T1DI5 = new IoPoint(ApsController, DMC3400, 5, IoModes.Senser)
-        {
-            Name = "T1DI5",
-            Description = "3#剪切夹料上下动点"
-        };
-
-        /// <summary>
-        ///   4#剪切夹料上下原点
-        /// </summary>
-        public static IoPoint T1DI6 = new IoPoint(ApsController, DMC3400, 6, IoModes.Senser)
-        {
-            Name = "T1DI6",
-            Description = "4#剪切夹料上下原点"
-        };
-
-        /// <summary>
-        ///   4#剪切夹料上下动点
-        /// </summary>
-        public static IoPoint T1DI7 = new IoPoint(ApsController, DMC3400, 7, IoModes.Senser)
-        {
-            Name = "T1DI7",
-            Description = "4#剪切夹料上下动点"
-        };
-        /// <summary>
-        ///   C轴推进1#原点信号
-        /// </summary>
-        public static IoPoint T1DI8 = new IoPoint(ApsController, DMC3400, 8, IoModes.Senser)
-        {
-            Name = "T1DI8",
-            Description = "C轴推进1#原点信号"
-        };
-        /// <summary>
-        ///   C轴推进1#动点信号
-        /// </summary>
-        public static IoPoint T1DI9 = new IoPoint(ApsController, DMC3400, 9, IoModes.Senser)
-        {
-            Name = "T1DI9",
-            Description = "C轴推进1#动点信号"
-        };
-        /// <summary>
-        ///   C轴推进2#原点信号
-        /// </summary>
-        public static IoPoint T1DI10 = new IoPoint(ApsController, DMC3400, 10, IoModes.Senser)
-        {
-            Name = "T1DI10",
-            Description = "C轴推进2#原点信号"
-        };
-        /// <summary>
-        ///   C轴推进2#动点信号
-        /// </summary>
-        public static IoPoint T1DI11 = new IoPoint(ApsController, DMC3400, 11, IoModes.Senser)
-        {
-            Name = "T1DI11",
-            Description = "C轴推进2#动点信号"
-        };
-        /// <summary>
-        ///   C轴推进3#原点信号
-        /// </summary>
-        public static IoPoint T1DI12 = new IoPoint(ApsController, DMC3400, 12, IoModes.Senser)
-        {
-            Name = "T1DI12",
-            Description = "C轴推进3#原点信号"
-        };
-
-        /// <summary>
-        ///   C轴推进3#动点信号
-        /// </summary>
-        public static IoPoint T1DI13 = new IoPoint(ApsController, DMC3400, 13, IoModes.Senser)
-        {
-            Name = "T1DI13",
-            Description = "C轴推进3#动点信号"
-        };
-        /// <summary>
-        ///   移料夹子有料感应
-        /// </summary>
-        public static IoPoint T1DI14 = new IoPoint(ApsController, DMC3400, 14, IoModes.Senser)
-        {
-            Name = "T1DI14",
-            Description = "移料夹子有料感应"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T1DI15 = new IoPoint(ApsController, DMC3400, 15, IoModes.Senser)
-        {
-            Name = "T1DI15",
-            Description = "备用"
-        };
-
         /// <summary>
         /// 1#剪切夹料前后
         /// </summary>
-        public static IoPoint T1DO0 = new IoPoint(ApsController, DMC3400, 0, IoModes.Signal)
+        public static IoPoint T1DO16 = new IoPoint(ApsController, 0, 24, IoModes.Signal)
         {
-            Name = "T1DO0",
+            Name = "T1DO16",
             Description = "1#剪切夹料前后"
         };
 
         /// <summary>
-        ///   2#剪切夹料前后
+        ///  2#剪切夹料前后
         /// </summary>
-        public static IoPoint T1DO1 = new IoPoint(ApsController, DMC3400, 1, IoModes.Signal)
+        public static IoPoint T1DO17 = new IoPoint(ApsController, 0, 25, IoModes.Signal)
         {
-            Name = "T1DO1",
+            Name = "T1DO17",
             Description = "2#剪切夹料前后"
         };
 
         /// <summary>
-        ///   3#剪切夹料前后
+        ///  3#剪切夹料前后
         /// </summary>
-        public static IoPoint T1DO2 = new IoPoint(ApsController, DMC3400, 2, IoModes.Signal)
+        public static IoPoint T1DO18 = new IoPoint(ApsController, 0, 26, IoModes.Signal)
         {
-            Name = "T1DO2",
+            Name = "T1DO18",
             Description = "3#剪切夹料前后"
         };
 
         /// <summary>
-        ///   4#剪切夹料前后
+        ///  4#剪切夹料前后
         /// </summary>
-        public static IoPoint T1DO3 = new IoPoint(ApsController, DMC3400, 3, IoModes.Signal)
+        public static IoPoint T1DO19 = new IoPoint(ApsController, 0, 27, IoModes.Signal)
         {
-            Name = "T1DO3",
+            Name = "T1DO19",
             Description = "4#剪切夹料前后"
         };
 
         /// <summary>
         ///   1#剪切夹料夹爪
         /// </summary>
-        public static IoPoint T1DO4 = new IoPoint(ApsController, DMC3400, 4, IoModes.Signal)
+        public static IoPoint T1DO20 = new IoPoint(ApsController, 0, 28, IoModes.Signal)
         {
-            Name = "T1DO4",
+            Name = "T1DO20",
             Description = "1#剪切夹料夹爪"
         };
 
         /// <summary>
         ///  2#剪切夹料夹爪
         /// </summary>
-        public static IoPoint T1DO5 = new IoPoint(ApsController, DMC3400, 5, IoModes.Signal)
+        public static IoPoint T1DO21 = new IoPoint(ApsController, 0, 29, IoModes.Signal)
         {
-            Name = "T1D05",
+            Name = "T1DO21",
             Description = "2#剪切夹料夹爪"
         };
 
         /// <summary>
         ///  3#剪切夹料夹爪
         /// </summary>
-        public static IoPoint T1DO6 = new IoPoint(ApsController, DMC3400, 6, IoModes.Signal)
+        public static IoPoint T1DO22 = new IoPoint(ApsController, 0, 30, IoModes.Signal)
         {
-            Name = "T1DO6",
+            Name = "T1DO22",
             Description = "3#剪切夹料夹爪"
         };
 
         /// <summary>
-        ///   4#剪切夹料夹爪
+        ///  4#剪切夹料夹爪
         /// </summary>
-        public static IoPoint T1DO7 = new IoPoint(ApsController, DMC3400, 7, IoModes.Signal)
+        public static IoPoint T1DO23 = new IoPoint(ApsController, 0, 31, IoModes.Signal)
         {
-            Name = "T1DO7",
+            Name = "T1DO23",
             Description = "4#剪切夹料夹爪"
         };
 
         /// <summary>
         ///  1#吸笔吸真空
         /// </summary>
-        public static IoPoint T1DO8 = new IoPoint(ApsController, DMC3400, 8, IoModes.Signal)
+        public static IoPoint T1DO24 = new IoPoint(ApsController, 0, 32, IoModes.Signal)
         {
-            Name = "T1DO8",
+            Name = "T1DO24",
             Description = "1#吸笔吸真空"
         };
 
         /// <summary>
         ///  1#吸笔破真空
         /// </summary>
-        public static IoPoint T1DO9 = new IoPoint(ApsController, DMC3400, 9, IoModes.Signal)
+        public static IoPoint T1DO25 = new IoPoint(ApsController, 0, 33, IoModes.Signal)
         {
-            Name = "T1DO9",
+            Name = "T1DO25",
             Description = "1#吸笔破真空"
         };
 
         /// <summary>
         ///  2#吸笔吸真空
         /// </summary>
-        public static IoPoint T1DO10 = new IoPoint(ApsController, DMC3400, 10, IoModes.Signal)
+        public static IoPoint T1DO26 = new IoPoint(ApsController, 0, 34, IoModes.Signal)
         {
-            Name = "T1DO10",
+            Name = "T1DO26",
             Description = "2#吸笔吸真空"
         };
 
         /// <summary>
-        ///  2#吸笔破真空
+        /// 2#吸笔破真空
         /// </summary>
-        public static IoPoint T1DO11 = new IoPoint(ApsController, DMC3400, 11, IoModes.Signal)
+        public static IoPoint T1DO27 = new IoPoint(ApsController, 0, 35, IoModes.Signal)
         {
-            Name = "T1DO11",
+            Name = "T1DO27",
             Description = "2#吸笔破真空"
         };
 
         /// <summary>
         ///   3#吸笔吸真空
         /// </summary>
-        public static IoPoint T1DO12 = new IoPoint(ApsController, DMC3400, 12, IoModes.Signal)
+        public static IoPoint T1DO28 = new IoPoint(ApsController, 0, 36, IoModes.Signal)
         {
-            Name = "T1DO12",
+            Name = "T1DO28",
             Description = "3#吸笔吸真空"
         };
 
         /// <summary>
         ///  3#吸笔破真空
         /// </summary>
-        public static IoPoint T1DO13 = new IoPoint(ApsController, DMC3400, 13, IoModes.Signal)
+        public static IoPoint T1DO29 = new IoPoint(ApsController, 0, 37, IoModes.Signal)
         {
-            Name = "T1DO13",
+            Name = "T1DO29",
             Description = "3#吸笔破真空"
         };
 
         /// <summary>
         ///  4#吸笔吸真空
         /// </summary>
-        public static IoPoint T1DO14 = new IoPoint(ApsController, DMC3400, 14, IoModes.Signal)
+        public static IoPoint T1DO30 = new IoPoint(ApsController, 0, 38, IoModes.Signal)
         {
-            Name = "T1DO14",
-            Description = "4#吸笔吸真空用"
+            Name = "T1DO30",
+            Description = "4#吸笔吸真空"
         };
 
         /// <summary>
         ///   4#吸笔破真空
         /// </summary>
-        public static IoPoint T1DO15 = new IoPoint(ApsController, DMC3400, 15, IoModes.Signal)
+        public static IoPoint T1DO31 = new IoPoint(ApsController, 0, 39, IoModes.Signal)
         {
-            Name = "T1DO15",
+            Name = "T1DO31",
             Description = "4#吸笔破真空"
         };
 
         #endregion
 
-        #region EM32DX-C1) IO list
+        #region  IO输出 - 2
+
 
         /// <summary>
-        ///   1#剪切夹料前后原点信号
+        /// 1#3#4#吸笔移动
         /// </summary>
-        public static IoPoint T2DI0 = new IoPoint(ApsController, DMC3400, 0, IoModes.Senser,1)
-        {
-            Name = "T2DI0",
-            Description = "1#剪切夹料前后原点信号"
-        };
-
-        /// <summary>
-        ///   1#剪切夹料前后动点
-        /// </summary>
-        public static IoPoint T2DI1 = new IoPoint(ApsController, DMC3400, 1, IoModes.Senser,1)
-        {
-            Name = "T2DI1",
-            Description = "1#剪切夹料前后动点"
-        };
-
-        /// <summary>
-        ///   2#剪切夹料前后原点
-        /// </summary>
-        public static IoPoint T2DI2 = new IoPoint(ApsController, DMC3400, 2, IoModes.Senser,1)
-        {
-            Name = "T2DI2",
-            Description = "2#剪切夹料前后原点"
-        };
-
-        /// <summary>
-        ///   2#剪切夹料前后动点
-        /// </summary>
-        public static IoPoint T2DI3 = new IoPoint(ApsController, DMC3400, 3, IoModes.Senser,1)
-        {
-            Name = "T2DI3",
-            Description = "2#剪切夹料前后动点"
-        };
-
-        /// <summary>
-        ///   3#剪切夹料前后原点
-        /// </summary>
-        public static IoPoint T2DI4 = new IoPoint(ApsController, DMC3400, 4, IoModes.Senser,1)
-        {
-            Name = "T2DI4",
-            Description = "3#剪切夹料前后原点"
-        };
-
-        /// <summary>
-        ///   3#剪切夹料前后动点
-        /// </summary>
-        public static IoPoint T2DI5 = new IoPoint(ApsController, DMC3400, 5, IoModes.Senser,1)
-        {
-            Name = "T2DI5",
-            Description = "3#剪切夹料前后动点"
-        };
-
-        /// <summary>
-        ///   4#剪切夹料前后原点
-        /// </summary>
-        public static IoPoint T2DI6 = new IoPoint(ApsController, DMC3400, 6, IoModes.Senser,1)
-        {
-            Name = "T2DI6",
-            Description = "4#剪切夹料前后原点"
-        };
-
-        /// <summary>
-        ///   4#剪切夹料前后动点
-        /// </summary>
-        public static IoPoint T2DI7 = new IoPoint(ApsController, DMC3400, 7, IoModes.Senser,1)
-        {
-            Name = "T2DI7",
-            Description = "4#剪切夹料前后动点"
-        };
-        /// <summary>
-        ///   1#吸笔移动原点信号
-        /// </summary>
-        public static IoPoint T2DI8 = new IoPoint(ApsController, DMC3400, 8, IoModes.Senser,1)
-        {
-            Name = "T2DI8",
-            Description = "1#吸笔移动原点信号"
-        };
-        /// <summary>
-        ///   1#吸笔移动动点信号
-        /// </summary>
-        public static IoPoint T2DI9 = new IoPoint(ApsController, DMC3400, 9, IoModes.Senser,1)
-        {
-            Name = "T2DI9",
-            Description = "1#吸笔移动动点信号"
-        };
-        /// <summary>
-        ///   2#吸笔移动原点信号
-        /// </summary>
-        public static IoPoint T2DI10 = new IoPoint(ApsController, DMC3400, 10, IoModes.Senser,1)
-        {
-            Name = "T2DI10",
-            Description = "2#吸笔移动原点信号"
-        };
-        /// <summary>
-        ///   2#吸笔移动动点信号
-        /// </summary>
-        public static IoPoint T2DI11 = new IoPoint(ApsController, DMC3400, 11, IoModes.Senser,1)
-        {
-            Name = "T2DI11",
-            Description = "2#吸笔移动动点信号"
-        };
-        /// <summary>
-        ///  3#吸笔移动原点信号
-        /// </summary>
-        public static IoPoint T2DI12 = new IoPoint(ApsController, DMC3400, 12, IoModes.Senser,1)
-        {
-            Name = "T2DI12",
-            Description = "3#吸笔移动原点信号"
-        };
-
-        /// <summary>
-        ///   3#吸笔移动动点信号
-        /// </summary>
-        public static IoPoint T2DI13 = new IoPoint(ApsController, DMC3400, 13, IoModes.Senser,1)
-        {
-            Name = "T2DI13",
-            Description = "3#吸笔移动动点信号"
-        };
-        /// <summary>
-        ///  4#吸笔移动原点信号
-        /// </summary>
-        public static IoPoint T2DI14 = new IoPoint(ApsController, DMC3400, 14, IoModes.Senser,1)
-        {
-            Name = "T2DI14",
-            Description = "4#吸笔移动原点信号"
-        };
-        /// <summary>
-        ///   4#吸笔移动动点信号
-        /// </summary>
-        public static IoPoint T2DI15 = new IoPoint(ApsController, DMC3400, 15, IoModes.Senser,1)
-        {
-            Name = "T2DI15",
-            Description = "4#吸笔移动动点信号"
-        };
-
-        /// <summary>
-        /// 拉料气缸上下
-        /// </summary>
-        public static IoPoint T2DO0 = new IoPoint(ApsController, DMC3400, 0, IoModes.Signal,1)
+        public static IoPoint T2DO0 = new IoPoint(ApsController, 0, 40, IoModes.Signal)
         {
             Name = "T2DO0",
-            Description = "拉料气缸上下"
+            Description = "1#2#4#吸笔移动"
         };
 
         /// <summary>
-        ///   备用
+        ///   拉盘气缸上下气缸
         /// </summary>
-        public static IoPoint T2DO1 = new IoPoint(ApsController, DMC3400, 1, IoModes.Signal,1)
+        public static IoPoint T2DO1 = new IoPoint(ApsController, 0, 41, IoModes.Signal)
         {
             Name = "T2DO1",
-            Description = "备用"
+            Description = "拉盘气缸上下气缸"
         };
 
         /// <summary>
         ///   摆盘卡紧
         /// </summary>
-        public static IoPoint T2DO2 = new IoPoint(ApsController, DMC3400, 2, IoModes.Signal,1)
+        public static IoPoint T2DO2 = new IoPoint(ApsController, 0, 42, IoModes.Signal)
         {
             Name = "T2DO2",
             Description = "摆盘卡紧"
         };
 
         /// <summary>
-        ///   安全门原点动作
+        ///  安全门原点动作
         /// </summary>
-        public static IoPoint T2DO3 = new IoPoint(ApsController, DMC3400, 3, IoModes.Signal,1)
+        public static IoPoint T2DO3 = new IoPoint(ApsController, 0, 43, IoModes.Signal)
         {
             Name = "T2DO3",
             Description = "安全门原点动作"
@@ -762,964 +1176,252 @@ namespace desay
         /// <summary>
         ///   安全门动点动作
         /// </summary>
-        public static IoPoint T2DO4 = new IoPoint(ApsController, DMC3400, 4, IoModes.Signal,1)
+        public static IoPoint T2DO4 = new IoPoint(ApsController, 0, 44, IoModes.Signal)
         {
             Name = "T2DO4",
             Description = "安全门动点动作"
         };
 
         /// <summary>
-        ///  1#4#吸笔移动
+        /// 照明灯控制继电器
         /// </summary>
-        public static IoPoint T2DO5 = new IoPoint(ApsController, DMC3400, 5, IoModes.Signal,1)
+        public static IoPoint T2DO5 = new IoPoint(ApsController, 0, 45, IoModes.Signal)
         {
-            Name = "T2D05",
-            Description = "1#4#吸笔移动"
+            Name = "T2DO5",
+            Description = "照明灯控制继电器"
         };
 
         /// <summary>
-        ///  2#3#吸笔移动
+        ///  1#刀加热棒控制继电器
         /// </summary>
-        public static IoPoint T2DO6 = new IoPoint(ApsController, DMC3400, 6, IoModes.Signal,1)
+        public static IoPoint T2DO6 = new IoPoint(ApsController, 0, 46, IoModes.Signal)
         {
             Name = "T2DO6",
-            Description = "2#3#吸笔移动"
+            Description = "1#刀加热棒控制继电器"
         };
 
         /// <summary>
-        ///   进料升降气缸（新增）
+        ///   2#刀加热棒控制继电器
         /// </summary>
-        public static IoPoint T2DO7 = new IoPoint(ApsController, DMC3400, 7, IoModes.Signal,1)
+        public static IoPoint T2DO7 = new IoPoint(ApsController, 0, 47, IoModes.Signal)
         {
             Name = "T2DO7",
-            Description = "进料升降气缸（新增）"
+            Description = "2#刀加热棒控制继电器"
         };
 
         /// <summary>
-        ///  接料夹爪气缸（新增）
+        ///  3#刀加热棒控制继电器
         /// </summary>
-        public static IoPoint T2DO8 = new IoPoint(ApsController, DMC3400, 8, IoModes.Signal,1)
+        public static IoPoint T2DO8 = new IoPoint(ApsController, 0, 48, IoModes.Signal)
         {
             Name = "T2DO8",
-            Description = "接料夹爪气缸（新增）"
+            Description = "3#刀加热棒控制继电器"
         };
 
         /// <summary>
-        ///  接料升降气缸（新增）
+        ///  4#刀加热棒控制继电器
         /// </summary>
-        public static IoPoint T2DO9 = new IoPoint(ApsController, DMC3400, 9, IoModes.Signal,1)
+        public static IoPoint T2DO9 = new IoPoint(ApsController, 0, 49, IoModes.Signal)
         {
             Name = "T2DO9",
-            Description = "接料升降气缸（新增）"
+            Description = "4#刀加热棒控制继电器"
         };
 
         /// <summary>
-        ///  接料翻转气缸（新增）
+        ///  碎料电机开关
         /// </summary>
-        public static IoPoint T2DO10 = new IoPoint(ApsController, DMC3400, 10, IoModes.Signal,1)
+        public static IoPoint T2DO10 = new IoPoint(ApsController, 0, 50, IoModes.Signal)
         {
             Name = "T2DO10",
-            Description = "接料翻转气缸（新增）"
+            Description = "碎料电机开关"
         };
 
         /// <summary>
-        ///  b备用
+        ///  缓冲升降动点动作
         /// </summary>
-        public static IoPoint T2DO11 = new IoPoint(ApsController, DMC3400, 11, IoModes.Signal,1)
+        public static IoPoint T2DO11 = new IoPoint(ApsController, 0, 51, IoModes.Signal)
         {
             Name = "T2DO11",
-            Description = "b备用"
+            Description = "缓冲升降动点动作"
         };
 
         /// <summary>
-        ///   红灯
+        ///  离子棒放电控制
         /// </summary>
-        public static IoPoint T2DO12 = new IoPoint(ApsController, DMC3400, 12, IoModes.Signal,1)
+        public static IoPoint T2DO12 = new IoPoint(ApsController, 0, 52, IoModes.Signal)
         {
             Name = "T2DO12",
+            Description = "离子棒放电控制"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T2DO13 = new IoPoint(ApsController, 0, 53, IoModes.Signal)
+        {
+            Name = "T2DO13",
+            Description = "备用"
+        };
+        /// <summary>
+        /// 备用
+        /// </summary>
+        public static IoPoint T2DO14 = new IoPoint(ApsController, 0, 54, IoModes.Signal)
+        {
+            Name = "T2DO14",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///   备用
+        /// </summary>
+        public static IoPoint T2DO15 = new IoPoint(ApsController, 0, 55, IoModes.Signal)
+        {
+            Name = "T2DO15",
+            Description = "备用"
+        };
+
+        /// <summary>
+        ///  启动按钮灯
+        /// </summary>
+        public static IoPoint T2DO16 = new IoPoint(ApsController, 0, 56, IoModes.Signal)
+        {
+            Name = "T2DO16",
+            Description = "启动按钮灯"
+        };
+
+        /// <summary>
+        ///  停止按钮灯
+        /// </summary>
+        public static IoPoint T2DO17 = new IoPoint(ApsController, 0, 57, IoModes.Signal)
+        {
+            Name = "T2DO17",
+            Description = "停止按钮灯"
+        };
+
+        /// <summary>
+        ///    复位按钮灯
+        /// </summary>
+        public static IoPoint T2DO18 = new IoPoint(ApsController, 0, 58, IoModes.Signal)
+        {
+            Name = "T2DO18",
+            Description = "复位按钮灯"
+        };
+
+        /// <summary>
+        ///  暂停按钮灯
+        /// </summary>
+        public static IoPoint T2DO19 = new IoPoint(ApsController, 0, 59, IoModes.Signal)
+        {
+            Name = "T2DO19",
+            Description = "暂停按钮灯"
+        };
+
+        /// <summary>
+        /// 报警清除按钮灯
+        /// </summary>
+        public static IoPoint T2DO20 = new IoPoint(ApsController, 0, 60, IoModes.Signal)
+        {
+            Name = "T2DO20",
+            Description = "报警清除按钮灯"
+        };
+
+        /// <summary>
+        ///  红灯
+        /// </summary>
+        public static IoPoint T2DO21 = new IoPoint(ApsController, 0, 61, IoModes.Signal)
+        {
+            Name = "T2DO21",
             Description = "红灯"
         };
 
         /// <summary>
         ///  黄灯
         /// </summary>
-        public static IoPoint T2DO13 = new IoPoint(ApsController, DMC3400, 13, IoModes.Signal,1)
+        public static IoPoint T2DO22 = new IoPoint(ApsController, 0, 62, IoModes.Signal)
         {
-            Name = "T2DO13",
+            Name = "T2DO22",
             Description = "黄灯"
         };
 
         /// <summary>
         ///  绿灯
         /// </summary>
-        public static IoPoint T2DO14 = new IoPoint(ApsController, DMC3400, 14, IoModes.Signal,1)
+        public static IoPoint T2DO23 = new IoPoint(ApsController, 0, 63, IoModes.Signal)
         {
-            Name = "T2DO14",
+            Name = "T2DO23",
             Description = "绿灯"
         };
 
         /// <summary>
-        ///   蜂鸣器
+        ///  蜂鸣器
         /// </summary>
-        public static IoPoint T2DO15 = new IoPoint(ApsController, DMC3400, 15, IoModes.Signal,1)
+        public static IoPoint T2DO24 = new IoPoint(ApsController, 0, 64, IoModes.Signal)
         {
-            Name = "T2DO15",
+            Name = "T2DO24",
             Description = "蜂鸣器"
         };
 
-        #endregion
-
-        #region EM96DX-C1(1) list
-
         /// <summary>
-        ///   M左卡盘检测信号
+        ///  备用
         /// </summary>
-        public static IoPoint T3DI0 = new IoPoint(ApsController, DMC3400, 0, IoModes.Senser,2)
+        public static IoPoint T2DO25 = new IoPoint(ApsController, 0, 65, IoModes.Signal)
         {
-            Name = "T3DI0",
-            Description = "M左卡盘检测信号"
-        };
-
-        /// <summary>
-        ///   M右卡盘检测信号
-        /// </summary>
-        public static IoPoint T3DI1 = new IoPoint(ApsController, DMC3400, 1, IoModes.Senser,2)
-        {
-            Name = "T3DI1",
-            Description = "M右卡盘检测信号"
-        };
-
-        /// <summary>
-        ///   接料夹爪气缸原点（新增）
-        /// </summary>
-        public static IoPoint T3DI2 = new IoPoint(ApsController, DMC3400, 2, IoModes.Senser,2)
-        {
-            Name = "T3DI2",
-            Description = "接料夹爪气缸原点（新增）"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DI3 = new IoPoint(ApsController, DMC3400, 3, IoModes.Senser,2)
-        {
-            Name = "T3DI3",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   接料升降气缸原点（新增）
-        /// </summary>
-        public static IoPoint T3DI4 = new IoPoint(ApsController, DMC3400, 4, IoModes.Senser,2)
-        {
-            Name = "T3DI4",
-            Description = "接料升降气缸原点（新增）"
-        };
-
-        /// <summary>
-        ///   接料升降气缸动点（新增）
-        /// </summary>
-        public static IoPoint T3DI5 = new IoPoint(ApsController, DMC3400, 5, IoModes.Senser,2)
-        {
-            Name = "T3DI5",
-            Description = "接料升降气缸动点（新增）"
-        };
-
-        /// <summary>
-        ///   接料翻转气缸原点（新增）
-        /// </summary>
-        public static IoPoint T3DI6 = new IoPoint(ApsController, DMC3400, 6, IoModes.Senser,2)
-        {
-            Name = "T3DI6",
-            Description = "接料翻转气缸原点（新增）"
-        };
-
-        /// <summary>
-        ///   接料翻转气缸动点（新增）
-        /// </summary>
-        public static IoPoint T3DI7 = new IoPoint(ApsController, DMC3400, 7, IoModes.Senser,2)
-        {
-            Name = "T3DI7",
-            Description = "接料翻转气缸动点（新增）"
-        };
-        /// <summary>
-        ///  接料安全感应器（新增）
-        /// </summary>
-        public static IoPoint T3DI8 = new IoPoint(ApsController, DMC3400, 8, IoModes.Senser,2)
-        {
-            Name = "T3DI8",
-            Description = "接料安全感应器（新增）"
-        };
-        /// <summary>
-        ///   进料升降气缸原点（新增）
-        /// </summary>
-        public static IoPoint T3DI9 = new IoPoint(ApsController, DMC3400, 9, IoModes.Senser,2)
-        {
-            Name = "T3DI9",
-            Description = "进料升降气缸原点（新增）"
-        };
-        /// <summary>
-        ///   进料升降气缸动点（新增）
-        /// </summary>
-        public static IoPoint T3DI10 = new IoPoint(ApsController, DMC3400, 10, IoModes.Senser,2)
-        {
-            Name = "T3DI10",
-            Description = "进料升降气缸动点（新增）"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DI11 = new IoPoint(ApsController, DMC3400, 11, IoModes.Senser,2)
-        {
-            Name = "T3DI11",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DI12 = new IoPoint(ApsController, DMC3400, 12, IoModes.Senser,2)
-        {
-            Name = "T3DI12",
+            Name = "T2DO25",
             Description = "备用"
         };
 
         /// <summary>
         ///   备用
         /// </summary>
-        public static IoPoint T3DI13 = new IoPoint(ApsController, DMC3400, 13, IoModes.Senser,2)
+        public static IoPoint T2DO26 = new IoPoint(ApsController, 0, 66, IoModes.Signal)
         {
-            Name = "T3DI13",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DI14 = new IoPoint(ApsController, DMC3400, 14, IoModes.Senser,2)
-        {
-            Name = "T3DI14",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DI15 = new IoPoint(ApsController, DMC3400, 15, IoModes.Senser,2)
-        {
-            Name = "T3DI15",
-            Description = "备用"
-        };
-
-        /// <summary>
-        /// 备用
-        /// </summary>
-        public static IoPoint T3DO0 = new IoPoint(ApsController, DMC3400, 0, IoModes.Signal,2)
-        {
-            Name = "T3DO0",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DO1 = new IoPoint(ApsController, DMC3400, 1, IoModes.Signal,2)
-        {
-            Name = "T3DO1",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DO2 = new IoPoint(ApsController, DMC3400, 2, IoModes.Signal,2)
-        {
-            Name = "T3DO2",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DO3 = new IoPoint(ApsController, DMC3400, 3, IoModes.Signal,2)
-        {
-            Name = "T3DO3",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DO4 = new IoPoint(ApsController, DMC3400, 4, IoModes.Signal,2)
-        {
-            Name = "T3DO4",
+            Name = "T2DO26",
             Description = "备用"
         };
 
         /// <summary>
         ///  备用
         /// </summary>
-        public static IoPoint T3DO5 = new IoPoint(ApsController, DMC3400, 5, IoModes.Signal,2)
+        public static IoPoint T2DO27 = new IoPoint(ApsController, 0, 67, IoModes.Signal)
         {
-            Name = "T3D05",
+            Name = "T2DO27",
             Description = "备用"
         };
 
         /// <summary>
         ///  备用
         /// </summary>
-        public static IoPoint T3DO6 = new IoPoint(ApsController, DMC3400, 6, IoModes.Signal,2)
+        public static IoPoint T2DO28 = new IoPoint(ApsController, 0, 68, IoModes.Signal)
         {
-            Name = "T3DO6",
+            Name = "T2DO28",
             Description = "备用"
         };
 
         /// <summary>
         ///   备用
         /// </summary>
-        public static IoPoint T3DO7 = new IoPoint(ApsController, DMC3400, 7, IoModes.Signal,2)
+        public static IoPoint T2DO29 = new IoPoint(ApsController, 0, 69, IoModes.Signal)
         {
-            Name = "T3DO7",
+            Name = "T2DO29",
             Description = "备用"
         };
 
         /// <summary>
         ///  备用
         /// </summary>
-        public static IoPoint T3DO8 = new IoPoint(ApsController, DMC3400, 8, IoModes.Signal,2)
+        public static IoPoint T2DO30 = new IoPoint(ApsController, 0, 70, IoModes.Signal)
         {
-            Name = "T3DO8",
+            Name = "T2DO30",
             Description = "备用"
         };
 
         /// <summary>
-        ///  备用
+        ///   虚似输出端子(请勿接线)
         /// </summary>
-        public static IoPoint T3DO9 = new IoPoint(ApsController, DMC3400, 9, IoModes.Signal,2)
+        public static IoPoint T2DO31 = new IoPoint(ApsController, 0, 71, IoModes.Signal)
         {
-            Name = "T3DO9",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T3DO10 = new IoPoint(ApsController, DMC3400, 10, IoModes.Signal,2)
-        {
-            Name = "T3DO10",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T3DO11 = new IoPoint(ApsController, DMC3400, 11, IoModes.Signal,2)
-        {
-            Name = "T3DO11",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DO12 = new IoPoint(ApsController, DMC3400, 12, IoModes.Signal,2)
-        {
-            Name = "T3DO12",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T3DO13 = new IoPoint(ApsController, DMC3400, 13, IoModes.Signal,2)
-        {
-            Name = "T3DO13",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T3DO14 = new IoPoint(ApsController, DMC3400, 14, IoModes.Signal,2)
-        {
-            Name = "T3DO14",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T3DO15 = new IoPoint(ApsController, DMC3400, 15, IoModes.Signal,2)
-        {
-            Name = "T3DO15",
-            Description = "备用"
-        };
-
-        #endregion
-
-        #region  EM96DX-C1(2) list
-
-        /// <summary>
-        ///   左取放盘上下原点信号
-        /// </summary>
-        public static IoPoint T4DI0 = new IoPoint(ApsController, DMC3400, 16, IoModes.Senser,2)
-        {
-            Name = "T4DI0",
-            Description = "左取放盘上下原点信号"
-        };
-
-        /// <summary>
-        ///   左取放盘上下动点信号
-        /// </summary>
-        public static IoPoint T4DI1 = new IoPoint(ApsController, DMC3400, 17, IoModes.Senser,2)
-        {
-            Name = "T4DI1",
-            Description = "左取放盘上下动点信号"
-        };
-
-        /// <summary>
-        ///   右取放盘上下原点信号
-        /// </summary>
-        public static IoPoint T4DI2 = new IoPoint(ApsController, DMC3400, 18, IoModes.Senser,2)
-        {
-            Name = "T4DI2",
-            Description = "右取放盘上下原点信号"
-        };
-
-        /// <summary>
-        ///   右取放盘上下动点信号
-        /// </summary>
-        public static IoPoint T4DI3 = new IoPoint(ApsController, DMC3400, 19, IoModes.Senser,2)
-        {
-            Name = "T4DI3",
-            Description = "右取放盘上下动点信号"
-        };
-
-        /// <summary>
-        ///   摆盘卡紧原点信号
-        /// </summary>
-        public static IoPoint T4DI4 = new IoPoint(ApsController, DMC3400, 20, IoModes.Senser,2)
-        {
-            Name = "T4DI4",
-            Description = "摆盘卡紧原点信号"
-        };
-
-        /// <summary>
-        ///   摆盘卡紧动点信号
-        /// </summary>
-        public static IoPoint T4DI5 = new IoPoint(ApsController, DMC3400, 21, IoModes.Senser,2)
-        {
-            Name = "T4DI5",
-            Description = "摆盘卡紧动点信号"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DI6 = new IoPoint(ApsController, DMC3400, 22, IoModes.Senser,2)
-        {
-            Name = "T4DI6",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DI7 = new IoPoint(ApsController, DMC3400, 23, IoModes.Senser,2)
-        {
-            Name = "T4DI7",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   摆盘前感应1#
-        /// </summary>
-        public static IoPoint T4DI8 = new IoPoint(ApsController, DMC3400, 24, IoModes.Senser,2)
-        {
-            Name = "T4DI8",
-            Description = "摆盘前感应1#"
-        };
-        /// <summary>
-        ///   摆盘前感应2#
-        /// </summary>
-        public static IoPoint T4DI9 = new IoPoint(ApsController, DMC3400, 25, IoModes.Senser,2)
-        {
-            Name = "T4DI9",
-            Description = "摆盘前感应2#"
-        };
-        /// <summary>
-        ///   摆盘后感应1#
-        /// </summary>
-        public static IoPoint T4DI10 = new IoPoint(ApsController, DMC3400, 26, IoModes.Senser,2)
-        {
-            Name = "T4DI10",
-            Description = "摆盘后感应1#"
-        };
-        /// <summary>
-        ///   摆盘后感应2#
-        /// </summary>
-        public static IoPoint T4DI11 = new IoPoint(ApsController, DMC3400, 27, IoModes.Senser,2)
-        {
-            Name = "T4DI11",
-            Description = "摆盘后感应2#"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DI12 = new IoPoint(ApsController, DMC3400, 28, IoModes.Senser,2)
-        {
-            Name = "T4DI12",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DI13 = new IoPoint(ApsController, DMC3400, 29, IoModes.Senser,2)
-        {
-            Name = "T4DI13",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   仓储自动门原点信号
-        /// </summary>
-        public static IoPoint T4DI14 = new IoPoint(ApsController, DMC3400, 30, IoModes.Senser,2)
-        {
-            Name = "T4DI14",
-            Description = "仓储自动门原点信号"
-        };
-        /// <summary>
-        ///   仓储自动门动点信号
-        /// </summary>
-        public static IoPoint T4DI15 = new IoPoint(ApsController, DMC3400, 31, IoModes.Senser,2)
-        {
-            Name = "T4DI15",
-            Description = "仓储自动门动点信号"
-        };
-
-        /// <summary>
-        /// 备用
-        /// </summary>
-        public static IoPoint T4DO0 = new IoPoint(ApsController, DMC3400, 16, IoModes.Signal,2)
-        {
-            Name = "T4DO0",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DO1 = new IoPoint(ApsController, DMC3400, 17, IoModes.Signal,2)
-        {
-            Name = "T4DO1",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DO2 = new IoPoint(ApsController, DMC3400, 18, IoModes.Signal,2)
-        {
-            Name = "T4DO2",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DO3 = new IoPoint(ApsController, DMC3400, 19, IoModes.Signal,2)
-        {
-            Name = "T4DO3",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DO4 = new IoPoint(ApsController, DMC3400, 20, IoModes.Signal,2)
-        {
-            Name = "T4DO4",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4D05 = new IoPoint(ApsController, DMC3400, 21, IoModes.Signal,2)
-        {
-            Name = "T4D05",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4DO6 = new IoPoint(ApsController, DMC3400, 22, IoModes.Signal,2)
-        {
-            Name = "T4DO6",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DO7 = new IoPoint(ApsController, DMC3400, 23, IoModes.Signal,2)
-        {
-            Name = "T4DO7",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4DO8 = new IoPoint(ApsController, DMC3400, 24, IoModes.Signal,2)
-        {
-            Name = "T4DO8",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4DO9 = new IoPoint(ApsController, DMC3400, 25, IoModes.Signal,2)
-        {
-            Name = "T4DO9",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4DO10 = new IoPoint(ApsController, DMC3400, 26, IoModes.Signal,2)
-        {
-            Name = "T4DO10",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4DO11 = new IoPoint(ApsController, DMC3400, 27, IoModes.Signal,2)
-        {
-            Name = "T4DO11",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DO12 = new IoPoint(ApsController, DMC3400, 28, IoModes.Signal,2)
-        {
-            Name = "T4DO12",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4DO13 = new IoPoint(ApsController, DMC3400, 29, IoModes.Signal,2)
-        {
-            Name = "T4DO13",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T4DO14 = new IoPoint(ApsController, DMC3400, 30, IoModes.Signal,2)
-        {
-            Name = "T4DO14",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T4DO15 = new IoPoint(ApsController, DMC3400, 31, IoModes.Signal,2)
-        {
-            Name = "T4DO15",
-            Description = "备用"
-        };
-
-        #endregion
-
-        #region  EM96DX-C1(3) list
-
-        /// <summary>
-        ///   启动按钮
-        /// </summary>
-        public static IoPoint T5DI0 = new IoPoint(ApsController, DMC3400, 32, IoModes.Senser,2)
-        {
-            Name = "T5DI0",
-            Description = "启动按钮"
-        };
-
-        /// <summary>
-        ///   停止按钮
-        /// </summary>
-        public static IoPoint T5DI1 = new IoPoint(ApsController, DMC3400, 33, IoModes.Senser,2)
-        {
-            Name = "T5DI1",
-            Description = "停止按钮"
-        };
-
-        /// <summary>
-        ///   急停按钮
-        /// </summary>
-        public static IoPoint T5DI2 = new IoPoint(ApsController, DMC3400, 34, IoModes.Senser,2)
-        {
-            Name = "T5DI2",
-            Description = "急停按钮"
-        };
-
-        /// <summary>
-        ///   复位按钮
-        /// </summary>
-        public static IoPoint T5DI3 = new IoPoint(ApsController, DMC3400, 35, IoModes.Senser,2)
-        {
-            Name = "T5DI3",
-            Description = "复位按钮"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI4 = new IoPoint(ApsController, DMC3400, 36, IoModes.Senser,2)
-        {
-            Name = "T5DI4",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI5 = new IoPoint(ApsController, DMC3400, 37, IoModes.Senser,2)
-        {
-            Name = "T5DI5",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI6 = new IoPoint(ApsController, DMC3400, 38, IoModes.Senser,2)
-        {
-            Name = "T5DI6",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI7 = new IoPoint(ApsController, DMC3400, 39, IoModes.Senser,2)
-        {
-            Name = "T5DI7",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   左门禁信号
-        /// </summary>
-        public static IoPoint T5DI8 = new IoPoint(ApsController, DMC3400, 40, IoModes.Senser,2)
-        {
-            Name = "T5DI8",
-            Description = "左门禁信号"
-        };
-        /// <summary>
-        ///   右门禁信号
-        /// </summary>
-        public static IoPoint T5DI9 = new IoPoint(ApsController, DMC3400, 41, IoModes.Senser,2)
-        {
-            Name = "T5DI9",
-            Description = "右门禁信号"
-        };
-        /// <summary>
-        ///   安全光幕
-        /// </summary>
-        public static IoPoint T5DI10 = new IoPoint(ApsController, DMC3400, 42, IoModes.Senser,2)
-        {
-            Name = "T5DI10",
-            Description = "安全光幕"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI11 = new IoPoint(ApsController, DMC3400, 43, IoModes.Senser,2)
-        {
-            Name = "T5DI11",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI12 = new IoPoint(ApsController, DMC3400, 44, IoModes.Senser,2)
-        {
-            Name = "T5DI12",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI13 = new IoPoint(ApsController, DMC3400, 45, IoModes.Senser,2)
-        {
-            Name = "T5DI13",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI14 = new IoPoint(ApsController, DMC3400, 46, IoModes.Senser,2)
-        {
-            Name = "T5DI14",
-            Description = "备用"
-        };
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DI15 = new IoPoint(ApsController, DMC3400, 47, IoModes.Senser,2)
-        {
-            Name = "T5DI15",
-            Description = "备用"
-        };
-
-        /// <summary>
-        /// 备用
-        /// </summary>
-        public static IoPoint T5DO0 = new IoPoint(ApsController, DMC3400, 32, IoModes.Signal,2)
-        {
-            Name = "T5DO0",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DO1 = new IoPoint(ApsController, DMC3400, 33, IoModes.Signal,2)
-        {
-            Name = "T5DO1",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DO2 = new IoPoint(ApsController, DMC3400, 34, IoModes.Signal,2)
-        {
-            Name = "T5DO2",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DO3 = new IoPoint(ApsController, DMC3400, 35, IoModes.Signal,2)
-        {
-            Name = "T5DO3",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DO4 = new IoPoint(ApsController, DMC3400, 36, IoModes.Signal,2)
-        {
-            Name = "T5DO4",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5D05 = new IoPoint(ApsController, DMC3400, 37, IoModes.Signal,2)
-        {
-            Name = "T5D05",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5DO6 = new IoPoint(ApsController, DMC3400, 38, IoModes.Signal,2)
-        {
-            Name = "T5DO6",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DO7 = new IoPoint(ApsController, DMC3400, 39, IoModes.Signal,2)
-        {
-            Name = "T5DO7",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5DO8 = new IoPoint(ApsController, DMC3400, 40, IoModes.Signal,2)
-        {
-            Name = "T5DO8",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5DO9 = new IoPoint(ApsController, DMC3400, 41, IoModes.Signal,2)
-        {
-            Name = "T5DO9",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5DO10 = new IoPoint(ApsController, DMC3400, 42, IoModes.Signal,2)
-        {
-            Name = "T5DO10",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5DO11 = new IoPoint(ApsController, DMC3400, 43, IoModes.Signal,2)
-        {
-            Name = "T5DO11",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DO12 = new IoPoint(ApsController, DMC3400, 44, IoModes.Signal,2)
-        {
-            Name = "T5DO12",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5DO13 = new IoPoint(ApsController, DMC3400, 45, IoModes.Signal,2)
-        {
-            Name = "T5DO13",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///  备用
-        /// </summary>
-        public static IoPoint T5DO14 = new IoPoint(ApsController, DMC3400, 46, IoModes.Signal,2)
-        {
-            Name = "T5DO14",
-            Description = "备用"
-        };
-
-        /// <summary>
-        ///   备用
-        /// </summary>
-        public static IoPoint T5DO15 = new IoPoint(ApsController, DMC3400, 47, IoModes.Signal,2)
-        {
-            Name = "T5DO15",
-            Description = "备用"
+            Name = "T2DO31",
+            Description = "虚似输出端子(请勿接线)"
         };
 
         #endregion

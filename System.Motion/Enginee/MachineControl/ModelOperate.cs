@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     public partial class ModelOperate : UserControl
     {
@@ -44,13 +44,13 @@ namespace Motion.Enginee
         private void btnPause_MouseDown(object sender, MouseEventArgs e)
         {
             StationOpe.Stop = true;
-            btnPause.BackColor = Color.Green;
+            btnPause.BackColor = Color.Red;
         }
 
         private void btnPause_MouseUp(object sender, MouseEventArgs e)
         {
             StationOpe.Stop = false;
-            btnPause.BackColor = Color.Transparent;
+            btnPause.BackColor = Color.Green;
         }
 
         private void btnStop_MouseDown(object sender, MouseEventArgs e)

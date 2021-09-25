@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     /// 单模组操作
@@ -67,6 +67,10 @@ namespace Motion.Enginee
         /// 模组状态
         /// </summary>
         public StationStatus Status { get; private set; }
+        /// <summary>
+        /// 自动步骤
+        /// </summary>
+        public int step { get;  set; }
 
         public bool RunningSign
         {

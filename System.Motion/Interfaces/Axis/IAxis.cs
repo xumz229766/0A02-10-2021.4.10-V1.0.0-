@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Motion.Interfaces
+namespace System.Interfaces
 {
     /// <summary>
     ///     表示一个运动轴。
@@ -64,7 +64,6 @@ namespace Motion.Interfaces
         ///     反向移动。
         /// </summary>
         void Negative();
-       
 
         /// <summary>
         ///     轴停止运动。

@@ -1,4 +1,4 @@
-﻿namespace Motion.Enginee
+﻿namespace System.Enginee
 {
     public interface IStationInitialize
     {

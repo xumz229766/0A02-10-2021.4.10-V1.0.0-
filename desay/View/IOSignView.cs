@@ -6,7 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Motion.Interfaces;
+using System.Interfaces;
 namespace desay
 {
     public partial class IOSignView : UserControl

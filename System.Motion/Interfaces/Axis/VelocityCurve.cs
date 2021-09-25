@@ -1,4 +1,4 @@
-﻿namespace Motion.Interfaces
+﻿namespace System.Interfaces
 {
     /// <summary>
     ///     速度曲线参数
@@ -33,6 +33,12 @@
         public double Maxvel { get; set; }
 
         /// <summary>
+        ///     停止速度pps（软着陆速度）
+        /// </summary>
+        /// <remarks>stop velocity (mm/s)</remarks>
+        public double Stopvel { get; set; }
+
+        /// <summary>
         ///     加速时间s
         /// </summary>
         /// <remarks>acceleration time  (m/s2)</remarks>
@@ -45,17 +51,6 @@
         public double Tdec { get; set; }
 
         /// <summary>
-        ///     停止时间
-        /// </summary>
-        /// <remarks>deceleration time (m/s2)</remarks>
-        public double dTdec { get; set; }
-        /// <summary>
-        ///     S段时间
-        /// </summary>
-        /// <remarks>deceleration time (m/s2)</remarks>
-        public double dS_para { get; set; }
-
-        /// <summary>
         ///     加速度圆角（S型运动曲线专用，其他的类型时为零）
         /// </summary>
         /// <remarks>S-curve acc disition (mm)</remarks>
@@ -66,6 +61,10 @@
         /// </summary>
         /// <remarks>S-curve dec disition (mm)</remarks>
         public double Svdec { get; set; }
+
+        public double dS_para { get; set; }
+
+        public double dTdec { get; set; }
 
         /// <summary>
         ///     S曲线因子
@@ -113,15 +112,14 @@
         }
 
         /// <summary>
-        ///     连续运动的参数传递
+        ///     加减速不对称的梯形速度曲线软着陆
         /// </summary>
         /// <param name="strvel"></param>
         /// <param name="maxvel"></param>
         /// <param name="tacc"></param>
         /// <param name="tdec">减速时间</param>
-        /// <param name="dTdec">停止时间</param>
-        public VelocityCurve(double strvel, double maxvel, double tacc, double tdec,double dTdec)
-            : this(strvel, maxvel, tacc, tdec, 0, 0, CurveTypes.T)
+        public VelocityCurve(double strvel, double maxvel, double stopvel, double tacc, double tdec)
+            : this(strvel, maxvel, stopvel, tacc, tdec, 0, 0, CurveTypes.T)
         {
         }
 
@@ -139,7 +137,6 @@
         {
         }
 
-        /// <summary>
         /// </summary>
         /// <param name="strvel">开始速度pps</param>
         /// <param name="maxvel">最大速度pps（即稳定运行的速度）</param>
@@ -160,18 +157,85 @@
 
             VelocityCurveType = velocityCurveType;
         }
+        /// </summary>
+        /// <param name="strvel">开始速度pps</param>
+        /// <param name="maxvel">最大速度pps（即稳定运行的速度）</param>
+        /// <param name="stopvel">停止速度pps（软着陆速度）
+        /// <param name="tacc"> 加速时间s</param>
+        /// <param name="tdec">减速时间s</param>
+        /// <param name="svacc">加速度圆角（S型运动曲线专用，其他的类型时为零）</param>
+        /// <param name="svdec">减速度圆角（S型运动曲线专用，其他的类型时为零）</param>
+        /// <param name="velocityCurveType">速度曲线类型</param>
+        public VelocityCurve(double strvel, double maxvel, double stopvel, double tacc, double tdec, double svacc, double svdec,
+            CurveTypes velocityCurveType)
+        {
+            Strvel = strvel;
+            Maxvel = maxvel;
+            Stopvel = stopvel;
+            Tacc = tacc;
+            Tdec = tdec;
+            Svacc = svacc;
+            Svdec = svdec;
+
+            VelocityCurveType = velocityCurveType;
+        }
+        /// </summary>
+        /// <param name="strvel">开始速度pps</param>
+        /// <param name="maxvel">最大速度pps（即稳定运行的速度）</param>
+        /// <param name="tacc"> 加速时间s</param>
+        /// <param name="tdec">减速时间s</param>
+        /// <param name="svacc">加速度圆角（S型运动曲线专用，其他的类型时为零）</param>
+        /// <param name="svdec">减速度圆角（S型运动曲线专用，其他的类型时为零）</param>
+        /// <param name="velocityCurveType">速度曲线类型</param>
+        public VelocityCurve(double strvel, double maxvel, double tacc, double tdec, double svacc, double svdec,
+          double mdS_para, double mdTdec, CurveTypes velocityCurveType)
+        {
+            Strvel = strvel;
+            Maxvel = maxvel;
+            Tacc = tacc;
+            Tdec = tdec;
+            Svacc = svacc;
+            Svdec = svdec;
+            dS_para = mdS_para;
+            dTdec = mdTdec;
+            VelocityCurveType = velocityCurveType;
+        }
+        /// </summary>
+        /// <param name="strvel">开始速度pps</param>
+        /// <param name="maxvel">最大速度pps（即稳定运行的速度）</param>
+        /// <param name="stopvel">停止速度pps（软着陆速度）
+        /// <param name="tacc"> 加速时间s</param>
+        /// <param name="tdec">减速时间s</param>
+        /// <param name="svacc">加速度圆角（S型运动曲线专用，其他的类型时为零）</param>
+        /// <param name="svdec">减速度圆角（S型运动曲线专用，其他的类型时为零）</param>
+        /// <param name="velocityCurveType">速度曲线类型</param>
+        public VelocityCurve(double strvel, double maxvel, double stopvel, double tacc, double tdec, double svacc, double svdec,
+          double mdS_para, double mdTdec, CurveTypes velocityCurveType)
+        {
+            Strvel = strvel;
+            Maxvel = maxvel;
+            Stopvel = stopvel;
+            Tacc = tacc;
+            Tdec = tdec;
+            Svacc = svacc;
+            Svdec = svdec;
+            dS_para = mdS_para;
+            dTdec = mdTdec;
+            VelocityCurveType = velocityCurveType;
+        }
         #endregion
         public override string ToString()
         {
             return Strvel.ToString() + ","
                 + Maxvel.ToString() + ","
+                + Stopvel.ToString() + ","
                 + Tacc.ToString() + ","
                 + Tdec.ToString() + ","
                 + Svacc.ToString() + ","
                 + Svdec.ToString() + ","
-                + dTdec.ToString() + ","
-                + dS_para.ToString() + ","
                 + Sfac.ToString() + ","
+                + dS_para.ToString() + ","
+                + dTdec.ToString() + ","
                 + (VelocityCurveType == CurveTypes.T ? "0" : VelocityCurveType == CurveTypes.S ? "1" : "255");
 
         }
@@ -181,14 +245,15 @@
             var velocityCurve = new VelocityCurve();
             velocityCurve.Strvel = double.Parse(strValue[0]);
             velocityCurve.Maxvel = double.Parse(strValue[1]);
-            velocityCurve.Tacc = double.Parse(strValue[2]);
-            velocityCurve.Tdec = double.Parse(strValue[3]);
-            velocityCurve.Svacc = double.Parse(strValue[4]);
-            velocityCurve.Svdec = double.Parse(strValue[5]);
-            velocityCurve.dTdec = double.Parse(strValue[6]);
-            velocityCurve.dS_para = double.Parse(strValue[7]);
-            velocityCurve.Sfac = double.Parse(strValue[8]);
-            velocityCurve.VelocityCurveType = (CurveTypes)(byte.Parse(strValue[9]));
+            velocityCurve.Stopvel = double.Parse(strValue[2]);
+            velocityCurve.Tacc = double.Parse(strValue[3]);
+            velocityCurve.Tdec = double.Parse(strValue[4]);
+            velocityCurve.Svacc = double.Parse(strValue[5]);
+            velocityCurve.Svdec = double.Parse(strValue[6]);
+            velocityCurve.Sfac = double.Parse(strValue[7]);
+            velocityCurve.dS_para = double.Parse(strValue[8]);
+            velocityCurve.dTdec = double.Parse(strValue[9]);
+            velocityCurve.VelocityCurveType = (CurveTypes)(byte.Parse(strValue[10]));
             return velocityCurve;
         }
     }

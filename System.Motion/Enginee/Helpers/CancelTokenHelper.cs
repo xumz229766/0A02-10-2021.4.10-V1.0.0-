@@ -1,7 +1,7 @@
 ﻿using System.Threading;
-using Motion.Interfaces;
+using System.Interfaces;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     public static class CancelTokenHelper
     {

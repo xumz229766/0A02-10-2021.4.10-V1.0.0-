@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     /// 单模组初始化

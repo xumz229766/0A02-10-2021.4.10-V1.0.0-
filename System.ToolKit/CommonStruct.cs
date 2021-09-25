@@ -12,7 +12,9 @@ namespace System.ToolKit
     {
         None,
        操作员,
-       工程师 
+       工程师,
+       设计者,
+       设备厂商
     };
 
     public struct ArcParam<T>

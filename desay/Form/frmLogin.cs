@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using log4net;
 using System.ToolKit;
 
 namespace desay
@@ -8,7 +7,7 @@ namespace desay
     public partial class frmLogin : Form
     {
         #region 变量
-        ILog log = LogManager.GetLogger(typeof(frmLogin));
+       
         private int i;
         #endregion
 
@@ -24,13 +23,43 @@ namespace desay
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            if (cbxUers.Text == UserLevel.工程师.ToString())
+            if (cbxUers.Text == UserLevel.设备厂商.ToString())
+            {
+                if (MD5.TextToMd5(txtPassword.Text) == Config.Instance.ManufacturerPassword)
+                {
+                    Config.Instance.userLevel = UserLevel.设备厂商;
+                    Config.Instance.userName = cbxUers.Text;
+                    LogHelper.Info(string.Format("用户 {0} 已登录", Config.Instance.userName));
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("请输入正确的用户名与密码");
+                }
+            }
+            if (cbxUers.Text == UserLevel.设计者.ToString())
             {
                 if (MD5.TextToMd5(txtPassword.Text) == Config.Instance.AdminPassword)
                 {
+                    Config.Instance.userLevel = UserLevel.设计者;
+                    Config.Instance.userName = cbxUers.Text;
+                    LogHelper.Info(string.Format("用户 {0} 已登录", Config.Instance.userName));
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("请输入正确的用户名与密码");
+                }
+            }
+            if (cbxUers.Text == UserLevel.工程师.ToString())
+            {
+                if (MD5.TextToMd5(txtPassword.Text) == Config.Instance.EngineerPassword)
+                {
                     Config.Instance.userLevel = UserLevel.工程师;
                     Config.Instance.userName = cbxUers.Text;
-                    log.Info(string.Format("用户 {0} 已登录", Config.Instance.userName));
+                    LogHelper.Info(string.Format("用户 {0} 已登录", Config.Instance.userName));
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
@@ -45,7 +74,7 @@ namespace desay
                 {
                     Config.Instance.userLevel = UserLevel.操作员;
                     Config.Instance.userName = cbxUers.Text;
-                    log.Info(string.Format("用户 {0} 已登录", Config.Instance.userName));
+                    LogHelper.Info(string.Format("用户 {0} 已登录", Config.Instance.userName));
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
@@ -62,7 +91,7 @@ namespace desay
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            new frmPasswordChange().ShowDialog();
+            //new frmPasswordChange().ShowDialog();
         }
 
         private void frmLogin_Load(object sender, EventArgs e)
@@ -70,6 +99,8 @@ namespace desay
             if (Config.Instance.userLevel == UserLevel.None) btnCancel.Enabled = true;
             cbxUers.Items.Add(UserLevel.操作员.ToString());
             cbxUers.Items.Add(UserLevel.工程师.ToString());
+            cbxUers.Items.Add(UserLevel.设计者.ToString());
+            cbxUers.Items.Add(UserLevel.设备厂商.ToString());
             cbxUers.SelectedIndex = 0;
         }
 

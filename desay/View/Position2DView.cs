@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
-using Motion.LSAps;
-using Motion.Enginee;
-using Motion.Interfaces;
+using System.Enginee;
+using System.Interfaces;
 namespace desay
 {
     public partial class Position2DView<T> : UserControl, IRefreshing

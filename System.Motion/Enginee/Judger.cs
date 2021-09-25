@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Motion.Enginee
+namespace System.Enginee
 {
     /// <summary>
     ///     表示一个结果判读。

@@ -1,5 +1,5 @@
 ﻿using System.Windows.Forms;
-namespace Motion.Enginee
+namespace System.Enginee
 {
     public partial class VacuoParameter : UserControl
     {
